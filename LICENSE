@@ -1,0 +1,34 @@
+Lineup Animation — Use-As-Is License
+
+Copyright (c) 2026 HerbertZ (github.com/herbertzjc-cmd). All rights reserved.
+
+Permission is granted to any person to use this software free of charge:
+to download it, run it, and host it unmodified (for example on a website or
+GitHub Pages), including for commercial purposes, provided that this license
+file and the copyright notice stay with it.
+
+The following are NOT permitted without the author's prior written consent:
+  1. Modifying, adapting, translating or building upon the source code
+     (everything in src/, index.html, vite.config.js and .github/).
+  2. Distributing modified copies or derivative works of the source code.
+  3. Selling the software itself, or presenting it as your own work.
+
+Configuration is not modification. You may freely edit the data and asset
+files that exist to be customised — src/data/players.json and the contents
+of public/ (photos, flags, logo) — and publish the result, without changing
+any other file.
+
+Club names, player names, logos and other marks that you add or that appear
+in the sample data belong to their respective owners. They are used here only
+as placeholders; this project is not affiliated with or endorsed by any club,
+league or player. You are responsible for having the right to use whatever
+data and images you put in.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING FROM THE
+USE OF THE SOFTWARE.
+
+Note: by publishing this repository on GitHub, the author also accepts the
+GitHub Terms of Service, which let other users view and fork it on GitHub.

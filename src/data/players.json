@@ -1,0 +1,185 @@
+{
+  "match": {
+    "competition": "Premier League",
+    "round": "Matchday",
+    "venue": "Stadium Name",
+    "date": "Match Date",
+    "kickoff": "00:00"
+  },
+  "team": {
+    "name": "Liverpool",
+    "short": "LFC",
+    "logo": "logo.svg",
+    "colors": {
+      "primary": "#c8102e"
+    },
+    "coach": {
+      "name": "Arne Slot",
+      "nationality": "Netherlands"
+    }
+  },
+  "lineup": {
+    "formation": "4-2-3-1",
+    "slots": [
+      "becker",
+      "szoboszlai",
+      "konate",
+      "van-dijk",
+      "kerkez",
+      "gravenberch",
+      "mac-allister",
+      "salah",
+      "wirtz",
+      "gakpo",
+      "ekitike"
+    ]
+  },
+  "players": [
+    {
+      "id": "becker",
+      "number": 1,
+      "name": "Becker",
+      "fullName": "Alisson Becker",
+      "position": "GK",
+      "nationality": "Brazil",
+      "photo": "players/becker.svg",
+      "flag": "flags/br.svg"
+    },
+    {
+      "id": "szoboszlai",
+      "number": 8,
+      "name": "Szoboszlai",
+      "fullName": "Dominik Szoboszlai",
+      "position": "RB",
+      "nationality": "Hungary"
+    },
+    {
+      "id": "konate",
+      "number": 5,
+      "name": "Konaté",
+      "fullName": "Ibrahima Konaté",
+      "position": "CB",
+      "nationality": "France"
+    },
+    {
+      "id": "van-dijk",
+      "number": 4,
+      "name": "van Dijk",
+      "fullName": "Virgil van Dijk",
+      "position": "CB",
+      "nationality": "Netherlands"
+    },
+    {
+      "id": "kerkez",
+      "number": 6,
+      "name": "Kerkez",
+      "fullName": "Milos Kerkez",
+      "position": "LB",
+      "nationality": "Hungary"
+    },
+    {
+      "id": "gravenberch",
+      "number": 38,
+      "name": "Gravenberch",
+      "fullName": "Ryan Gravenberch",
+      "position": "CM",
+      "nationality": "Netherlands"
+    },
+    {
+      "id": "mac-allister",
+      "number": 10,
+      "name": "Mac Allister",
+      "fullName": "Alexis Mac Allister",
+      "position": "CM",
+      "nationality": "Argentina"
+    },
+    {
+      "id": "salah",
+      "number": 11,
+      "name": "Salah",
+      "fullName": "Mohamed Salah",
+      "position": "RW",
+      "nationality": "Egypt"
+    },
+    {
+      "id": "wirtz",
+      "number": 7,
+      "name": "Wirtz",
+      "fullName": "Florian Wirtz",
+      "position": "AM",
+      "nationality": "Germany"
+    },
+    {
+      "id": "gakpo",
+      "number": 18,
+      "name": "Gakpo",
+      "fullName": "Cody Gakpo",
+      "position": "LW",
+      "nationality": "Netherlands"
+    },
+    {
+      "id": "ekitike",
+      "number": 22,
+      "name": "Ekitiké",
+      "fullName": "Hugo Ekitiké",
+      "position": "ST",
+      "nationality": "France"
+    },
+    {
+      "id": "sub-1",
+      "number": 12,
+      "name": "Substitute 1",
+      "fullName": "Substitute 1",
+      "position": "GK",
+      "nationality": ""
+    },
+    {
+      "id": "sub-2",
+      "number": 13,
+      "name": "Substitute 2",
+      "fullName": "Substitute 2",
+      "position": "CB",
+      "nationality": ""
+    },
+    {
+      "id": "sub-3",
+      "number": 14,
+      "name": "Substitute 3",
+      "fullName": "Substitute 3",
+      "position": "CB",
+      "nationality": ""
+    },
+    {
+      "id": "sub-4",
+      "number": 15,
+      "name": "Substitute 4",
+      "fullName": "Substitute 4",
+      "position": "CM",
+      "nationality": ""
+    },
+    {
+      "id": "sub-5",
+      "number": 16,
+      "name": "Substitute 5",
+      "fullName": "Substitute 5",
+      "position": "DM",
+      "nationality": ""
+    },
+    {
+      "id": "sub-6",
+      "number": 17,
+      "name": "Substitute 6",
+      "fullName": "Substitute 6",
+      "position": "LW",
+      "nationality": ""
+    },
+    {
+      "id": "sub-7",
+      "number": 19,
+      "name": "Substitute 7",
+      "fullName": "Substitute 7",
+      "position": "ST",
+      "nationality": ""
+    }
+  ]
+}
