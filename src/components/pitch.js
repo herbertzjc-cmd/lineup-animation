@@ -1,7 +1,7 @@
 import gsap from 'gsap';
 import { h } from '../dom.js';
 import * as store from '../store.js';
-import { createTile, revealPhoto } from './playerTile.js';
+import { createTile, flipTimeline, specialTimeline } from './playerTile.js';
 
 // Every number below is in pixels of the 2000x1123 reference frame; the whole
 // scene is scaled to the 1920x1080 stage by CSS (see .fref in styles.css).
@@ -55,6 +55,8 @@ export function createPitch() {
   const q = gsap.utils.selector(el);
 
   // id -> tile element, for everyone currently on the pitch.
+  const fxLayer = h('div', 'fref__fx'); // gold sparks for special players
+  el.append(fxLayer);
   const tiles = new Map();
   let introTiles = [];
   const place = (tile, pos) => {
@@ -68,6 +70,7 @@ export function createPitch() {
   function build() {
     tiles.forEach((t) => { gsap.killTweensOf(t); t.remove(); });
     tiles.clear();
+    fxLayer.replaceChildren();
     el.classList.remove('is-picking');
     gsap.killTweensOf(el);
     gsap.set(el, { x: 0, scale: 1 });
@@ -89,14 +92,13 @@ export function createPitch() {
       // Cards arrive face down...
       .fromTo(introTiles, { y: -60, scale: 0.85, autoAlpha: 0 }, { y: 0, scale: 1, autoAlpha: 1, duration: 0.45, ease: 'power3.out', stagger: 0.04 }, 0.9)
       .set(introTiles.map(flipperOf), { rotationY: 180 }, 0);
-    // ...then, goalkeeper first and striker last, each one flips over, shows its number
-    // for a beat, and turns into the player's portrait.
-    const flipAt = tl.duration() + 0.15;
-    introTiles.forEach((t, i) => {
-      const at = flipAt + i * 0.18;
-      tl.to(flipperOf(t), { rotationY: 0, duration: 0.7, ease: 'power2.inOut' }, at)
-        .to(t, { y: -22, duration: 0.35, ease: 'power2.out', yoyo: true, repeat: 1 }, at)
-        .add(revealPhoto(t), at + 1.05);
+    // ...then, goalkeeper first and striker last, each card flips over. Special players get
+    // the gold flash-card entrance, which takes longer before the next card begins.
+    let cursor = tl.duration() + 0.15;
+    introTiles.forEach((t) => {
+      const entry = store.player(t.dataset.id).special ? specialTimeline(t, fxLayer) : flipTimeline(t);
+      tl.add(entry.tl, cursor);
+      cursor += entry.next;
     });
     return tl;
   }

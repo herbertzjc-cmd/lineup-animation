@@ -37,6 +37,10 @@ function render({ id } = {}) {
       <label class="field">Age<input name="age" type="number" min="14" max="60" value="${esc(p.age)}"></label>
     </div>
     <label class="field" data-anim>Nationality<input name="nationality" value="${esc(p.nationality)}" maxlength="30"></label>
+    <label class="switch" data-anim>
+      <input type="checkbox" name="special"${p.special ? ' checked' : ''}><span class="switch__track"></span>
+      <span>Special Player<small>Gold flash-card entrance, animated gold frame and a holographic sheen</small></span>
+    </label>
     <p class="editor__error" role="alert"></p>
     <div class="detail__actions" data-anim>
       <button class="btn" data-action="save">Save</button>
@@ -81,6 +85,7 @@ export function readEditor(el) {
     nationality: f('nationality'),
     age: age ? Number(age) : '',
     photo: el._photo || '',
+    special: el.querySelector('[name=special]').checked,
   };
 }
 

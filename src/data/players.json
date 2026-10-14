@@ -99,7 +99,8 @@
       "name": "Salah",
       "fullName": "Mohamed Salah",
       "position": "RW",
-      "nationality": "Egypt"
+      "nationality": "Egypt",
+      "special": true
     },
     {
       "id": "wirtz",
@@ -107,7 +108,8 @@
       "name": "Wirtz",
       "fullName": "Florian Wirtz",
       "position": "AM",
-      "nationality": "Germany"
+      "nationality": "Germany",
+      "special": true
     },
     {
       "id": "gakpo",

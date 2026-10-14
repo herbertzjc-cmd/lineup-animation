@@ -1,13 +1,14 @@
 # Lineup Animation
 
 A broadcast-style football starting-XI graphic for the web, built with **Vite + GSAP**.
-An intro animation plays once on page load — cards flip over from the goalkeeper to the striker, each turning into the player's portrait. Click to skip (once for the opening board, again for the players). It then becomes an interactive lineup board:
+An intro animation plays once on page load — cards flip over in 3D from the goalkeeper to the striker, the portrait fading in as each one turns, then the number, position and name. Click to skip (once for the opening board, again for the players). It then becomes an interactive lineup board:
 
 - Click any player for details in the side panel
 - Substitute players: pick from the bench, or drag a substitute onto the pitch
 - Drag one starter onto another to swap positions
 - Switch formation (4-2-3-1, 4-3-3, 4-4-2, 3-5-2, 4-1-4-1, 3-4-3, 5-3-2)
 - Create and edit your own players, with photo upload
+- **Special players**: switch on "Special Player" in the editor for a gold flash-card entrance (glow and sparks, slower flip with a gold sheen, a diagonal light beam on reveal), then a permanent animated gold frame and holographic sheen. Any number of players can be special; the setting is saved with the player
 - Team colors: 10 presets or any custom color (text switches between white and dark automatically so it stays readable)
 - **▶ Play** replays the opening animation with the current lineup
 - Your changes are saved in the browser (`localStorage`)
@@ -37,7 +38,7 @@ To get static files you can host anywhere: `npm run build`, then upload the `dis
 
 You only need to edit data and assets — no code changes:
 
-- **`src/data/players.json`** — team name, default colour (`team.colors.primary`; viewers can change it on the page with **Colors**), coach, formation, the 11 starters (`lineup.slots`, goalkeeper first, then each line left to right) and the full squad (`players`).
+- **`src/data/players.json`** — team name, default colour (`team.colors.primary`; viewers can change it on the page with **Colors**), coach, formation, the 11 starters (`lineup.slots`, goalkeeper first, then each line left to right) and the full squad (`players`). Add `"special": true` to a player to give them the gold entrance.
 - **`public/`** — put images here and reference them from the JSON:
   - `team.logo` — a single-colour silhouette SVG works best (it is drawn red on the light side and white on the red panel)
   - `photo` — a transparent PNG/SVG cut-out of the player (players without one get a generic placeholder portrait)

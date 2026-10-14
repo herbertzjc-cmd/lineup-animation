@@ -27,6 +27,7 @@ function render({ id }) {
     <div class="detail__first" data-anim>${esc(first.toUpperCase())}</div>
     <div class="detail__last" data-anim style="font-size:${lastSize}px">${esc(rest.join(' ').toUpperCase())}</div>
     <div class="detail__pos" data-anim>${esc(p.position)} · ${esc(team.name)}</div>
+    ${p.special ? '<div class="detail__badge" data-anim>★ SPECIAL PLAYER</div>' : ''}
     <dl class="detail__facts" data-anim>
       ${facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join('')}
     </dl>

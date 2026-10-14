@@ -105,18 +105,20 @@ ul { list-style: none; }
 .tile--ghost { z-index: 20; pointer-events: none; transform: scale(1.08) rotate(3deg); }
 .tile--ghost .tile__bg { box-shadow: 0 24px 40px rgba(0, 0, 0, 0.35); }
 .tile__num {
-  position: absolute; left: 0; right: 0; top: 0; height: 168px;
-  display: grid; place-items: center;
-  font: 700 114px/1 var(--card-font); color: var(--on-primary); letter-spacing: -1px;
+  position: absolute; left: 9px; top: 5px;
+  font: 700 44px/1 var(--card-font); color: var(--on-primary); text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+.tile__pos {
+  position: absolute; left: 11px; top: 52px; padding: 3px 7px; border-radius: 5px;
+  font: 700 12px/1 var(--text-font); letter-spacing: 1px; color: var(--on-primary); background: rgba(0, 0, 0, 0.32);
 }
 .tile__name {
   position: absolute; left: 0; right: 0; bottom: 6px; height: 24px; padding: 0 4px;
   text-align: center; font: 700 17px/24px var(--text-font); color: var(--on-primary);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.tile__photo, .tile__fade, .tile__flag { opacity: 0; visibility: hidden; }
-.tile--revealed .tile__num { opacity: 0; visibility: hidden; }
-.tile--revealed .tile__photo, .tile--revealed .tile__fade, .tile--revealed .tile__flag { opacity: 1; visibility: visible; }
+/* Until a tile is revealed only its blank front is there; the entrance animation brings in the rest. */
+.tile:not(.tile--revealed) :is(.tile__photo, .tile__fade, .tile__txt, .tile__flag, .tile__holo, .tile__edge) { opacity: 0; visibility: hidden; }
 .tile__photo {
   position: absolute; left: 0; top: -6px; width: 128px; height: 197px; object-fit: cover; object-position: bottom;
   clip-path: inset(-30px 0 0 0 round 0 0 10px 10px);
@@ -131,6 +133,50 @@ ul { list-style: none; }
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
 }
 body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
+
+/* ---------- Special (gold) players ---------- */
+.tile__fx { position: absolute; inset: 0; border-radius: 10px; overflow: hidden; pointer-events: none; }
+.tile__fx i { position: absolute; inset: 0; mix-blend-mode: screen; }
+.tile__sheen {
+  background: linear-gradient(105deg, transparent 38%, rgba(255, 236, 170, 0.85) 50%, transparent 62%) 100% 0 / 300% 100%;
+}
+.tile__beam {
+  background: linear-gradient(135deg, transparent 40%, rgba(255, 214, 120, 0.35) 46%, rgba(255, 246, 205, 0.95) 50%, rgba(255, 214, 120, 0.35) 54%, transparent 60%) 100% 100% / 300% 300%;
+}
+.tile__flash { opacity: 0; background: radial-gradient(circle at 28% 18%, rgba(255, 232, 160, 0.7), transparent 62%); }
+.tile__edge {
+  position: absolute; inset: -3px; padding: 3px; border-radius: 13px; pointer-events: none; opacity: 0.6;
+  background: linear-gradient(115deg, #8a5a00 0%, #ffd86b 22%, #fff6cd 36%, #f2b84a 52%, #8a5a00 68%, #ffd86b 84%, #8a5a00 100%) 0 0 / 280px 280px;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  animation: goldflow 4s linear infinite;
+}
+@keyframes goldflow { to { background-position: 280px 280px; } }
+.tile__holo {
+  position: absolute; inset: 0; border-radius: 10px; pointer-events: none; mix-blend-mode: screen; opacity: 0.5;
+  background:
+    linear-gradient(115deg, transparent 18%, rgba(255, 226, 140, 0.5) 36%, rgba(255, 255, 255, 0.32) 46%, rgba(255, 200, 90, 0.5) 56%, transparent 74%) 120% 0 / 260% 100%,
+    repeating-linear-gradient(60deg, rgba(255, 215, 120, 0.14) 0 6px, rgba(255, 255, 255, 0.03) 6px 12px);
+  animation: holo 6s ease-in-out infinite alternate;
+}
+@keyframes holo { to { background-position: -20% 0, 36px 0; } }
+.tile__halo {
+  position: absolute; inset: -70px -60px; z-index: -1; pointer-events: none; opacity: 0;
+  background: radial-gradient(closest-side, rgba(255, 210, 100, 0.8), rgba(255, 190, 60, 0.28) 58%, transparent 78%);
+  filter: blur(10px);
+}
+.tile--special .tile__bg { box-shadow: 0 0 16px rgba(255, 200, 80, 0.45), 0 8px 16px rgba(0, 0, 0, 0.18); }
+.tile--special .tile__back {
+  background: linear-gradient(150deg, #1b160b 0%, #3d2d0b 34%, #b88a2a 51%, #3d2d0b 68%, #171208 100%);
+}
+.tile--special .tile__back::after { background: #f3d27a; }
+.gp {
+  position: absolute; border-radius: 50%; pointer-events: none; visibility: hidden;
+  background: radial-gradient(circle, #fff6cf 0%, #ffd66b 45%, rgba(255, 200, 80, 0) 72%);
+  box-shadow: 0 0 8px rgba(255, 205, 90, 0.9);
+}
+.fref__fx { position: absolute; inset: 0; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .tile__edge, .tile__holo { animation: none; } }
 
 /* While the intro (or a replay) runs, nothing is clickable except "skip". */
 #stage:not(.is-live) .fref { pointer-events: none; }
@@ -240,6 +286,27 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 .bench__role { font: 700 16px/1 var(--text-font); letter-spacing: 5px; opacity: 0.8; }
 .bench__coachname { font: 700 46px/1.1 var(--card-font); margin-top: 6px; }
 .bench__coachmeta { font: 700 16px/1.3 var(--text-font); opacity: 0.8; }
+
+/* special player switch + badge */
+.switch { position: relative; display: flex; align-items: center; gap: 14px; margin: 2px 0 14px; cursor: pointer; font: 700 16px/1.2 var(--text-font); }
+.switch input { position: absolute; opacity: 0; }
+.switch__track {
+  flex: none; position: relative; width: 54px; height: 30px; border-radius: 15px; transition: background 0.2s;
+  background: color-mix(in srgb, var(--on-primary) 28%, transparent);
+}
+.switch__track::after {
+  content: ''; position: absolute; left: 3px; top: 3px; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--on-primary); transition: transform 0.2s;
+}
+.switch input:checked + .switch__track { background: linear-gradient(135deg, #b88a2a, #ffd86b); }
+.switch input:checked + .switch__track::after { transform: translateX(24px); background: #fff; }
+.switch input:focus-visible + .switch__track { outline: 2px solid var(--on-primary); outline-offset: 3px; }
+.switch small { display: block; margin-top: 4px; font-weight: 700; font-size: 13px; opacity: 0.7; }
+.detail__badge {
+  align-self: flex-start; margin-top: 12px; padding: 7px 14px; border-radius: 16px; color: #3a2800;
+  font: 700 13px/1 var(--text-font); letter-spacing: 2px;
+  background: linear-gradient(120deg, #c89a35, #ffe08a 45%, #e0b04a);
+}
 
 /* editor */
 .editor { padding-top: 56px; }
