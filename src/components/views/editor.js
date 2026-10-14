@@ -5,28 +5,13 @@ import * as store from '../../store.js';
 import { createTile, showPopNow } from '../playerTile.js';
 import { enterView, exitView } from './common.js';
 import { createBrandSections } from './brandSections.js';
+import { readImage, blobToDataUrl, readErrorMessage, IMAGE_ACCEPT, IMAGE_FORMATS_HINT } from '../../imageutil.js';
 
-// Shrink an uploaded image so it fits comfortably in localStorage, and note whether it has a
-// transparent background (a cut-out) - only those can step out of the card.
-async function readPhoto(file, maxW = 360, maxH = 450) {
-  const bmp = await createImageBitmap(file);
-  const s = Math.min(1, maxW / bmp.width, maxH / bmp.height);
-  const canvas = document.createElement('canvas');
-  canvas.width = Math.round(bmp.width * s);
-  canvas.height = Math.round(bmp.height * s);
-  canvas.getContext('2d').drawImage(bmp, 0, 0, canvas.width, canvas.height);
-
-  const probe = document.createElement('canvas');
-  probe.width = 48;
-  probe.height = 60;
-  const pctx = probe.getContext('2d', { willReadFrequently: true });
-  pctx.drawImage(canvas, 0, 0, probe.width, probe.height);
-  const px = pctx.getImageData(0, 0, probe.width, probe.height).data;
-  let clear = 0;
-  for (let i = 3; i < px.length; i += 4) if (px[i] < 250) clear += 1;
-  const alpha = clear / (px.length / 4) > 0.005;
-
-  return { url: canvas.toDataURL('image/webp', 0.85), alpha }; // webp keeps transparency
+// Read an uploaded photo (any common format), shrink it so it fits comfortably in localStorage
+// and note whether it has a transparent background (a cut-out) - only those can step out of the card.
+async function readPhoto(file) {
+  const { blob, hasAlpha } = await readImage(file, 450, 0.85);
+  return { url: await blobToDataUrl(blob), alpha: hasAlpha };
 }
 
 const slider = (name, label, min, max, value, unit) => `
@@ -66,9 +51,9 @@ function render({ id, mode } = {}) {
       <div class="editor__photo" data-anim>
         <div class="editor__cardprev"></div>
         <div>
-          <label class="btn btn--ghost btn--sm">Upload photo<input type="file" accept="image/*" hidden></label>
+          <label class="btn btn--ghost btn--sm">Upload photo<input type="file" name="photoFile" accept="${IMAGE_ACCEPT}" hidden></label>
           <button class="btn btn--ghost btn--sm" type="button" data-clear-photo>Remove</button>
-          <p class="view__sub">Transparent PNG / WebP cut-outs work best.</p>
+          <p class="view__sub">${IMAGE_FORMATS_HINT}. Transparent PNG / WebP cut-outs work best.</p>
           <p class="editor__note"></p>
         </div>
       </div>
@@ -159,17 +144,25 @@ function render({ id, mode } = {}) {
   el.addEventListener('input', paint);
   el.addEventListener('change', paint);
 
-  el.querySelector('input[type=file]').addEventListener('change', async (e) => {
+  let reading = 0; // only the most recently chosen file counts (a big HEIC may finish late)
+  $('photoFile').addEventListener('change', async (e) => {
     const file = e.target.files[0];
+    e.target.value = ''; // so choosing the same file again still fires a change
     if (!file) return;
+    const mine = ++reading;
+    note.textContent = 'Reading the photo…';
     try {
       const { url, alpha } = await readPhoto(file);
+      if (mine !== reading) return;
       el._photo = url;
       el._alpha = alpha;
       el.querySelector('.editor__error').textContent = '';
       paint();
-    } catch {
-      el.querySelector('.editor__error').textContent = 'Could not read that image.';
+    } catch (err) {
+      if (mine !== reading) return;
+      console.warn('Could not read photo', err);
+      note.textContent = '';
+      el.querySelector('.editor__error').textContent = readErrorMessage(err);
     }
   });
   el.querySelector('[data-clear-photo]').addEventListener('click', () => {

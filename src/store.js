@@ -46,10 +46,16 @@ function load() {
 
 let state = load();
 
+let storageFailed = false;
+// True if the last attempt to save to the browser's storage failed (usually: it is full).
+export const storageIsFull = () => storageFailed;
+
 function save() {
   try {
     localStorage.setItem(KEY, JSON.stringify(state));
+    storageFailed = false;
   } catch (e) {
+    storageFailed = true;
     console.warn('Could not save lineup (storage full?)', e);
   }
 }

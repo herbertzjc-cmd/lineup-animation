@@ -1,13 +1,12 @@
 import { h, esc } from '../../dom.js';
 import * as store from '../../store.js';
-import { readImage } from '../../imageutil.js';
+import { readImage, readErrorMessage, IMAGE_ACCEPT, IMAGE_FORMATS_HINT } from '../../imageutil.js';
 import { removeBackground } from '../../bgremove.js';
 import { mgrTransform } from '../../branding.js';
 
 // The "Team Settings" and "Manager Settings" sections of the editor. They edit a draft kept in
 // this closure (pictures as Blobs); nothing is stored until the editor's Save is pressed, when
 // the app calls read() and hands the result to store.saveBrand().
-const ACCEPT = 'image/png,image/jpeg,image/webp';
 
 export function createBrandSections({ open = false } = {}) {
   const mgr0 = store.getManager();
@@ -32,9 +31,9 @@ export function createBrandSections({ open = false } = {}) {
       <div class="logo">
         <div class="logo__preview checker"><img alt="" hidden><span>Default<br>logo</span></div>
         <div>
-          <label class="btn btn--ghost btn--sm">Upload Club Logo<input type="file" name="logoFile" accept="${ACCEPT}" hidden></label>
+          <label class="btn btn--ghost btn--sm">Upload Club Logo<input type="file" name="logoFile" accept="${IMAGE_ACCEPT}" hidden></label>
           <button class="btn btn--ghost btn--sm" type="button" data-logo-remove>Remove</button>
-          <p class="view__sub">PNG, JPG or WebP. A transparent PNG looks best; the proportions are kept.</p>
+          <p class="view__sub">${IMAGE_FORMATS_HINT}. A transparent PNG looks best; the proportions are kept.</p>
           <p class="brand__error" data-logo-error></p>
         </div>
       </div>
@@ -44,7 +43,7 @@ export function createBrandSections({ open = false } = {}) {
       <label class="field">Manager Name<input name="managerName" value="${esc(d.managerName)}" maxlength="40" placeholder="${esc(mgr0.isDefaultName ? mgr0.name : 'Manager name')}"></label>
       <div class="mgr">
         <div class="mgr__buttons">
-          <label class="btn btn--ghost btn--sm">Upload Manager Photo<input type="file" name="mgrFile" accept="${ACCEPT}" hidden></label>
+          <label class="btn btn--ghost btn--sm">Upload Manager Photo<input type="file" name="mgrFile" accept="${IMAGE_ACCEPT}" hidden></label>
           <button class="btn btn--ghost btn--sm" type="button" data-mgr-remove>Remove</button>
           <button class="btn btn--sm" type="button" data-mgr-cut>Remove Background</button>
         </div>
@@ -73,6 +72,7 @@ export function createBrandSections({ open = false } = {}) {
   `;
 
   const $ = (sel) => el.querySelector(sel);
+  const reading = { logo: 0, mgr: 0 }; // only the most recently chosen file counts
   const urls = {}; // object URLs of the draft pictures, revoked when replaced
   const urlOf = (key, blob) => {
     if (urls[key]?.blob === blob) return urls[key].url;
@@ -131,14 +131,19 @@ export function createBrandSections({ open = false } = {}) {
     const file = e.target.files[0];
     e.target.value = '';
     if (!file) return;
+    const mine = ++reading.logo;
+    $('[data-logo-error]').textContent = 'Reading the logo…';
     try {
       const { blob } = await readImage(file, 600);
+      if (mine !== reading.logo) return;
       d.logo = blob;
       d.changed.logo = true;
       $('[data-logo-error]').textContent = '';
       paint();
-    } catch {
-      $('[data-logo-error]').textContent = 'Could not read that image. Please use a PNG, JPG or WebP file.';
+    } catch (err) {
+      if (mine !== reading.logo) return;
+      console.warn('Could not read logo', err);
+      $('[data-logo-error]').textContent = readErrorMessage(err);
     }
   });
   $('[data-logo-remove]').addEventListener('click', () => {
@@ -151,8 +156,11 @@ export function createBrandSections({ open = false } = {}) {
     const file = e.target.files[0];
     e.target.value = '';
     if (!file) return;
+    const mine = ++reading.mgr;
+    status('Reading the photo…');
     try {
       const { blob, hasAlpha } = await readImage(file, 1000);
+      if (mine !== reading.mgr) return;
       d.original = blob;
       d.hasAlpha = hasAlpha;
       d.cut = null;
@@ -163,8 +171,10 @@ export function createBrandSections({ open = false } = {}) {
       d.changed.cut = true;
       status(hasAlpha ? 'Photo uploaded (transparent background detected).' : 'Photo uploaded. Use Remove Background for a cut-out portrait.');
       paint();
-    } catch {
-      status('Could not read that image. Please use a PNG, JPG or WebP file.', true);
+    } catch (err) {
+      if (mine !== reading.mgr) return;
+      console.warn('Could not read manager photo', err);
+      status(readErrorMessage(err), true);
     }
   });
   $('[data-mgr-remove]').addEventListener('click', () => {

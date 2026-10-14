@@ -12,7 +12,9 @@
     "@fontsource/barlow-semi-condensed": "^5.3.0",
     "@fontsource/montserrat": "^5.3.0",
     "@huggingface/transformers": "^4.3.1",
-    "gsap": "^3.15.0"
+    "gsap": "^3.15.0",
+    "heic2any": "^0.0.4",
+    "utif2": "^4.1.0"
   },
   "devDependencies": {
     "vite": "^8.3.4"

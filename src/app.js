@@ -118,6 +118,9 @@ export function initApp({ stage, ref, pitch, panel, toolbar, intro }) {
     const p = store.upsertPlayer(ui.editing ? { id: ui.editing, ...values } : values);
     if (store.slotOf(p.id) >= 0) pitch.refresh(p.id);
     openDetail(p.id);
+    if (store.storageIsFull()) {
+      toolbar.setHint('The browser storage is full, so this change may be lost on refresh. Remove unused photos or players to free space.');
+    }
   }
 
   function setColor(hex) {
