@@ -1,6 +1,6 @@
 import gsap from 'gsap';
 import { h } from '../dom.js';
-import { FORMATIONS } from '../data.js';
+import { FORMATIONS, THEMES } from '../data.js';
 import * as store from '../store.js';
 
 export const DEFAULT_HINT = 'Click a player for details · Drag substitutes onto the pitch';
@@ -15,9 +15,18 @@ export function createToolbar() {
       <button class="chip" data-action="toggle-list" data-view="list">Lineup</button>
       <button class="chip" data-action="toggle-bench" data-view="bench">Bench</button>
       <button class="chip" data-action="new">+ New player</button>
+      <button class="chip" data-action="toggle-theme"><i class="chip__dot"></i>Colors</button>
       <button class="chip chip--quiet" data-action="reset">Reset</button>
     </div>
     <div class="ftool__hint" data-anim>${DEFAULT_HINT}</div>
+    <div class="theme-pop">
+      <div class="theme-pop__title">TEAM COLORS</div>
+      <div class="theme-pop__swatches">
+        ${THEMES.map((t) => `<button class="swatch" data-action="color" data-c="${t.color}" title="${t.name}" style="--c:${t.color}"></button>`).join('')}
+        <label class="swatch swatch--custom" title="Custom color"><input type="color" aria-label="Custom color"></label>
+      </div>
+      <div class="theme-pop__hex"><span>Custom</span><b></b></div>
+    </div>
   `;
   const hint = el.querySelector('.ftool__hint');
   gsap.set(el.querySelectorAll('[data-anim]'), { autoAlpha: 0 });
@@ -27,6 +36,28 @@ export function createToolbar() {
   const setHint = (text) => { hint.textContent = text || DEFAULT_HINT; };
   setFormation(store.getFormation());
 
+  // Colour popover.
+  const pop = el.querySelector('.theme-pop');
+  const picker = pop.querySelector('input[type=color]');
+  const hexLabel = pop.querySelector('.theme-pop__hex b');
+  gsap.set(pop, { autoAlpha: 0 });
+  let popOpen = false;
+  const api = { onColor: () => {} };
+  const showPop = (on) => {
+    popOpen = on;
+    gsap.to(pop, { autoAlpha: on ? 1 : 0, y: on ? 0 : -10, duration: 0.25, ease: 'power2.out', overwrite: 'auto' });
+    el.querySelector('[data-action="toggle-theme"]').classList.toggle('is-active', on);
+  };
+  const setColor = (hex) => {
+    const preset = [...pop.querySelectorAll('[data-c]')].find((b) => b.dataset.c.toLowerCase() === hex.toLowerCase());
+    pop.querySelectorAll('.swatch').forEach((b) => b.classList.toggle('is-active', b === preset));
+    pop.querySelector('.swatch--custom').classList.toggle('is-active', !preset);
+    pop.querySelector('.swatch--custom').style.setProperty('--c', hex);
+    picker.value = hex;
+    hexLabel.textContent = hex.toUpperCase();
+  };
+  picker.addEventListener('input', () => api.onColor(picker.value));
+
   function enter() {
     return gsap.timeline().fromTo(el.querySelectorAll('[data-anim]'), { y: -24, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.5, ease: 'power3.out', stagger: 0.12 });
   }
@@ -34,5 +65,9 @@ export function createToolbar() {
     return gsap.timeline().to(el.querySelectorAll('[data-anim]'), { y: -24, autoAlpha: 0, duration: 0.3, ease: 'power2.in', stagger: 0.05 });
   }
 
-  return { name: 'toolbar', el, enter, exit, setFormation, setActive, setHint };
+  return Object.assign(api, {
+    name: 'toolbar', el, enter, exit, setFormation, setActive, setHint, setColor,
+    toggleTheme: () => showPop(!popOpen),
+    closeTheme: () => popOpen && showPop(false),
+  });
 }

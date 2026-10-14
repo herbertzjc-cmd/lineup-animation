@@ -1,4 +1,5 @@
-import { defaults } from './data.js';
+import { defaults, team } from './data.js';
+import { isHex } from './theme.js';
 
 // Lineup state: every player in the squad, which 11 are on the pitch (slots, GK first,
 // then each line left to right) and the formation. Persisted to localStorage.
@@ -9,12 +10,13 @@ const fresh = () => ({
   players: clone(defaults.players),
   formation: defaults.formation,
   slots: [...defaults.slots],
+  color: team.colors.primary,
 });
 
 function valid(s) {
   return (
     s && Array.isArray(s.players) && Array.isArray(s.slots) && typeof s.formation === 'string' &&
-    s.slots.length === 11 &&
+    s.slots.length === 11 && (s.color === undefined || isHex(s.color)) &&
     s.slots.every((id) => s.players.some((p) => p.id === id)) &&
     s.formation.split('-').map(Number).reduce((a, b) => a + b, 0) === 10
   );
@@ -39,6 +41,8 @@ function save() {
 }
 
 export const getFormation = () => state.formation;
+export const getColor = () => state.color || team.colors.primary;
+export function setColor(hex) { state.color = hex; save(); }
 export const player = (id) => state.players.find((p) => p.id === id);
 export const slots = () => state.slots;
 export const slotOf = (id) => state.slots.indexOf(id);

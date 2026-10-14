@@ -4,7 +4,6 @@ import gsap from 'gsap';
 import './styles.css';
 import { h } from './dom.js';
 import { initStage } from './stage.js';
-import { team } from './data.js';
 import { createIntro } from './components/intro.js';
 import { createPitch } from './components/pitch.js';
 import { createPanel } from './components/panel.js';
@@ -12,9 +11,11 @@ import { createToolbar } from './components/toolbar.js';
 import { buildMaster } from './timeline.js';
 import { initControls } from './controls.js';
 import { initApp } from './app.js';
+import { applyTheme } from './theme.js';
+import * as store from './store.js';
 
 const stage = initStage();
-stage.style.setProperty('--primary', team.colors.primary);
+applyTheme(stage, store.getColor());
 
 const intro = createIntro();
 const pitch = createPitch();

@@ -2,6 +2,7 @@ import * as store from './store.js';
 import { initDrag } from './drag.js';
 import { createTile } from './components/playerTile.js';
 import { readEditor } from './components/views/editor.js';
+import { applyTheme } from './theme.js';
 
 // Wires the pitch, panel and toolbar together once the intro has played.
 export function initApp({ stage, ref, pitch, panel, toolbar }) {
@@ -88,7 +89,18 @@ export function initApp({ stage, ref, pitch, panel, toolbar }) {
     openDetail(p.id);
   }
 
+  function setColor(hex) {
+    store.setColor(hex);
+    applyTheme(stage, hex);
+    toolbar.setColor(hex);
+  }
+  applyTheme(stage, store.getColor());
+  toolbar.setColor(store.getColor());
+  toolbar.onColor = (hex) => live && setColor(hex);
+
   const actions = {
+    'toggle-theme': () => toolbar.toggleTheme(),
+    color: ({ c }) => setColor(c),
     close: closePanel,
     select: ({ id }) => openDetail(id),
     pick: ({ id }) => (ui.swapFor ? doSwap(ui.swapFor, id) : openDetail(id)),
@@ -125,6 +137,7 @@ export function initApp({ stage, ref, pitch, panel, toolbar }) {
       if (ui.picking) doSwap(tile.dataset.id, ui.picking);
       else openDetail(tile.dataset.id);
     } else if (!e.target.closest('.fref__panel, .ftool')) {
+      toolbar.closeTheme();
       if (ui.picking) cancelPicking();
       else if (ui.view !== 'idle') closePanel();
     }
@@ -136,7 +149,10 @@ export function initApp({ stage, ref, pitch, panel, toolbar }) {
     }
   });
   window.addEventListener('keydown', (e) => {
-    if (live && e.key === 'Escape') (ui.picking ? cancelPicking : closePanel)();
+    if (live && e.key === 'Escape') {
+      toolbar.closeTheme();
+      (ui.picking ? cancelPicking : closePanel)();
+    }
   });
 
   initDrag({

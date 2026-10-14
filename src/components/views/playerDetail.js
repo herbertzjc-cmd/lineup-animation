@@ -8,6 +8,8 @@ function render({ id }) {
   const p = store.player(id);
   const onPitch = store.slotOf(id) >= 0;
   const [first, ...rest] = p.fullName.trim().split(/\s+/);
+  // Shrink long surnames so they stay inside the 400px panel column.
+  const lastSize = Math.min(76, Math.floor(400 / (Math.max(rest.join(' ').length, 1) * 0.52)));
   const facts = [
     ['Nationality', p.nationality],
     ['Position', p.position],
@@ -23,7 +25,7 @@ function render({ id }) {
       <div class="detail__num">${esc(p.number)}</div>
     </div>
     <div class="detail__first" data-anim>${esc(first.toUpperCase())}</div>
-    <div class="detail__last" data-anim>${esc(rest.join(' ').toUpperCase())}</div>
+    <div class="detail__last" data-anim style="font-size:${lastSize}px">${esc(rest.join(' ').toUpperCase())}</div>
     <div class="detail__pos" data-anim>${esc(p.position)} · ${esc(team.name)}</div>
     <dl class="detail__facts" data-anim>
       ${facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join('')}
