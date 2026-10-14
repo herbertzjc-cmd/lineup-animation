@@ -1,13 +1,14 @@
 # Lineup Animation
 
 A broadcast-style football starting-XI graphic for the web, built with **Vite + GSAP**.
-An intro animation plays once on page load. The cards arrive face down on the pitch, then each position group is introduced in turn — goalkeeper, defenders, midfielders, forwards: the group's cards rise out of the formation, enlarge into an evenly spaced row while the rest of the pitch dims, flip over in 3D to show portrait, number, position and name, hold for a moment and settle back into place. Click to skip (once for the opening board, again for the players). It then becomes an interactive lineup board:
+An intro animation plays once on page load. The cards arrive face down on the pitch, then each position group is introduced in turn — goalkeeper, defenders, midfielders, forwards: the group's cards rise out of the formation, enlarge into an evenly spaced row while the rest of the pitch dims, flip over in 3D to show portrait, number, position and name, then the figure steps out of its card (head and shoulders past the edges, with a cast shadow), hold for a moment and settle back into place. Click to skip (once for the opening board, again for the players). It then becomes an interactive lineup board:
 
 - Click any player for details in the side panel
 - Substitute players: pick from the bench, or drag a substitute onto the pitch
 - Drag one starter onto another to swap positions
 - Switch formation (4-2-3-1, 4-3-3, 4-4-2, 3-5-2, 4-1-4-1, 3-4-3, 5-3-2)
 - Create and edit your own players, with photo upload
+- **3D player pop-out**: after the flip the transparent cut-out of the player steps out of the card. Per player you can switch it on or off and adjust the size, horizontal / vertical position and pop depth in the editor (with a live preview); the settings are saved with the player. Photos without a transparent background are detected on upload and kept inside the card
 - **Special players**: switch on "Special Player" in the editor for a gold flash-card entrance (glow and sparks, slower flip with a gold sheen, a diagonal light beam on reveal), then a permanent animated gold frame and holographic sheen. Any number of players can be special; the setting is saved with the player
 - Team colors: 10 presets or any custom color (text switches between white and dark automatically so it stays readable)
 - **▶ Play** replays the opening animation with the current lineup
@@ -45,7 +46,7 @@ You only need to edit data and assets — no code changes:
 - **`src/data/players.json`** — team name, default colour (`team.colors.primary`; viewers can change it on the page with **Colors**), coach, formation, the 11 starters (`lineup.slots`, goalkeeper first, then each line left to right) and the full squad (`players`). Add `"special": true` to a player to give them the gold entrance.
 - **`public/`** — put images here and reference them from the JSON:
   - `team.logo` — a single-colour silhouette SVG works best (it is drawn red on the light side and white on the red panel)
-  - `photo` — a transparent PNG/SVG cut-out of the player (players without one get a generic placeholder portrait)
+  - `photo` — a transparent PNG/SVG cut-out of the player (players without one get a generic placeholder portrait). A cut-out is needed for the pop-out effect; set `"photoAlpha": false` on a player whose photo has a solid background to keep it inside the card. Optional `"pop": { "on": true, "scale": 100, "x": 0, "y": 0, "depth": 60 }` tunes the effect
   - `flag` — a small flag image next to the portrait (flags for a few common nationalities are built in; add your own in `public/flags/`)
 
 After editing `players.json`, press **Reset** on the page (saved lineups in your browser take priority over the file).

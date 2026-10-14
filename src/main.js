@@ -33,7 +33,14 @@ sceneEl.append(ref);
 
 const scene = {
   el: sceneEl,
-  enter: () => gsap.timeline().set(sceneEl, { autoAlpha: 1 }).add(pitch.enter(), 0).add(panel.enter(), 0.2).add(toolbar.enter(), 1.1),
+  enter: () => {
+    const tl = gsap.timeline().set(sceneEl, { autoAlpha: 1 });
+    const pitchTl = pitch.enter();
+    tl.add(pitchTl, 0).add(panel.enter(), 0.2);
+    // the controls appear once all the players have been introduced
+    tl.add(toolbar.enter(), Math.max(0, pitchTl.duration() - 0.6));
+    return tl;
+  },
 };
 stage.append(sceneEl, intro.el);
 

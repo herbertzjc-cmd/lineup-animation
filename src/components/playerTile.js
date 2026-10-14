@@ -1,11 +1,11 @@
 import gsap from 'gsap';
 import { h, esc } from '../dom.js';
-import { asset, flagOf } from '../data.js';
+import { asset, flagOf, popOf, canPop } from '../data.js';
 import { goldParticles } from './fx.js';
 
 // Stand-in portrait for players without a photo; the shirt follows the team colour.
 const PLACEHOLDER = `
-  <svg class="tile__photo tile__photo--ph" viewBox="0 0 128 200" aria-hidden="true">
+  <svg viewBox="0 0 128 200" aria-hidden="true">
     <path d="M2 200C2 140 20 120 50 112H78C108 120 126 140 126 200Z" style="fill:var(--on-primary)"/>
     <path d="M50 112L64 130L78 112" fill="none" style="stroke:var(--primary-ink)" stroke-width="5" stroke-linejoin="round"/>
     <g transform="translate(0,-20)">
@@ -18,31 +18,59 @@ const PLACEHOLDER = `
     </g>
   </svg>`;
 
-// A player card. The front shows the portrait, number, position and name; the back carries
-// the crest. Players flagged `special` also get a gold frame, a holographic sheen and the
-// extra layers used by the gold flash-card entrance.
-// During the intro a tile starts unrevealed (back up, front contents hidden); flipTimeline()
-// or specialTimeline() turns it over and reveals the contents. Tiles created later start
-// already revealed.
+const TILE_W = 128;
+const TILE_H = 191;
+
+// The figure's resting pose (inside the card, from the player's settings) and its popped pose
+// (enlarged, brought forward, tilted slightly towards the viewer, with a cast shadow).
+function popStates(p) {
+  const o = popOf(p);
+  const d = o.depth / 100;
+  const rest = { x: (o.x / 100) * TILE_W, y: (o.y / 100) * TILE_H, scale: o.scale / 100, z: 0, rotationX: 0 };
+  const pop = { x: rest.x, y: rest.y - (3 + 9 * d), scale: rest.scale * (1.06 + 0.24 * d), z: 20 + 50 * d, rotationX: -(2 + 4 * d) };
+  const shadow = (a, y, b) => `drop-shadow(0px ${y}px ${b}px rgba(0,0,0,${a}))`;
+  return { rest, pop, shadowRest: shadow(0, 0, 0), shadowPop: shadow(0.28 + 0.3 * d, 8 + 8 * d, 10 + 8 * d) };
+}
+
+// How far (card px, per side) the popped figure reaches past the card's sides. Used to space
+// out the cards of a group so a figure never covers its neighbour.
+export function popOvershoot(p) {
+  if (!canPop(p)) return 0;
+  const { pop } = popStates(p);
+  return Math.max(0, 0.5 * TILE_W * (pop.scale - 1) + Math.abs(pop.x)) * 1.05;
+}
+
+// A player card. The front is built in layers, bottom to top:
+//   card background (+ gold holo / sheen / beam for special players)
+//   the player figure (own layer so it can stand out of the card; only clipped at the bottom)
+//   bottom fade, then number / position / name (always above the figure), flag, gold frame.
+// The back carries the crest. During the intro a tile starts unrevealed (back up, front
+// contents hidden); flipTimeline() or specialTimeline() turns it over, and popOutTimeline()
+// then lets the figure step out of the card. Tiles created later start already revealed.
 export function createTile(p, { revealed = true } = {}) {
   const flag = flagOf(p);
   const special = !!p.special;
-  const el = h('div', `tile${revealed ? ' tile--revealed' : ''}${special ? ' tile--special' : ''}`);
+  const pop = canPop(p);
+  const cls = ['tile', revealed && 'tile--revealed', special && 'tile--special', pop ? 'tile--pop' : 'tile--nopop'];
+  const el = h('div', cls.filter(Boolean).join(' '));
   el.dataset.id = p.id;
   el.dataset.drag = 'tile';
   el.tabIndex = 0;
   el.setAttribute('role', 'button');
   el.setAttribute('aria-label', `${p.fullName}, number ${p.number}${special ? ', special player' : ''}`);
+  const portrait = p.photo
+    ? `<img src="${esc(asset(p.photo))}" alt="" draggable="false">`
+    : PLACEHOLDER;
   el.innerHTML = `
     ${special ? '<div class="tile__halo"></div>' : ''}
     <div class="tile__inner">
       <div class="tile__flipper">
         <div class="tile__front">
           <div class="tile__bg"></div>
-          ${p.photo ? `<img class="tile__photo" src="${esc(asset(p.photo))}" alt="" draggable="false">` : PLACEHOLDER}
           ${special ? '<div class="tile__holo"></div>' : ''}
-          <div class="tile__fade"></div>
           ${special ? '<div class="tile__fx"><i class="tile__sheen"></i><i class="tile__beam"></i><i class="tile__flash"></i></div>' : ''}
+          <div class="tile__stage"><div class="tile__person"><div class="tile__photo${p.photoAlpha === false ? ' tile__photo--cover' : ''}">${portrait}</div></div></div>
+          <div class="tile__fade"></div>
           <div class="tile__num tile__txt">${esc(p.number)}</div>
           <div class="tile__pos tile__txt">${esc(p.position)}</div>
           <div class="tile__name tile__txt">${esc(p.name)}</div>
@@ -55,18 +83,50 @@ export function createTile(p, { revealed = true } = {}) {
       </div>
     </div>
   `;
+  const states = popStates(p);
+  el._pop = pop ? states : null;
+  gsap.set(el.querySelector('.tile__person'), { ...states.rest, transformOrigin: '50% 100%', transformPerspective: 700, filter: states.shadowRest });
   return el;
+}
+
+// The figure steps out of the card: forward, larger, head and shoulders past the edges.
+// Does nothing for players with the effect off or a photo without transparency.
+export function popOutTimeline(tile) {
+  const tl = gsap.timeline();
+  const st = tile._pop;
+  if (!st) return tl;
+  const person = tile.querySelector('.tile__person');
+  tl.to(person, { ...st.pop, duration: 0.5, ease: 'back.out(1.35)' }, 0)
+    .to(person, { filter: st.shadowPop, duration: 0.5, ease: 'power2.out' }, 0);
+  return tl;
+}
+
+// ...and back into the card.
+export function popBackTimeline(tile, duration = 0.6) {
+  const tl = gsap.timeline();
+  const st = tile._pop;
+  if (!st) return tl;
+  const person = tile.querySelector('.tile__person');
+  tl.to(person, { ...st.rest, filter: st.shadowRest, duration, ease: 'power3.inOut' }, 0);
+  return tl;
+}
+
+// Jump straight to the popped pose (editor preview).
+export function showPopNow(tile) {
+  if (tile._pop) gsap.set(tile.querySelector('.tile__person'), { ...tile._pop.pop, filter: tile._pop.shadowPop });
 }
 
 // Standard 3D flip: back -> front around the vertical axis, the portrait fades in while it
 // turns, and the number, position and name appear once it has landed. Only the card's contents
-// are animated here; moving and scaling the card is up to the caller (see pitch.js).
+// (and the figure's pop-out) are animated here; moving and scaling the card is up to the caller
+// (see pitch.js).
 export function flipTimeline(tile) {
   const q = gsap.utils.selector(tile);
   const tl = gsap.timeline();
   tl.to(q('.tile__flipper'), { rotationY: 0, duration: 0.8, ease: 'power2.inOut' }, 0)
     .fromTo(q('.tile__photo, .tile__fade'), { autoAlpha: 0, y: 26 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0.36)
-    .fromTo(q('.tile__txt'), { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: 'power2.out', stagger: 0.06 }, 0.8);
+    .fromTo(q('.tile__txt'), { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: 'power2.out', stagger: 0.06 }, 0.8)
+    .add(popOutTimeline(tile), 0.8); // only once the card has finished turning
   if (q('.tile__flag').length) {
     tl.fromTo(q('.tile__flag'), { scale: 0, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.35, ease: 'back.out(2.2)' }, 0.85);
   }
@@ -113,7 +173,8 @@ export function specialTimeline(tile, fxLayer, center) {
     .to(edges, { filter: 'brightness(1.9)', duration: 0.15 }, REVEAL)
     .to(edges, { filter: 'brightness(1)', duration: 0.7 }, REVEAL + 0.15)
     .add(goldParticles(fxLayer, center.x, center.y, 'burst', center.k), REVEAL)
-    .fromTo(q('.tile__txt'), { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: 'power2.out', stagger: 0.07 }, REVEAL + 0.1);
+    .fromTo(q('.tile__txt'), { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: 'power2.out', stagger: 0.07 }, REVEAL + 0.1)
+    .add(popOutTimeline(tile), REVEAL + 0.35); // the figure steps out as the beam passes
   if (q('.tile__flag').length) {
     tl.fromTo(q('.tile__flag'), { scale: 0, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.35, ease: 'back.out(2.2)' }, REVEAL + 0.2);
   }

@@ -1,7 +1,7 @@
 import gsap from 'gsap';
 import { h } from '../dom.js';
 import * as store from '../store.js';
-import { createTile, flipTimeline, specialTimeline, SPECIAL_PREP } from './playerTile.js';
+import { createTile, flipTimeline, specialTimeline, popBackTimeline, popOvershoot, SPECIAL_PREP } from './playerTile.js';
 
 // Every number below is in pixels of the 2000x1123 reference frame; the whole
 // scene is scaled to the 1920x1080 stage by CSS (see .fref in styles.css).
@@ -34,9 +34,9 @@ const RISE = 0.8;      // cards fly from the formation to the spotlight row
 const HOLD = 0.7;      // how long the revealed cards stay up
 const RETURN = 0.6;    // cards settle back into the formation
 const GROUP_PAUSE = 0.05; // pause between groups
-const SPOT_Y = 590;    // vertical centre of the spotlight row
+const SPOT_Y = 700;    // vertical centre of the spotlight row (low enough that a popped head clears the title)
 const SPOT_W = 1240;   // width available for the row
-const SPOT_GAP = 40;   // space between spotlighted cards
+const SPOT_GAP = 24;   // space between spotlighted cards, before allowing for figures that step out
 const SPOT_MAX = 2.3;  // largest enlargement
 
 // Players are introduced goalkeeper, defenders, midfielders, forwards. Groups follow the
@@ -115,7 +115,9 @@ export function createPitch() {
   // preparation at once so that every card flips together.
   function spotlight(group, title) {
     const n = group.length;
-    const s = Math.min(SPOT_MAX, (SPOT_W - (n - 1) * SPOT_GAP) / (n * TILE_W));
+    // Figures that stand out of their card need extra room so they never cover a neighbour.
+    const gapU = SPOT_GAP + 2 * Math.max(0, ...group.map((t) => popOvershoot(store.player(t.dataset.id))));
+    const s = Math.min(SPOT_MAX, SPOT_W / (n * TILE_W + (n - 1) * gapU));
     const caption = h('div', 'fref__caption', n > 1 ? `${title}S` : title);
     el.append(caption);
     gsap.set(caption, { autoAlpha: 0 });
@@ -127,7 +129,7 @@ export function createPitch() {
 
     group.forEach((t, i) => {
       const at = i * 0.05;
-      const targetX = CENTER_X + (i - (n - 1) / 2) * (TILE_W * s + SPOT_GAP);
+      const targetX = CENTER_X + (i - (n - 1) / 2) * (TILE_W + gapU) * s;
       const dx = targetX - (parseFloat(t.style.left) + TILE_W / 2);
       const dy = SPOT_Y - (parseFloat(t.style.top) + TILE_H / 2);
       tl.to(t, { x: dx, y: dy, scale: s, duration: RISE, ease: 'power3.inOut' }, at)
@@ -145,6 +147,7 @@ export function createPitch() {
     const back = tl.duration() + HOLD;
     tl.to(caption, { autoAlpha: 0, y: -10, duration: 0.3, ease: 'power2.in' }, back - 0.1)
       .to(group, { x: 0, y: 0, scale: 1, rotationX: 0, duration: RETURN, ease: 'power3.inOut', stagger: 0.04 }, back)
+      .add(group.reduce((all, t, i) => all.add(popBackTimeline(t, RETURN), i * 0.04), gsap.timeline()), back)
       .to(dim, { autoAlpha: 0, duration: 0.5, ease: 'power1.in' }, back + 0.15)
       .set(group, { clearProps: 'zIndex' }, back + RETURN + 0.2);
     return tl;

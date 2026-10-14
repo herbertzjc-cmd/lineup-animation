@@ -20,6 +20,14 @@ const NATION_FLAGS = {
 };
 export const flagOf = (p) => p.flag || NATION_FLAGS[p.nationality] || '';
 
+// 3D pop-out settings of a player (all optional in players.json): `on`, `scale` (% of the
+// normal size), `x` / `y` (% of the card, offset of the figure) and `depth` (0-100, how far
+// the figure stands out). A photo with no transparent background (`photoAlpha === false`)
+// cannot pop out.
+export const DEFAULT_POP = { on: true, scale: 100, x: 0, y: 0, depth: 60 };
+export const popOf = (p) => ({ ...DEFAULT_POP, ...(p.pop || {}) });
+export const canPop = (p) => popOf(p).on && p.photoAlpha !== false;
+
 export const POSITIONS = ['GK', 'RB', 'CB', 'LB', 'DM', 'CM', 'AM', 'RW', 'LW', 'ST'];
 export const THEMES = [
   { name: 'Crimson', color: '#c8102e' },
