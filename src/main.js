@@ -39,11 +39,47 @@ stage.append(sceneEl, intro.el);
 
 const app = initApp({ stage, ref, pitch, panel, toolbar });
 
-// The whole opening sequence. The page is locked (no clicks, no hover) until it has finished;
-// the Play button runs it again from a clean state, using whatever lineup is currently set.
+// The whole opening sequence: board, then players. The page does not respond to anything
+// except "skip" until it has finished: the first click jumps from the board to the players,
+// a click during the players jumps to the finished page (a quick double click skips both).
+// The Play button runs it again from a clean state, using whatever lineup is currently set.
+const skipHint = h('div', 'skip-hint', 'Click to skip');
+stage.append(skipHint);
+
 let master = null;
+let skipTween = null;
+let skipPhase = null; // 'players' or 'end' while a skip fast-forward is running
+
+function finish() {
+  skipPhase = null;
+  stage.removeEventListener('pointerdown', onSkip);
+  app.goLive();
+}
+
+function onSkip() {
+  const total = master.duration();
+  const boardEnd = master.labels.players;
+  const toEnd = master.time() >= boardEnd - 0.01 || skipPhase === 'players';
+  skipPhase = toEnd ? 'end' : 'players';
+  master.pause();
+  if (skipTween) skipTween.kill();
+  // Fast-forward rather than cut, so the cards visibly zip into place.
+  skipTween = gsap.to(master, {
+    progress: (toEnd ? total : boardEnd) / total,
+    duration: 0.35,
+    ease: 'power2.in',
+    onComplete: () => {
+      skipPhase = null;
+      if (toEnd) finish();
+      else master.play();
+    },
+  });
+}
+
 function play({ skip = false } = {}) {
   app.lock();
+  if (skipTween) skipTween.kill();
+  skipPhase = null;
   if (master) master.kill();
   pitch.build();
   panel.reset();
@@ -51,9 +87,15 @@ function play({ skip = false } = {}) {
   gsap.set([sceneEl, intro.el], { autoAlpha: 0 });
   master = buildMaster({ intro, scene });
   window.master = master; // handy for console debugging
-  master.eventCallback('onComplete', app.goLive);
-  if (skip) master.progress(1, false);
-  else master.play(0);
+  master.eventCallback('onComplete', finish);
+  stage.removeEventListener('pointerdown', onSkip);
+  if (skip) {
+    master.progress(1, false);
+    finish();
+  } else {
+    stage.addEventListener('pointerdown', onSkip);
+    master.play(0);
+  }
 }
 app.onPlay = () => play();
 

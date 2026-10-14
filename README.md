@@ -1,7 +1,7 @@
 # Lineup Animation
 
 A broadcast-style football starting-XI graphic for the web, built with **Vite + GSAP**.
-An intro animation plays once on page load — cards flip over from the goalkeeper to the striker, each turning into the player's portrait. The page ignores clicks until it has finished, then becomes an interactive lineup board:
+An intro animation plays once on page load — cards flip over from the goalkeeper to the striker, each turning into the player's portrait. Click to skip (once for the opening board, again for the players). It then becomes an interactive lineup board:
 
 - Click any player for details in the side panel
 - Substitute players: pick from the bench, or drag a substitute onto the pitch

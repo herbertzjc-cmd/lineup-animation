@@ -132,8 +132,15 @@ ul { list-style: none; }
 }
 body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 
-/* Nothing is clickable while the intro (or a replay) is running. */
+/* While the intro (or a replay) runs, nothing is clickable except "skip". */
 #stage:not(.is-live) .fref { pointer-events: none; }
+#stage:not(.is-live) { cursor: pointer; }
+.skip-hint {
+  position: absolute; left: 50%; bottom: 36px; transform: translateX(-50%); z-index: 30; pointer-events: none;
+  padding: 10px 22px; border-radius: 20px; background: rgba(0, 0, 0, 0.55); color: #fff;
+  font: 700 18px/1 var(--text-font); letter-spacing: 1px; opacity: 0.8; transition: opacity 0.3s;
+}
+#stage.is-live .skip-hint { opacity: 0; }
 
 /* ---------- Toolbar (top left) ---------- */
 .ftool { position: absolute; left: 40px; top: 30px; width: 700px; }

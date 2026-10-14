@@ -20,20 +20,20 @@ export function createIntro() {
     return gsap
       .timeline()
       .set(el, { autoAlpha: 1 })
-      .fromTo(q('.intro__panel'), { xPercent: -100 }, { xPercent: 0, duration: 0.8, ease: 'power3.out' })
+      .fromTo(q('.intro__panel'), { xPercent: -100 }, { xPercent: 0, duration: 0.55, ease: 'power3.out' })
       .fromTo(
         q('.intro__content > *'),
         { x: -80, autoAlpha: 0 },
-        { x: 0, autoAlpha: 1, duration: 0.6, ease: 'power3.out', stagger: 0.12 },
-        '-=0.4'
+        { x: 0, autoAlpha: 1, duration: 0.4, ease: 'power3.out', stagger: 0.08 },
+        0.2
       );
   }
 
   function exit() {
     return gsap
       .timeline()
-      .to(q('.intro__content > *'), { x: 80, autoAlpha: 0, duration: 0.4, ease: 'power2.in', stagger: 0.06 })
-      .to(q('.intro__panel'), { xPercent: 100, duration: 0.6, ease: 'power3.in' }, '-=0.2')
+      .to(q('.intro__content > *'), { x: 80, autoAlpha: 0, duration: 0.25, ease: 'power2.in', stagger: 0.04 })
+      .to(q('.intro__panel'), { xPercent: 100, duration: 0.45, ease: 'power3.in' }, '-=0.22')
       .set(el, { autoAlpha: 0 });
   }
 
