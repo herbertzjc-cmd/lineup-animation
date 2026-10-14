@@ -76,6 +76,7 @@ src/app.js                interaction wiring (select, swap, drag, formation)
 
 Free to use as-is, but **not to modify** the code — see [LICENSE](LICENSE).
 Customising `players.json` and `public/` is allowed. Club and player names in the sample data are placeholders and belong to their owners.
+The sample player portraits are cut-outs of freely licensed Wikimedia Commons photographs (mostly CC0); their authors and licences are listed in [CREDITS.md](CREDITS.md).
 
 ---
 

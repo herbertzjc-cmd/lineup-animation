@@ -42,8 +42,9 @@
       "fullName": "Alisson Becker",
       "position": "GK",
       "nationality": "Brazil",
-      "photo": "players/becker.svg",
-      "flag": "flags/br.svg"
+      "photo": "players/becker.webp",
+      "flag": "flags/br.svg",
+      "photoAlpha": true
     },
     {
       "id": "szoboszlai",
@@ -51,7 +52,9 @@
       "name": "Szoboszlai",
       "fullName": "Dominik Szoboszlai",
       "position": "RB",
-      "nationality": "Hungary"
+      "nationality": "Hungary",
+      "photo": "players/szoboszlai.webp",
+      "photoAlpha": true
     },
     {
       "id": "konate",
@@ -59,7 +62,9 @@
       "name": "Konaté",
       "fullName": "Ibrahima Konaté",
       "position": "CB",
-      "nationality": "France"
+      "nationality": "France",
+      "photo": "players/konate.webp",
+      "photoAlpha": true
     },
     {
       "id": "van-dijk",
@@ -67,7 +72,9 @@
       "name": "van Dijk",
       "fullName": "Virgil van Dijk",
       "position": "CB",
-      "nationality": "Netherlands"
+      "nationality": "Netherlands",
+      "photo": "players/van-dijk.webp",
+      "photoAlpha": true
     },
     {
       "id": "kerkez",
@@ -75,7 +82,9 @@
       "name": "Kerkez",
       "fullName": "Milos Kerkez",
       "position": "LB",
-      "nationality": "Hungary"
+      "nationality": "Hungary",
+      "photo": "players/kerkez.webp",
+      "photoAlpha": true
     },
     {
       "id": "gravenberch",
@@ -83,7 +92,9 @@
       "name": "Gravenberch",
       "fullName": "Ryan Gravenberch",
       "position": "CM",
-      "nationality": "Netherlands"
+      "nationality": "Netherlands",
+      "photo": "players/gravenberch.webp",
+      "photoAlpha": true
     },
     {
       "id": "mac-allister",
@@ -91,7 +102,9 @@
       "name": "Mac Allister",
       "fullName": "Alexis Mac Allister",
       "position": "CM",
-      "nationality": "Argentina"
+      "nationality": "Argentina",
+      "photo": "players/mac-allister.webp",
+      "photoAlpha": true
     },
     {
       "id": "salah",
@@ -100,7 +113,9 @@
       "fullName": "Mohamed Salah",
       "position": "RW",
       "nationality": "Egypt",
-      "special": true
+      "special": true,
+      "photo": "players/salah.webp",
+      "photoAlpha": true
     },
     {
       "id": "wirtz",
@@ -109,7 +124,9 @@
       "fullName": "Florian Wirtz",
       "position": "AM",
       "nationality": "Germany",
-      "special": true
+      "special": true,
+      "photo": "players/wirtz.webp",
+      "photoAlpha": true
     },
     {
       "id": "gakpo",
@@ -117,7 +134,9 @@
       "name": "Gakpo",
       "fullName": "Cody Gakpo",
       "position": "LW",
-      "nationality": "Netherlands"
+      "nationality": "Netherlands",
+      "photo": "players/gakpo.webp",
+      "photoAlpha": true
     },
     {
       "id": "ekitike",
@@ -125,7 +144,9 @@
       "name": "Ekitiké",
       "fullName": "Hugo Ekitiké",
       "position": "ST",
-      "nationality": "France"
+      "nationality": "France",
+      "photo": "players/ekitike.webp",
+      "photoAlpha": true
     },
     {
       "id": "sub-1",

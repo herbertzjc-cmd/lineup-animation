@@ -83,7 +83,7 @@ ul { list-style: none; }
 /* The closed panel is pushed 222px right, so the visible strip is the first 338px of the panel. */
 .panel__idle { position: absolute; left: 24px; width: 290px; top: 0; bottom: 0; pointer-events: none; }
 .idle__team {
-  position: absolute; left: 0; right: 0; top: 96px; text-align: center; overflow-wrap: anywhere;
+  position: absolute; left: 0; right: 0; top: 96px; text-align: center; overflow-wrap: break-word;
   font: 700 70px/1.02 var(--card-font); letter-spacing: 1px; text-shadow: 0 3px 16px rgba(0, 0, 0, 0.25);
 }
 .idle__mgr { position: absolute; left: 0; right: 0; bottom: 112px; height: 330px; }
