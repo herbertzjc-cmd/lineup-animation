@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "cutout": "python tools/cutout.py"
   },
   "dependencies": {
     "@fontsource/barlow-semi-condensed": "^5.3.0",
