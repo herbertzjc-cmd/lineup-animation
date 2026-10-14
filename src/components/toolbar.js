@@ -12,6 +12,7 @@ export function createToolbar() {
       ${FORMATIONS.map((f) => `<button class="chip" data-action="formation" data-f="${f}">${f}</button>`).join('')}
     </div>
     <div class="ftool__row" data-anim>
+      <button class="chip chip--play" data-action="play" title="Replay the opening animation">▶ Play</button>
       <button class="chip" data-action="toggle-list" data-view="list">Lineup</button>
       <button class="chip" data-action="toggle-bench" data-view="bench">Bench</button>
       <button class="chip" data-action="new">+ New player</button>
@@ -58,6 +59,17 @@ export function createToolbar() {
   };
   picker.addEventListener('input', () => api.onColor(picker.value));
 
+  // Back to the pre-intro look (everything hidden, nothing open).
+  function reset() {
+    gsap.killTweensOf(pop);
+    gsap.set(pop, { autoAlpha: 0 });
+    popOpen = false;
+    el.querySelector('[data-action="toggle-theme"]').classList.remove('is-active');
+    setActive(null);
+    setHint();
+    gsap.set(el.querySelectorAll('[data-anim]'), { autoAlpha: 0 });
+  }
+
   function enter() {
     return gsap.timeline().fromTo(el.querySelectorAll('[data-anim]'), { y: -24, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.5, ease: 'power3.out', stagger: 0.12 });
   }
@@ -66,7 +78,7 @@ export function createToolbar() {
   }
 
   return Object.assign(api, {
-    name: 'toolbar', el, enter, exit, setFormation, setActive, setHint, setColor,
+    name: 'toolbar', el, enter, exit, reset, setFormation, setActive, setHint, setColor,
     toggleTheme: () => showPop(!popOpen),
     closeTheme: () => popOpen && showPop(false),
   });

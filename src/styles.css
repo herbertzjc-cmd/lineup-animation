@@ -125,11 +125,15 @@ ul { list-style: none; }
   position: absolute; left: 0; right: 0; bottom: 0; height: 72px; border-radius: 0 0 10px 10px;
   background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--primary-dark) 92%, transparent));
 }
+.tile__photo--ph { overflow: visible; }
 .tile__flag {
   position: absolute; left: -6px; top: 83px; width: 36px; height: 25px; object-fit: cover; border-radius: 3px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
 }
 body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
+
+/* Nothing is clickable while the intro (or a replay) is running. */
+#stage:not(.is-live) .fref { pointer-events: none; }
 
 /* ---------- Toolbar (top left) ---------- */
 .ftool { position: absolute; left: 40px; top: 30px; width: 700px; }
@@ -141,6 +145,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 }
 .chip:hover { transform: translateY(-2px); }
 .chip.is-active { background: var(--primary); color: var(--on-primary); }
+.chip--play { background: var(--primary); color: var(--on-primary); }
 .chip--quiet { background: transparent; box-shadow: none; opacity: 0.6; }
 .ftool__hint { font: 700 17px/1.4 var(--text-font); opacity: 0.55; max-width: 620px; }
 
@@ -260,20 +265,3 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 .intro__title { font: 700 200px/1 var(--card-font); margin: 20px 0; }
 .intro__team { font-size: 76px; font-weight: 700; }
 .intro__meta { font-size: 32px; margin-top: 30px; opacity: 0.9; }
-
-/* ---------- Dev controls (outside the stage) ---------- */
-#controls {
-  position: fixed; left: 0; right: 0; bottom: 0;
-  display: flex; align-items: center; gap: 10px;
-  padding: 8px 14px; font: 13px/1 system-ui, sans-serif;
-  background: rgba(0, 0, 0, 0.75); color: #fff;
-}
-#controls[hidden] { display: none; }
-#controls button {
-  font: inherit; color: #fff; background: #333; border: 0; border-radius: 4px;
-  padding: 6px 10px; cursor: pointer;
-}
-#controls button:hover { background: #555; }
-.controls__scenes { display: flex; gap: 4px; }
-#controls input { flex: 1; min-width: 80px; }
-.controls__time { min-width: 90px; text-align: right; font-variant-numeric: tabular-nums; }

@@ -13,6 +13,13 @@ export const defaults = {
 export const asset = (path) =>
   /^(data:|https?:|blob:)/.test(path) ? path : `${import.meta.env.BASE_URL}${path}`;
 
+// Flag images by nationality (files live in /public/flags). A player's own `flag` field wins.
+const NATION_FLAGS = {
+  Brazil: 'flags/br.svg', Hungary: 'flags/hu.svg', France: 'flags/fr.svg', Netherlands: 'flags/nl.svg',
+  Argentina: 'flags/ar.svg', Egypt: 'flags/eg.svg', Germany: 'flags/de.svg',
+};
+export const flagOf = (p) => p.flag || NATION_FLAGS[p.nationality] || '';
+
 export const POSITIONS = ['GK', 'RB', 'CB', 'LB', 'DM', 'CM', 'AM', 'RW', 'LW', 'ST'];
 export const THEMES = [
   { name: 'Crimson', color: '#c8102e' },

@@ -45,6 +45,17 @@ export function createPanel() {
     api.onToggle(isOpen);
   }
 
+  // Drop everything back to the hidden, pre-intro state (used before a replay).
+  function reset() {
+    token += 1;
+    current = null;
+    open = false;
+    content.replaceChildren();
+    gsap.killTweensOf([bg, crest, bug]);
+    gsap.set([bg, crest], { x: OFFSCREEN_X });
+    gsap.set([crest, bug], { autoAlpha: 0 });
+  }
+
   async function show(name, ctx = {}) {
     const mine = ++token;
     if (current) {
@@ -94,7 +105,7 @@ export function createPanel() {
   }
 
   return Object.assign(api, {
-    name: 'panel', el, content, enter, exit, show, hide,
+    name: 'panel', el, content, enter, exit, show, hide, reset,
     get isOpen() { return open; },
   });
 }

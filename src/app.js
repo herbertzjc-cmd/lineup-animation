@@ -8,6 +8,7 @@ import { applyTheme } from './theme.js';
 export function initApp({ stage, ref, pitch, panel, toolbar }) {
   const ui = { view: 'idle', selectedId: null, swapFor: null, picking: null, editing: null };
   let live = false;
+  const api = { onPlay: null };
 
   function cancelPicking() {
     if (!ui.picking) return;
@@ -99,6 +100,7 @@ export function initApp({ stage, ref, pitch, panel, toolbar }) {
   toolbar.onColor = (hex) => live && setColor(hex);
 
   const actions = {
+    play: () => api.onPlay?.(),
     'toggle-theme': () => toolbar.toggleTheme(),
     color: ({ c }) => setColor(c),
     close: closePanel,
@@ -169,10 +171,16 @@ export function initApp({ stage, ref, pitch, panel, toolbar }) {
     onDrop: handleDrop,
   });
 
-  return {
+  return Object.assign(api, {
+    // Interaction is only allowed once the whole intro has played.
     goLive() {
       live = true;
       stage.classList.add('is-live');
     },
-  };
+    lock() {
+      live = false;
+      stage.classList.remove('is-live');
+      Object.assign(ui, { view: 'idle', selectedId: null, swapFor: null, picking: null, editing: null });
+    },
+  });
 }

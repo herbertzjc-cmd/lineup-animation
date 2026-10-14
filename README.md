@@ -1,7 +1,7 @@
 # Lineup Animation
 
 A broadcast-style football starting-XI graphic for the web, built with **Vite + GSAP**.
-An intro animation plays once on page load, then the page becomes an interactive lineup board:
+An intro animation plays once on page load — cards flip over from the goalkeeper to the striker, each turning into the player's portrait. The page ignores clicks until it has finished, then becomes an interactive lineup board:
 
 - Click any player for details in the side panel
 - Substitute players: pick from the bench, or drag a substitute onto the pitch
@@ -9,6 +9,7 @@ An intro animation plays once on page load, then the page becomes an interactive
 - Switch formation (4-2-3-1, 4-3-3, 4-4-2, 3-5-2, 4-1-4-1, 3-4-3, 5-3-2)
 - Create and edit your own players, with photo upload
 - Team colors: 10 presets or any custom color (text switches between white and dark automatically so it stays readable)
+- **▶ Play** replays the opening animation with the current lineup
 - Your changes are saved in the browser (`localStorage`)
 
 The 1920×1080 stage scales to fit any screen.
@@ -28,10 +29,7 @@ npm run dev
 
 Open the address printed in the terminal (usually http://localhost:5173/).
 
-| URL parameter | Effect |
-| --- | --- |
-| `?intro=0` | Skip the intro and go straight to the interactive board |
-| `?dev=1` | Show a timeline playback bar for the intro |
+Add `?intro=0` to the URL to skip the intro while developing.
 
 To get static files you can host anywhere: `npm run build`, then upload the `dist/` folder.
 
@@ -42,8 +40,8 @@ You only need to edit data and assets — no code changes:
 - **`src/data/players.json`** — team name, default colour (`team.colors.primary`; viewers can change it on the page with **Colors**), coach, formation, the 11 starters (`lineup.slots`, goalkeeper first, then each line left to right) and the full squad (`players`).
 - **`public/`** — put images here and reference them from the JSON:
   - `team.logo` — a single-colour silhouette SVG works best (it is drawn red on the light side and white on the red panel)
-  - `photo` — a transparent PNG/SVG cut-out of the player
-  - `flag` — a small flag image shown next to the photo
+  - `photo` — a transparent PNG/SVG cut-out of the player (players without one get a generic placeholder portrait)
+  - `flag` — a small flag image next to the portrait (flags for a few common nationalities are built in; add your own in `public/flags/`)
 
 After editing `players.json`, press **Reset** on the page (saved lineups in your browser take priority over the file).
 

@@ -56,21 +56,31 @@ export function createPitch() {
 
   // id -> tile element, for everyone currently on the pitch.
   const tiles = new Map();
+  let introTiles = [];
   const place = (tile, pos) => {
     tile.style.left = `${pos.left}px`;
     tile.style.top = `${pos.top}px`;
   };
-
-  const pos0 = positions(store.getFormation());
-  store.slots().forEach((id, i) => {
-    const tile = createTile(store.player(id), { revealed: false });
-    place(tile, pos0[i]);
-    el.append(tile);
-    tiles.set(id, tile);
-  });
-  const introTiles = store.slots().map((id) => tiles.get(id));
   const flipperOf = (tile) => tile.querySelector('.tile__flipper');
-  const photoTiles = store.slots().filter((id) => store.player(id).photo).map((id) => tiles.get(id));
+
+  // (Re)create every tile from the current lineup, face up with the number showing.
+  // Called once at startup and again before each replay of the intro.
+  function build() {
+    tiles.forEach((t) => { gsap.killTweensOf(t); t.remove(); });
+    tiles.clear();
+    el.classList.remove('is-picking');
+    gsap.killTweensOf(el);
+    gsap.set(el, { x: 0, scale: 1 });
+    const pos = positions(store.getFormation());
+    store.slots().forEach((id, i) => {
+      const tile = createTile(store.player(id), { revealed: false });
+      place(tile, pos[i]);
+      el.append(tile);
+      tiles.set(id, tile);
+    });
+    introTiles = store.slots().map((id) => tiles.get(id));
+  }
+  build();
 
   function enter() {
     const tl = gsap.timeline();
@@ -79,15 +89,15 @@ export function createPitch() {
       // Cards arrive face down...
       .fromTo(introTiles, { y: -60, scale: 0.85, autoAlpha: 0 }, { y: 0, scale: 1, autoAlpha: 1, duration: 0.45, ease: 'power3.out', stagger: 0.04 }, 0.9)
       .set(introTiles.map(flipperOf), { rotationY: 180 }, 0);
-    // ...then flip over one by one, goalkeeper first, striker last.
+    // ...then, goalkeeper first and striker last, each one flips over, shows its number
+    // for a beat, and turns into the player's portrait.
     const flipAt = tl.duration() + 0.15;
     introTiles.forEach((t, i) => {
-      const at = flipAt + i * 0.16;
+      const at = flipAt + i * 0.18;
       tl.to(flipperOf(t), { rotationY: 0, duration: 0.7, ease: 'power2.inOut' }, at)
-        .to(t, { y: -22, duration: 0.35, ease: 'power2.out', yoyo: true, repeat: 1 }, at);
+        .to(t, { y: -22, duration: 0.35, ease: 'power2.out', yoyo: true, repeat: 1 }, at)
+        .add(revealPhoto(t), at + 1.05);
     });
-    const settled = tl.duration();
-    photoTiles.forEach((t, i) => tl.add(revealPhoto(t), settled + 0.1 + i * 0.45));
     return tl;
   }
 
@@ -152,5 +162,5 @@ export function createPitch() {
   const setPicking = (on) => el.classList.toggle('is-picking', on);
   const setDrop = (id) => tiles.forEach((t, tid) => t.classList.toggle('is-drop', tid === id));
 
-  return { name: 'pitch', el, enter, exit, layout, replace, refresh, setSelected, setShifted, setPicking, setDrop };
+  return { name: 'pitch', el, build, enter, exit, layout, replace, refresh, setSelected, setShifted, setPicking, setDrop };
 }
