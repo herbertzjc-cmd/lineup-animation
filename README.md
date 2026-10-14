@@ -63,6 +63,11 @@ src/timeline.js           GSAP master timeline for the page-load animation
 src/app.js                interaction wiring (select, swap, drag, formation)
 ```
 
+## Contributors
+
+- [@herbertzjc-cmd](https://github.com/herbertzjc-cmd) — author
+- [@Kevin07-sooya](https://github.com/Kevin07-sooya) — contributor
+
 ## License
 
 Free to use as-is, but **not to modify** the code — see [LICENSE](LICENSE).
