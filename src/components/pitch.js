@@ -69,13 +69,23 @@ export function createPitch() {
     tiles.set(id, tile);
   });
   const introTiles = store.slots().map((id) => tiles.get(id));
+  const flipperOf = (tile) => tile.querySelector('.tile__flipper');
   const photoTiles = store.slots().filter((id) => store.player(id).photo).map((id) => tiles.get(id));
 
   function enter() {
     const tl = gsap.timeline();
     tl.fromTo(svg, { y: 140, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.9, ease: 'power3.out' }, 0)
       .fromTo(q('.pitch__lines > *, .pitch__goal'), { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.9, ease: 'power2.inOut', stagger: 0.1 }, 0.5)
-      .fromTo(introTiles, { y: -70, scale: 0.85, autoAlpha: 0 }, { y: 0, scale: 1, autoAlpha: 1, duration: 0.55, ease: 'power3.out', stagger: 0.11 }, 0.9);
+      // Cards arrive face down...
+      .fromTo(introTiles, { y: -60, scale: 0.85, autoAlpha: 0 }, { y: 0, scale: 1, autoAlpha: 1, duration: 0.45, ease: 'power3.out', stagger: 0.04 }, 0.9)
+      .set(introTiles.map(flipperOf), { rotationY: 180 }, 0);
+    // ...then flip over one by one, goalkeeper first, striker last.
+    const flipAt = tl.duration() + 0.15;
+    introTiles.forEach((t, i) => {
+      const at = flipAt + i * 0.16;
+      tl.to(flipperOf(t), { rotationY: 0, duration: 0.7, ease: 'power2.inOut' }, at)
+        .to(t, { y: -22, duration: 0.35, ease: 'power2.out', yoyo: true, repeat: 1 }, at);
+    });
     const settled = tl.duration();
     photoTiles.forEach((t, i) => tl.add(revealPhoto(t), settled + 0.1 + i * 0.45));
     return tl;
@@ -84,7 +94,8 @@ export function createPitch() {
   function exit() {
     return gsap
       .timeline()
-      .to([...tiles.values()].reverse(), { y: 70, scale: 0.85, autoAlpha: 0, duration: 0.35, ease: 'power2.in', stagger: 0.05 })
+      .to(store.slots().map((id) => flipperOf(tiles.get(id))).reverse(), { rotationY: 180, duration: 0.5, ease: 'power2.in', stagger: 0.06 })
+      .to(store.slots().map((id) => tiles.get(id)).reverse(), { y: 70, scale: 0.85, autoAlpha: 0, duration: 0.3, ease: 'power2.in', stagger: 0.04 }, '-=0.4')
       .to(svg, { y: 140, autoAlpha: 0, duration: 0.6, ease: 'power2.in' }, '-=0.4');
   }
 

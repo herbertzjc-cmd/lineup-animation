@@ -31,7 +31,7 @@ ul { list-style: none; }
 .scene { position: absolute; inset: 0; visibility: hidden; }
 
 /* ---------- Red card pattern (tiles, panel, portraits) ---------- */
-.tile__bg, .fref__panel {
+.tile__bg, .tile__back, .fref__panel {
   background:
     linear-gradient(120deg, transparent 0 30%, rgba(0, 0, 0, 0.13) 30% 52%, transparent 52% 100%),
     linear-gradient(120deg, rgba(255, 255, 255, 0.07) 0 22%, transparent 22% 100%),
@@ -81,7 +81,15 @@ ul { list-style: none; }
 
 /* ---------- Player tile ---------- */
 .tile { position: absolute; width: 128px; height: 191px; visibility: hidden; outline: none; }
-.tile__inner { position: absolute; inset: 0; transition: transform 0.18s ease-out; }
+.tile__inner { position: absolute; inset: 0; perspective: 800px; transition: transform 0.18s ease-out; }
+.tile__flipper { position: absolute; inset: 0; transform-style: preserve-3d; }
+.tile__front, .tile__back { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.tile__back { transform: rotateY(180deg); border-radius: 10px; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.18); }
+.tile__back::after {
+  content: ''; position: absolute; left: 50%; top: 50%; width: 58px; height: 104px; margin: -52px 0 0 -29px;
+  background: var(--on-primary); opacity: 0.9;
+  -webkit-mask: var(--logo) center / contain no-repeat; mask: var(--logo) center / contain no-repeat;
+}
 .is-live .tile { cursor: pointer; }
 .is-live .tile:hover .tile__inner, .tile:focus-visible .tile__inner { transform: translateY(-8px); }
 .tile__bg {

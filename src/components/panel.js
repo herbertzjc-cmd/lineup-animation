@@ -1,6 +1,5 @@
 import gsap from 'gsap';
 import { h } from '../dom.js';
-import { team, asset } from '../data.js';
 import detail from './views/playerDetail.js';
 import bench from './views/bench.js';
 import list from './views/lineupList.js';
@@ -9,10 +8,6 @@ import editor from './views/editor.js';
 const views = { detail, bench, list, editor };
 const CLOSED_X = 222; // how far the panel is pushed right while only its brand strip shows
 const OFFSCREEN_X = 562;
-
-// Resolved against the page: a relative url() inside a CSS variable would otherwise
-// be resolved against the stylesheet in /assets/ after a production build.
-const logoUrl = new URL(asset(team.logo), document.baseURI).href;
 
 const wait = (tl) =>
   new Promise((resolve) => {
@@ -25,7 +20,7 @@ export function createPanel() {
   const el = h('div', 'fpanel');
   el.innerHTML = `
     <div class="fref__panel"><div class="panel__content"></div></div>
-    <div class="fref__crest" style="--logo:url(${logoUrl})">
+    <div class="fref__crest">
       <div class="crest__layer crest__layer--red"></div>
       <div class="crest__layer crest__layer--white"></div>
     </div>

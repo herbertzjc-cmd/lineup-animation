@@ -12,10 +12,14 @@ import { buildMaster } from './timeline.js';
 import { initControls } from './controls.js';
 import { initApp } from './app.js';
 import { applyTheme } from './theme.js';
+import { asset, team } from './data.js';
 import * as store from './store.js';
 
 const stage = initStage();
 applyTheme(stage, store.getColor());
+// Resolved against the page: a relative url() inside a CSS variable would otherwise be
+// resolved against the stylesheet in /assets/ after a production build.
+stage.style.setProperty('--logo', `url(${new URL(asset(team.logo), document.baseURI).href})`);
 
 const intro = createIntro();
 const pitch = createPitch();

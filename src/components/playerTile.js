@@ -2,7 +2,8 @@ import gsap from 'gsap';
 import { h, esc } from '../dom.js';
 import { asset } from '../data.js';
 
-// The red number card. If the player has a photo, revealPhoto() swaps the number
+// The red number card (front) with a crest on its back, used for the opening flip.
+//  If the player has a photo, revealPhoto() swaps the number
 // for the photo, name and flag. Tiles created later start already revealed.
 export function createTile(p, { revealed = true } = {}) {
   const el = h('div', `tile${revealed && p.photo ? ' tile--revealed' : ''}`);
@@ -13,12 +14,17 @@ export function createTile(p, { revealed = true } = {}) {
   el.setAttribute('aria-label', `${p.fullName}, number ${p.number}`);
   el.innerHTML = `
     <div class="tile__inner">
-      <div class="tile__bg"></div>
-      <div class="tile__num">${esc(p.number)}</div>
-      ${p.photo ? `<img class="tile__photo" src="${esc(asset(p.photo))}" alt="" draggable="false">` : ''}
-      ${p.photo ? '<div class="tile__fade"></div>' : ''}
-      <div class="tile__name">${esc(p.name)}</div>
-      ${p.flag ? `<img class="tile__flag" src="${esc(asset(p.flag))}" alt="" draggable="false">` : ''}
+      <div class="tile__flipper">
+        <div class="tile__front">
+          <div class="tile__bg"></div>
+          <div class="tile__num">${esc(p.number)}</div>
+          ${p.photo ? `<img class="tile__photo" src="${esc(asset(p.photo))}" alt="" draggable="false">` : ''}
+          ${p.photo ? '<div class="tile__fade"></div>' : ''}
+          <div class="tile__name">${esc(p.name)}</div>
+          ${p.flag ? `<img class="tile__flag" src="${esc(asset(p.flag))}" alt="" draggable="false">` : ''}
+        </div>
+        <div class="tile__back"></div>
+      </div>
     </div>
   `;
   return el;
