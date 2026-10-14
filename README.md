@@ -9,6 +9,7 @@ An intro animation plays once on page load. The cards arrive face down on the pi
 - Switch formation (4-2-3-1, 4-3-3, 4-4-2, 3-5-2, 4-1-4-1, 3-4-3, 5-3-2)
 - Create and edit your own players, with photo upload
 - **3D player pop-out**: after the flip the transparent cut-out of the player steps out of the card. Per player you can switch it on or off and adjust the size, horizontal / vertical position and pop depth in the editor (with a live preview); the settings are saved with the player. Photos without a transparent background are detected on upload and kept inside the card
+- **Team and manager**: the **Team** button (and the top of every player's editor) has *Team Settings* — team name (Chinese or English; the text is fitted to its space) and an uploadable club logo (PNG / JPG / WebP, original proportions kept) — and *Manager Settings* — name, photo with zoom and position, and **Remove Background**, which cuts the person out locally in the browser (MODNet through transformers.js, no paid API, nothing is uploaded) into a real transparent PNG. Original and cut-out are shown side by side and either can be used. The team name, logo, manager name and photo appear on the side panel of the lineup screen. Pictures are stored in IndexedDB, everything else in `localStorage`
 - **Special players**: switch on "Special Player" in the editor for a gold flash-card entrance (glow and sparks, slower flip with a gold sheen, a diagonal light beam on reveal), then a permanent animated gold frame and holographic sheen. Any number of players can be special; the setting is saved with the player
 - Team colors: 10 presets or any custom color (text switches between white and dark automatically so it stays readable)
 - **▶ Play** replays the opening animation with the current lineup
@@ -55,7 +56,9 @@ After editing `players.json`, press **Reset** on the page (saved lineups in your
 
 ```
 src/data/players.json     squad, lineup, team settings
-src/store.js              lineup state + localStorage
+src/store.js              lineup state + localStorage; team / manager details
+src/idb.js                IndexedDB storage for the logo and manager photos
+src/bgremove.js           in-browser background removal (loaded on demand)
 src/theme.js              team colour theming (contrast-aware)
 src/components/           intro, pitch, side panel, toolbar, player tile
 src/components/views/     panel views: player detail, bench, lineup list, editor

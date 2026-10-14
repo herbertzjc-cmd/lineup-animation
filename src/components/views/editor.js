@@ -4,6 +4,7 @@ import { POSITIONS, DEFAULT_POP, popOf } from '../../data.js';
 import * as store from '../../store.js';
 import { createTile, showPopNow } from '../playerTile.js';
 import { enterView, exitView } from './common.js';
+import { createBrandSections } from './brandSections.js';
 
 // Shrink an uploaded image so it fits comfortably in localStorage, and note whether it has a
 // transparent background (a cut-out) - only those can step out of the card.
@@ -33,7 +34,26 @@ const slider = (name, label, min, max, value, unit) => `
     <input type="range" name="${name}" min="${min}" max="${max}" step="1" value="${value}">
     <output>${value}${unit}</output></label>`;
 
-function render({ id } = {}) {
+// "Team & Manager" on its own (opened from the toolbar): just the two settings sections.
+function renderTeam() {
+  const el = h('div', 'view editor editor--team');
+  el.dataset.mode = 'team';
+  el.innerHTML = `
+    <button class="close" data-action="cancel" aria-label="Close">×</button>
+    <h2 class="view__title" data-anim>TEAM</h2>
+    <div class="editor__scroll"></div>
+    <div class="detail__actions" data-anim>
+      <button class="btn" data-action="save">Save</button>
+      <button class="btn btn--ghost" data-action="cancel">Cancel</button>
+    </div>
+  `;
+  el._brand = createBrandSections({ open: true });
+  el.querySelector('.editor__scroll').append(el._brand.el);
+  return el;
+}
+
+function render({ id, mode } = {}) {
+  if (mode === 'team') return renderTeam();
   const p = (id && store.player(id)) || { number: '', fullName: '', name: '', position: 'CM', nationality: '', age: '' };
   const pop = popOf(p);
   const el = h('div', 'view editor');
@@ -82,6 +102,10 @@ function render({ id } = {}) {
       <button class="btn btn--ghost" data-action="cancel">Cancel</button>
     </div>
   `;
+
+  // Team Settings and Manager Settings come first, above the player's own fields.
+  el._brand = createBrandSections({ open: false });
+  el.querySelector('.editor__scroll').prepend(el._brand.el);
 
   const $ = (n) => el.querySelector(`[name=${n}]`);
   const note = el.querySelector('.editor__note');

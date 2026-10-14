@@ -6,6 +6,7 @@ import { enterView, exitView } from './common.js';
 function render({ swapFor } = {}) {
   const out = swapFor && store.player(swapFor);
   const bench = store.bench();
+  const mgr = store.getManager();
   const el = h('div', 'view bench');
   el.innerHTML = `
     <button class="close" data-action="close" aria-label="Close">×</button>
@@ -20,9 +21,9 @@ function render({ swapFor } = {}) {
         </div>`).join('') : '<p class="view__sub" data-anim>No substitutes yet. Use “+ New player” to add one.</p>'}
     </div>
     <div class="bench__coach" data-anim>
-      <div class="bench__role">HEAD COACH</div>
-      <div class="bench__coachname">${esc(team.coach.name.toUpperCase())}</div>
-      <div class="bench__coachmeta">${esc(team.coach.nationality)} · ${esc(team.name)}</div>
+      <div class="bench__role">MANAGER</div>
+      <div class="bench__coachname">${esc(mgr.name.toUpperCase())}</div>
+      <div class="bench__coachmeta">${mgr.isDefaultName ? `${esc(team.coach.nationality)} · ` : ''}${esc(store.getTeamName())}</div>
     </div>
   `;
   return el;

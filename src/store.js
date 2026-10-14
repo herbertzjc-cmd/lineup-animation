@@ -1,16 +1,26 @@
 import { defaults, team } from './data.js';
 import { isHex } from './theme.js';
+import { idbGet, idbSet, idbDelete, idbClear } from './idb.js';
 
 // Lineup state: every player in the squad, which 11 are on the pitch (slots, GK first,
 // then each line left to right) and the formation. Persisted to localStorage.
 const KEY = 'lineup-animation:v1';
 const clone = (o) => JSON.parse(JSON.stringify(o));
 
+// Team and manager editing. Names and settings live in `state.brand` (localStorage); the
+// pictures are Blobs in IndexedDB, loaded into `images` at startup (see loadImages()).
+const defaultBrand = () => ({
+  teamName: '',
+  managerName: '',
+  mgr: { useCut: false, scale: 100, x: 0, y: 0, hasAlpha: false },
+});
+
 const fresh = () => ({
   players: clone(defaults.players),
   formation: defaults.formation,
   slots: [...defaults.slots],
   color: team.colors.primary,
+  brand: defaultBrand(),
 });
 
 function valid(s) {
@@ -25,7 +35,11 @@ function valid(s) {
 function load() {
   try {
     const s = JSON.parse(localStorage.getItem(KEY));
-    if (valid(s)) return s;
+    if (valid(s)) {
+      const b = defaultBrand();
+      s.brand = { ...b, ...(s.brand || {}), mgr: { ...b.mgr, ...(s.brand?.mgr || {}) } };
+      return s;
+    }
   } catch { /* fall through to defaults */ }
   return fresh();
 }
@@ -38,6 +52,71 @@ function save() {
   } catch (e) {
     console.warn('Could not save lineup (storage full?)', e);
   }
+}
+
+const images = { logo: null, mgrOriginal: null, mgrCut: null }; // { blob, url } or null
+const IMAGE_KEYS = Object.keys(images);
+
+function setImage(key, blob) {
+  if (images[key]) URL.revokeObjectURL(images[key].url);
+  images[key] = blob ? { blob, url: URL.createObjectURL(blob) } : null;
+}
+
+// Load the saved pictures from IndexedDB. Call (and await) once before building the UI.
+export async function loadImages() {
+  for (const key of IMAGE_KEYS) {
+    try {
+      const blob = await idbGet(key);
+      if (blob instanceof Blob) setImage(key, blob);
+    } catch (e) {
+      console.warn('Could not read saved images', e);
+      return;
+    }
+  }
+}
+
+export const getTeamName = () => state.brand.teamName.trim() || team.name;
+export const getImageBlob = (key) => images[key]?.blob || null;
+export const getLogoUrl = () => images.logo?.url || '';
+
+// The manager as shown on the pitch screen: the cut-out if chosen, otherwise the original.
+export function getManager() {
+  const m = state.brand.mgr;
+  const cut = images.mgrCut;
+  const original = images.mgrOriginal;
+  const showCut = !!(m.useCut && cut);
+  const photo = showCut ? cut : original;
+  const name = state.brand.managerName.trim();
+  return {
+    name: name || team.coach.name,
+    isDefaultName: !name,
+    photoUrl: photo?.url || '',
+    hasPhoto: !!photo,
+    cutout: !!photo && (showCut || m.hasAlpha), // a figure on a transparent background
+    useCut: showCut,
+    hasAlpha: m.hasAlpha,
+    scale: m.scale, x: m.x, y: m.y,
+  };
+}
+
+// Apply edited team / manager details. For each picture, `undefined` means unchanged,
+// `null` means delete and a Blob means replace.
+export async function saveBrand(b) {
+  state.brand.teamName = b.teamName.trim();
+  state.brand.managerName = b.managerName.trim();
+  state.brand.mgr = { ...state.brand.mgr, ...b.mgr };
+  for (const key of IMAGE_KEYS) {
+    if (b[key] === undefined) continue;
+    setImage(key, b[key]);
+    try {
+      if (b[key]) await idbSet(key, b[key]);
+      else await idbDelete(key);
+    } catch (e) {
+      console.warn('Could not save image', key, e);
+    }
+  }
+  if (!images.mgrOriginal) state.brand.mgr = { ...defaultBrand().mgr };
+  save();
 }
 
 export const getFormation = () => state.formation;
@@ -86,4 +165,6 @@ export function removePlayer(id) {
 export function reset() {
   try { localStorage.removeItem(KEY); } catch { /* ignore */ }
   state = fresh();
+  IMAGE_KEYS.forEach((k) => setImage(k, null));
+  idbClear().catch(() => {});
 }

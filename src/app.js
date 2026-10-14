@@ -3,9 +3,10 @@ import { initDrag } from './drag.js';
 import { createTile } from './components/playerTile.js';
 import { readEditor } from './components/views/editor.js';
 import { applyTheme } from './theme.js';
+import { applyLogo } from './branding.js';
 
 // Wires the pitch, panel and toolbar together once the intro has played.
-export function initApp({ stage, ref, pitch, panel, toolbar }) {
+export function initApp({ stage, ref, pitch, panel, toolbar, intro }) {
   const ui = { view: 'idle', selectedId: null, swapFor: null, picking: null, editing: null };
   let live = false;
   const api = { onPlay: null };
@@ -57,6 +58,14 @@ export function initApp({ stage, ref, pitch, panel, toolbar }) {
     panel.show('editor', { id });
   }
 
+  function openTeamEditor() {
+    cancelPicking();
+    Object.assign(ui, { view: 'editor', selectedId: null, swapFor: null, editing: null });
+    pitch.setSelected(null);
+    toolbar.setActive(null);
+    panel.show('editor', { mode: 'team' });
+  }
+
   function startPicking(id) {
     const p = store.player(id);
     ui.picking = id;
@@ -81,10 +90,31 @@ export function initApp({ stage, ref, pitch, panel, toolbar }) {
     }
   }
 
-  function save() {
+  // Team name, club logo and manager details changed in the editor: refresh everything that shows them.
+  async function applyBrand(form) {
+    if (!form._brand) return;
+    try {
+      await store.saveBrand(form._brand.read());
+    } catch (e) {
+      console.warn('Could not save team settings', e);
+    }
+    intro.refresh();
+    panel.refreshBrand();
+    applyLogo(stage);
+  }
+
+  async function save() {
     const form = panel.content.querySelector('.editor');
+    if (!form) return;
+    if (form._brand?.isBusy()) return; // background removal is still running
+    if (form.dataset.mode === 'team') {
+      await applyBrand(form);
+      closePanel();
+      return;
+    }
     const values = readEditor(form);
     if (!values) return;
+    await applyBrand(form);
     const p = store.upsertPlayer(ui.editing ? { id: ui.editing, ...values } : values);
     if (store.slotOf(p.id) >= 0) pitch.refresh(p.id);
     openDetail(p.id);
@@ -110,6 +140,7 @@ export function initApp({ stage, ref, pitch, panel, toolbar }) {
     'swap-in': ({ id }) => startPicking(id),
     edit: ({ id }) => openEditor(id),
     new: () => openEditor(null),
+    team: () => openTeamEditor(),
     cancel: () => (ui.editing ? openDetail(ui.editing) : closePanel()),
     save,
     delete: ({ id }) => { store.removePlayer(id); openBench(); },

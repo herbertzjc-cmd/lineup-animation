@@ -1,6 +1,8 @@
 import gsap from 'gsap';
 import { h } from '../dom.js';
-import { match, team } from '../data.js';
+import { match } from '../data.js';
+import * as store from '../store.js';
+import { fitFont } from '../branding.js';
 
 export function createIntro() {
   const el = h('section', 'scene intro');
@@ -9,12 +11,21 @@ export function createIntro() {
     <div class="intro__content">
       <div class="intro__kicker">${match.competition} · ${match.round}</div>
       <h1 class="intro__title">STARTING XI</h1>
-      <div class="intro__team">${team.name}</div>
+      <div class="intro__team"></div>
       <div class="intro__meta">${match.venue} · ${match.date} · KO ${match.kickoff}</div>
     </div>
   `;
   gsap.set(el, { autoAlpha: 0 });
   const q = gsap.utils.selector(el);
+
+  // The team name can be edited, so it is filled in (and fitted to the board) here.
+  const teamEl = el.querySelector('.intro__team');
+  function refresh() {
+    const name = store.getTeamName();
+    teamEl.textContent = name;
+    teamEl.style.fontSize = `${fitFont(name, 1000, { max: 76, min: 36, lines: 1 })}px`;
+  }
+  refresh();
 
   function enter() {
     return gsap
@@ -37,5 +48,5 @@ export function createIntro() {
       .set(el, { autoAlpha: 0 });
   }
 
-  return { name: 'intro', el, enter, exit };
+  return { name: 'intro', el, enter, exit, refresh };
 }

@@ -4,9 +4,9 @@ import gsap from 'gsap';
 import './styles.css';
 import { h } from './dom.js';
 import { initStage } from './stage.js';
-import { asset, team } from './data.js';
 import * as store from './store.js';
 import { applyTheme } from './theme.js';
+import { applyLogo } from './branding.js';
 import { createIntro } from './components/intro.js';
 import { createPitch } from './components/pitch.js';
 import { createPanel } from './components/panel.js';
@@ -15,10 +15,9 @@ import { buildMaster } from './timeline.js';
 import { initApp } from './app.js';
 
 const stage = initStage();
+// Saved pictures (club logo, manager photos) live in IndexedDB; wait for them, but never hang.
+await Promise.race([store.loadImages(), new Promise((resolve) => setTimeout(resolve, 2000))]);
 applyTheme(stage, store.getColor());
-// Resolved against the page: a relative url() inside a CSS variable would otherwise be
-// resolved against the stylesheet in /assets/ after a production build.
-stage.style.setProperty('--logo', `url(${new URL(asset(team.logo), document.baseURI).href})`);
 
 const intro = createIntro();
 const pitch = createPitch();
@@ -44,7 +43,8 @@ const scene = {
 };
 stage.append(sceneEl, intro.el);
 
-const app = initApp({ stage, ref, pitch, panel, toolbar });
+applyLogo(stage); // after the panel exists: it holds the crest image
+const app = initApp({ stage, ref, pitch, panel, toolbar, intro });
 
 // The whole opening sequence: board, then players. The page does not respond to anything
 // except "skip" until it has finished: the first click jumps from the board to the players,

@@ -1,5 +1,7 @@
 import gsap from 'gsap';
-import { h } from '../dom.js';
+import { h, esc } from '../dom.js';
+import * as store from '../store.js';
+import { fitFont, mgrTransform } from '../branding.js';
 import detail from './views/playerDetail.js';
 import bench from './views/bench.js';
 import list from './views/lineupList.js';
@@ -19,20 +21,41 @@ const wait = (tl) =>
 export function createPanel() {
   const el = h('div', 'fpanel');
   el.innerHTML = `
-    <div class="fref__panel"><div class="panel__content"></div></div>
+    <div class="fref__panel"><div class="panel__idle"></div><div class="panel__content"></div></div>
     <div class="fref__crest">
       <div class="crest__layer crest__layer--red"></div>
       <div class="crest__layer crest__layer--white"></div>
+      <img class="crest__img" alt="">
     </div>
     <div class="fref__bug"><i></i></div>
   `;
   const bg = el.querySelector('.fref__panel');
   const content = el.querySelector('.panel__content');
+  const idle = el.querySelector('.panel__idle');
   const crest = el.querySelector('.fref__crest');
   const bug = el.querySelector('.fref__bug');
   gsap.set([bg, crest], { x: OFFSCREEN_X });
   gsap.set(crest, { autoAlpha: 0 });
   gsap.set(bug, { autoAlpha: 0 });
+
+  // What the closed panel shows on the lineup screen: team name, then the manager.
+  // It is part of the panel, so it slides in with it and is hidden while a view is open.
+  function refreshBrand() {
+    const teamName = store.getTeamName();
+    const m = store.getManager();
+    const teamSize = fitFont(teamName, 270, { max: 76, min: 30, lines: 2 });
+    const nameSize = fitFont(m.name, 270, { max: 42, min: 22, lines: 1 });
+    idle.innerHTML = `
+      <div class="idle__team" style="font-size:${teamSize}px">${esc(teamName.toUpperCase())}</div>
+      <div class="idle__mgr">
+        ${m.hasPhoto ? `<div class="idle__photo${m.cutout ? '' : ' idle__photo--framed'}"><img src="${esc(m.photoUrl)}" alt="" style="transform:${mgrTransform(m)}"></div>` : ''}
+        <div class="idle__plate">
+          <div class="idle__role">MANAGER</div>
+          <div class="idle__name" style="font-size:${nameSize}px">${esc(m.name)}</div>
+        </div>
+      </div>`;
+  }
+  refreshBrand();
 
   let open = false;
   let current = null; // { view, el }
@@ -41,6 +64,7 @@ export function createPanel() {
 
   function slide(isOpen) {
     open = isOpen;
+    gsap.to(idle, { autoAlpha: isOpen ? 0 : 1, duration: 0.3, overwrite: 'auto' });
     gsap.to([bg, crest], { x: isOpen ? 0 : CLOSED_X, duration: 0.7, ease: 'power3.inOut', overwrite: 'auto' });
     api.onToggle(isOpen);
   }
@@ -51,7 +75,8 @@ export function createPanel() {
     current = null;
     open = false;
     content.replaceChildren();
-    gsap.killTweensOf([bg, crest, bug]);
+    gsap.killTweensOf([bg, crest, bug, idle]);
+    gsap.set(idle, { autoAlpha: 1 });
     gsap.set([bg, crest], { x: OFFSCREEN_X });
     gsap.set([crest, bug], { autoAlpha: 0 });
   }
@@ -105,7 +130,7 @@ export function createPanel() {
   }
 
   return Object.assign(api, {
-    name: 'panel', el, content, enter, exit, show, hide, reset,
+    name: 'panel', el, content, enter, exit, show, hide, reset, refreshBrand,
     get isOpen() { return open; },
   });
 }

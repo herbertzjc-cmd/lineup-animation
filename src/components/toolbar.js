@@ -16,6 +16,7 @@ export function createToolbar() {
       <button class="chip" data-action="toggle-list" data-view="list">Lineup</button>
       <button class="chip" data-action="toggle-bench" data-view="bench">Bench</button>
       <button class="chip" data-action="new">+ New player</button>
+      <button class="chip" data-action="team">Team</button>
       <button class="chip" data-action="toggle-theme"><i class="chip__dot"></i>Colors</button>
       <button class="chip chip--quiet" data-action="reset">Reset</button>
     </div>

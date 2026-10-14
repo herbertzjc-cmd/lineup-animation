@@ -4,8 +4,8 @@
   --primary-ink: #c8102e;  /* primary, darkened if needed to show on light backgrounds */
   --warn: #ffe27a;
   --ink: #15161a;
-  --card-font: 'Barlow Semi Condensed', 'Arial Narrow', sans-serif;
-  --text-font: 'Montserrat', 'Helvetica Neue', Arial, sans-serif;
+  --card-font: 'Barlow Semi Condensed', 'Arial Narrow', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
+  --text-font: 'Montserrat', 'Helvetica Neue', Arial, 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -77,6 +77,38 @@ ul { list-style: none; }
 .fref__bug i {
   width: 28px; height: 28px; background: linear-gradient(135deg, #ffb347, #ff6a1a);
   clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+
+/* Idle panel: team name and manager, shown in the strip of the closed side panel. */
+/* The closed panel is pushed 222px right, so the visible strip is the first 338px of the panel. */
+.panel__idle { position: absolute; left: 24px; width: 290px; top: 0; bottom: 0; pointer-events: none; }
+.idle__team {
+  position: absolute; left: 0; right: 0; top: 96px; text-align: center; overflow-wrap: anywhere;
+  font: 700 70px/1.02 var(--card-font); letter-spacing: 1px; text-shadow: 0 3px 16px rgba(0, 0, 0, 0.25);
+}
+.idle__mgr { position: absolute; left: 0; right: 0; bottom: 112px; height: 330px; }
+.idle__photo { position: absolute; left: 0; right: 0; top: 0; bottom: 0; overflow: hidden; }
+.idle__photo img {
+  position: absolute; left: 50%; bottom: 0; height: 100%; width: auto; max-width: none;
+  margin-left: -50%; transform-origin: 50% 100%; filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.35));
+}
+.idle__photo--framed { border-radius: 14px 14px 0 0; background: rgba(0, 0, 0, 0.18); }
+.idle__photo--framed img { left: 0; width: 100%; height: 100%; margin: 0; object-fit: cover; object-position: top; filter: none; }
+.idle__plate {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 36px 6px 8px; text-align: center;
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--primary-dark) 82%, transparent) 55%);
+}
+.idle__role { font: 700 15px/1 var(--text-font); letter-spacing: 6px; opacity: 0.85; }
+.idle__name { margin-top: 6px; font: 700 40px/1.05 var(--card-font); overflow-wrap: anywhere; }
+
+/* A custom club logo is shown as it is (full colour, original proportions) instead of as a mask. */
+.crest__img { display: none; position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.has-logo-img .crest__layer { display: none; }
+.has-logo-img .crest__img { display: block; }
+.has-logo-img .fref__crest { left: 1365px; top: 490px; width: 150px; height: 150px; }
+.has-logo-img .tile__back::after {
+  -webkit-mask: none; mask: none; opacity: 1; width: 78px; height: 110px; margin: -55px 0 0 -39px;
+  background: var(--logo-img) center / contain no-repeat;
 }
 
 /* ---------- Player tile ---------- */
@@ -206,14 +238,14 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 .ftool { position: absolute; left: 40px; top: 30px; width: 700px; }
 .ftool__row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
 .chip {
-  height: 46px; padding: 0 16px; border: 0; border-radius: 23px; cursor: pointer;
-  background: #fff; color: var(--ink); font: 700 19px/1 var(--text-font);
+  height: 46px; padding: 0 12px; border: 0; border-radius: 23px; cursor: pointer;
+  background: #fff; color: var(--ink); font: 700 18px/1 var(--text-font);
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1); transition: background 0.15s, color 0.15s, transform 0.15s;
 }
 .chip:hover { transform: translateY(-2px); }
 .chip.is-active { background: var(--primary); color: var(--on-primary); }
 .chip--play { background: var(--primary); color: var(--on-primary); }
-.chip--quiet { background: transparent; box-shadow: none; opacity: 0.6; }
+.chip--quiet { background: transparent; box-shadow: none; opacity: 0.6; padding: 0 6px; }
 .ftool__hint { font: 700 17px/1.4 var(--text-font); opacity: 0.55; max-width: 620px; }
 
 /* ---------- Colors popover ---------- */
@@ -321,6 +353,42 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
   font: 700 13px/1 var(--text-font); letter-spacing: 2px;
   background: linear-gradient(120deg, #c89a35, #ffe08a 45%, #e0b04a);
 }
+
+/* team + manager sections of the editor */
+.checker { background: repeating-conic-gradient(rgba(255, 255, 255, 0.22) 0% 25%, rgba(0, 0, 0, 0.18) 0% 50%) 0 0 / 14px 14px; }
+.sect { margin: 0 0 12px; border-radius: 12px; background: color-mix(in srgb, var(--on-primary) 8%, transparent); }
+.sect summary {
+  padding: 14px 16px; cursor: pointer; list-style: none; font: 700 16px/1 var(--text-font); letter-spacing: 3px; text-transform: uppercase;
+}
+.sect summary::-webkit-details-marker { display: none; }
+.sect summary::after { content: '+'; float: right; font-size: 22px; line-height: 1; }
+.sect[open] summary::after { content: '–'; }
+.sect > :not(summary) { margin-left: 16px; margin-right: 16px; }
+.sect > :last-child { margin-bottom: 16px; }
+.logo { display: flex; gap: 14px; align-items: center; }
+.logo__preview { position: relative; flex: none; width: 108px; height: 108px; border-radius: 10px; display: grid; place-items: center; overflow: hidden; }
+.logo__preview img { max-width: 92%; max-height: 92%; object-fit: contain; }
+.logo__preview span { font: 700 13px/1.3 var(--text-font); text-align: center; opacity: 0.8; }
+.mgr__buttons { display: flex; flex-wrap: wrap; gap: 6px; }
+.mgr__buttons .btn--sm { margin-right: 0; }
+.brand__status, .brand__error { min-height: 18px; margin: 8px 0; font: 700 13px/1.4 var(--text-font); opacity: 0.9; }
+.brand__status.is-error, .brand__error { color: var(--warn); }
+.mgr__compare[hidden], .mgr__frame-wrap[hidden], .logo__preview img[hidden], .logo__preview span[hidden], .mgr__compare [hidden] { display: none !important; }
+.mgr__compare { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px; }
+.mgr__compare figure { margin: 0 !important; }
+.mgr__compare .checker { height: 150px; border-radius: 10px; overflow: hidden; display: grid; place-items: center; }
+.mgr__compare img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.mgr__compare span { font: 700 12px/1.3 var(--text-font); text-align: center; opacity: 0.8; padding: 6px; }
+.radio { display: flex; align-items: center; gap: 8px; margin-top: 8px; font: 700 14px/1 var(--text-font); cursor: pointer; }
+.radio input { accent-color: var(--on-primary); }
+.mgr__frame-wrap { display: flex; gap: 12px; align-items: flex-start; margin-top: 14px; }
+.mgr__frame { position: relative; flex: none; width: 118px; height: 150px; border-radius: 10px; overflow: hidden; }
+.mgr__frame img {
+  position: absolute; left: 50%; bottom: 0; height: 100%; width: auto; max-width: none; margin-left: -50%; transform-origin: 50% 100%;
+}
+.mgr__frame--framed img { left: 0; width: 100%; margin: 0; object-fit: cover; object-position: top; }
+.mgr__sliders { flex: 1; min-width: 0; }
+.mgr__sliders .slider { grid-template-columns: 70px 1fr 40px; margin: 4px 0 8px; }
 
 /* editor */
 .editor { padding-top: 56px; }

@@ -1,6 +1,6 @@
 import gsap from 'gsap';
 import { h, esc } from '../../dom.js';
-import { asset, team } from '../../data.js';
+import { asset } from '../../data.js';
 import * as store from '../../store.js';
 import { exitView } from './common.js';
 
@@ -26,7 +26,7 @@ function render({ id }) {
     </div>
     <div class="detail__first" data-anim>${esc(first.toUpperCase())}</div>
     <div class="detail__last" data-anim style="font-size:${lastSize}px">${esc(rest.join(' ').toUpperCase())}</div>
-    <div class="detail__pos" data-anim>${esc(p.position)} · ${esc(team.name)}</div>
+    <div class="detail__pos" data-anim>${esc(p.position)} · ${esc(store.getTeamName())}</div>
     ${p.special ? '<div class="detail__badge" data-anim>★ SPECIAL PLAYER</div>' : ''}
     <dl class="detail__facts" data-anim>
       ${facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join('')}
