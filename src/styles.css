@@ -175,7 +175,15 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
   background: radial-gradient(circle, #fff6cf 0%, #ffd66b 45%, rgba(255, 200, 80, 0) 72%);
   box-shadow: 0 0 8px rgba(255, 205, 90, 0.9);
 }
-.fref__fx { position: absolute; inset: 0; pointer-events: none; }
+.fref__fx { position: absolute; inset: 0; pointer-events: none; z-index: 35; }
+.fref__dim {
+  position: absolute; inset: -200px; z-index: 25; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 50%, rgba(10, 14, 34, 0.3) 0%, rgba(10, 14, 34, 0.58) 72%);
+}
+.fref__caption {
+  position: absolute; left: 319px; width: 1000px; top: 250px; z-index: 38; pointer-events: none; text-align: center;
+  font: 700 70px/1 var(--card-font); letter-spacing: 12px; color: #fff; text-shadow: 0 4px 22px rgba(0, 0, 0, 0.65);
+}
 @media (prefers-reduced-motion: reduce) { .tile__edge, .tile__holo { animation: none; } }
 
 /* While the intro (or a replay) runs, nothing is clickable except "skip". */

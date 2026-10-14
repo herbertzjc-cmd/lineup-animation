@@ -1,7 +1,7 @@
 # Lineup Animation
 
 A broadcast-style football starting-XI graphic for the web, built with **Vite + GSAP**.
-An intro animation plays once on page load — cards flip over in 3D from the goalkeeper to the striker, the portrait fading in as each one turns, then the number, position and name. Click to skip (once for the opening board, again for the players). It then becomes an interactive lineup board:
+An intro animation plays once on page load. The cards arrive face down on the pitch, then each position group is introduced in turn — goalkeeper, defenders, midfielders, forwards: the group's cards rise out of the formation, enlarge into an evenly spaced row while the rest of the pitch dims, flip over in 3D to show portrait, number, position and name, hold for a moment and settle back into place. Click to skip (once for the opening board, again for the players). It then becomes an interactive lineup board:
 
 - Click any player for details in the side panel
 - Substitute players: pick from the bench, or drag a substitute onto the pitch
@@ -33,6 +33,10 @@ Open the address printed in the terminal (usually http://localhost:5173/).
 Add `?intro=0` to the URL to skip the intro while developing.
 
 To get static files you can host anywhere: `npm run build`, then upload the `dist/` folder.
+
+### How the groups are formed
+
+Groups follow the lines of the current formation: the first line is the defence, the last line is the attack and every line in between is midfield — so 4-3-3 is 1 / 4 / 3 / 3, 4-4-2 is 1 / 4 / 4 / 2 and 4-2-3-1 is 1 / 4 / 5 / 1. The enlargement adapts to the group size so the row never overlaps. Timings (`RISE`, `HOLD`, `RETURN`, …) are constants at the top of `src/components/pitch.js`.
 
 ## Use your own team
 
