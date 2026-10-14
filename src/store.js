@@ -36,6 +36,11 @@ function load() {
   try {
     const s = JSON.parse(localStorage.getItem(KEY));
     if (valid(s)) {
+      // Saved lineups from older versions: give the known players their cartoon image back.
+      for (const p of s.players) {
+        const d = defaults.players.find((x) => x.id === p.id);
+        if (d?.cartoon && !p.cartoon) p.cartoon = d.cartoon;
+      }
       const b = defaultBrand();
       s.brand = { ...b, ...(s.brand || {}), mgr: { ...b.mgr, ...(s.brand?.mgr || {}) } };
       return s;

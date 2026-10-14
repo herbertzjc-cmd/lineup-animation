@@ -26,7 +26,15 @@ export const flagOf = (p) => p.flag || NATION_FLAGS[p.nationality] || '';
 // cannot pop out.
 export const DEFAULT_POP = { on: true, scale: 100, x: 0, y: 0, depth: 60 };
 export const popOf = (p) => ({ ...DEFAULT_POP, ...(p.pop || {}) });
-export const canPop = (p) => popOf(p).on && p.photoAlpha !== false;
+
+// Which picture a player's card shows. `avatar` is "cartoon" (the default) or "photo". A player
+// set to "photo" without a photo file shows the cartoon. `cartoon` is an optional image used
+// as the cartoon figure (the goalkeeper's); without it the built-in drawing is used.
+export const avatarOf = (p) => (p.avatar === 'photo' && p.photo ? 'photo' : 'cartoon');
+export const portraitSrc = (p) => (avatarOf(p) === 'photo' ? p.photo : p.cartoon || '');
+
+// A cartoon always has a transparent background; a photo only if it was detected as a cut-out.
+export const canPop = (p) => popOf(p).on && (avatarOf(p) === 'photo' ? p.photoAlpha !== false : true);
 
 export const POSITIONS = ['GK', 'RB', 'CB', 'LB', 'DM', 'CM', 'AM', 'RW', 'LW', 'ST'];
 export const THEMES = [

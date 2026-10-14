@@ -44,6 +44,7 @@ function render({ id, mode } = {}) {
   const el = h('div', 'view editor');
   el._photo = p.photo || '';
   el._alpha = p.photoAlpha;
+  el._cartoon = p.cartoon || ''; // the player's own cartoon image, if any (not editable here)
   el.innerHTML = `
     <button class="close" data-action="cancel" aria-label="Close">×</button>
     <h2 class="view__title" data-anim>${id ? 'EDIT PLAYER' : 'NEW PLAYER'}</h2>
@@ -53,6 +54,9 @@ function render({ id, mode } = {}) {
         <div>
           <label class="btn btn--ghost btn--sm">Upload photo<input type="file" name="photoFile" accept="${IMAGE_ACCEPT}" hidden></label>
           <button class="btn btn--ghost btn--sm" type="button" data-clear-photo>Remove</button>
+          <label class="field editor__avatar">Show on the card
+            <select name="avatar"><option value="cartoon">Cartoon figure</option><option value="photo">Photo</option></select>
+          </label>
           <p class="view__sub">${IMAGE_FORMATS_HINT}. Transparent PNG / WebP cut-outs work best.</p>
           <p class="editor__note"></p>
         </div>
@@ -93,6 +97,7 @@ function render({ id, mode } = {}) {
   el.querySelector('.editor__scroll').prepend(el._brand.el);
 
   const $ = (n) => el.querySelector(`[name=${n}]`);
+  $('avatar').value = p.avatar === 'photo' && p.photo ? 'photo' : 'cartoon';
   const note = el.querySelector('.editor__note');
   const prevBox = el.querySelector('.editor__cardprev');
 
@@ -106,6 +111,8 @@ function render({ id, mode } = {}) {
       number: Number($('number').value) || '',
       position: $('position').value,
       nationality: $('nationality').value.trim(),
+      avatar: $('avatar').value,
+      cartoon: el._cartoon,
       photo: el._photo || '',
       photoAlpha: el._photo ? el._alpha : undefined,
       special: $('special').checked,
@@ -132,7 +139,9 @@ function render({ id, mode } = {}) {
     gsap.set(tile, { autoAlpha: 1 });
     prevBox.append(tile);
     showPopNow(tile);
-    note.textContent = d.photo && d.photoAlpha === false
+    $('avatar').querySelector('[value=photo]').disabled = !el._photo; // nothing to show without a photo
+    if (!el._photo) $('avatar').value = 'cartoon';
+    note.textContent = d.avatar === 'photo' && d.photo && d.photoAlpha === false
       ? 'No transparent background found, so the pop-out is switched off for this photo. Use a cut-out PNG or WebP.'
       : '';
     $('popDepth').disabled = !d.pop.on;
@@ -156,6 +165,8 @@ function render({ id, mode } = {}) {
       if (mine !== reading) return;
       el._photo = url;
       el._alpha = alpha;
+      $('avatar').querySelector('[value=photo]').disabled = false;
+      $('avatar').value = 'photo'; // you just uploaded it: show it
       el.querySelector('.editor__error').textContent = '';
       paint();
     } catch (err) {
@@ -168,6 +179,7 @@ function render({ id, mode } = {}) {
   el.querySelector('[data-clear-photo]').addEventListener('click', () => {
     el._photo = '';
     el._alpha = undefined;
+    $('avatar').value = 'cartoon';
     paint();
   });
   el.querySelector('[data-reset-pop]').addEventListener('click', () => {
@@ -197,6 +209,7 @@ export function readEditor(el) {
     position: f('position'),
     nationality: f('nationality'),
     age: age ? Number(age) : '',
+    avatar: el._photo && el.querySelector('[name=avatar]').value === 'photo' ? 'photo' : 'cartoon',
     photo: el._photo || '',
     photoAlpha: el._photo ? el._alpha : undefined,
     special: el.querySelector('[name=special]').checked,

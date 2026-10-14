@@ -1,6 +1,6 @@
 import gsap from 'gsap';
 import { h, esc } from '../../dom.js';
-import { asset } from '../../data.js';
+import { asset, portraitSrc } from '../../data.js';
 import * as store from '../../store.js';
 import { exitView } from './common.js';
 
@@ -21,7 +21,7 @@ function render({ id }) {
   el.innerHTML = `
     <button class="close" data-action="close" aria-label="Close">×</button>
     <div class="detail__portrait" data-anim>
-      ${p.photo ? `<img src="${esc(asset(p.photo))}" alt="">` : '<div class="detail__sil"></div>'}
+      ${portraitSrc(p) ? `<img src="${esc(asset(portraitSrc(p)))}" alt="">` : '<div class="detail__sil"></div>'}
       <div class="detail__num">${esc(p.number)}</div>
     </div>
     <div class="detail__first" data-anim>${esc(first.toUpperCase())}</div>
@@ -39,6 +39,16 @@ function render({ id }) {
       ${onPitch ? '' : `<button class="btn btn--ghost" data-action="delete" data-id="${esc(id)}">Delete</button>`}
     </div>
   `;
+  // A picture that cannot be loaded falls back to the silhouette instead of a broken image.
+  const img = el.querySelector('.detail__portrait img');
+  if (img) {
+    const failed = () => {
+      const sil = h('div', 'detail__sil');
+      img.replaceWith(sil);
+    };
+    if (img.complete && img.naturalWidth === 0) failed();
+    else img.addEventListener('error', failed, { once: true });
+  }
   return el;
 }
 

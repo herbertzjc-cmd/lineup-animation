@@ -1,2 +1,9 @@
 node_modules
 dist
+# raw photos are inputs for `npm run cutout`; keep the folder but not the (large) originals
+assets/raw/*
+!assets/raw/.gitkeep
+# contact sheet written by `npm run cutout -- --preview`
+assets/players/_preview.png
+.venv
+__pycache__

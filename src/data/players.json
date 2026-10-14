@@ -42,8 +42,11 @@
       "fullName": "Alisson Becker",
       "position": "GK",
       "nationality": "Brazil",
-      "photo": "players/becker.svg",
-      "flag": "flags/br.svg"
+      "flag": "flags/br.svg",
+      "cartoon": "players/becker.svg",
+      "photo": "players/becker.webp",
+      "photoAlpha": true,
+      "avatar": "cartoon"
     },
     {
       "id": "szoboszlai",
@@ -51,7 +54,10 @@
       "name": "Szoboszlai",
       "fullName": "Dominik Szoboszlai",
       "position": "RB",
-      "nationality": "Hungary"
+      "nationality": "Hungary",
+      "photo": "players/szoboszlai.webp",
+      "photoAlpha": true,
+      "avatar": "cartoon"
     },
     {
       "id": "konate",
@@ -59,7 +65,10 @@
       "name": "Konaté",
       "fullName": "Ibrahima Konaté",
       "position": "CB",
-      "nationality": "France"
+      "nationality": "France",
+      "photo": "players/konate.webp",
+      "photoAlpha": true,
+      "avatar": "cartoon"
     },
     {
       "id": "van-dijk",
@@ -67,7 +76,10 @@
       "name": "van Dijk",
       "fullName": "Virgil van Dijk",
       "position": "CB",
-      "nationality": "Netherlands"
+      "nationality": "Netherlands",
+      "photo": "players/van-dijk.webp",
+      "photoAlpha": true,
+      "avatar": "cartoon"
     },
     {
       "id": "kerkez",
@@ -75,7 +87,10 @@
       "name": "Kerkez",
       "fullName": "Milos Kerkez",
       "position": "LB",
-      "nationality": "Hungary"
+      "nationality": "Hungary",
+      "photo": "players/kerkez.webp",
+      "photoAlpha": true,
+      "avatar": "cartoon"
     },
     {
       "id": "gravenberch",
@@ -83,7 +98,10 @@
       "name": "Gravenberch",
       "fullName": "Ryan Gravenberch",
       "position": "CM",
-      "nationality": "Netherlands"
+      "nationality": "Netherlands",
+      "photo": "players/gravenberch.webp",
+      "photoAlpha": true,
+      "avatar": "cartoon"
     },
     {
       "id": "mac-allister",
@@ -91,7 +109,10 @@
       "name": "Mac Allister",
       "fullName": "Alexis Mac Allister",
       "position": "CM",
-      "nationality": "Argentina"
+      "nationality": "Argentina",
+      "photo": "players/mac-allister.webp",
+      "photoAlpha": true,
+      "avatar": "cartoon"
     },
     {
       "id": "salah",
@@ -100,7 +121,10 @@
       "fullName": "Mohamed Salah",
       "position": "RW",
       "nationality": "Egypt",
-      "special": true
+      "special": true,
+      "photo": "players/salah.webp",
+      "photoAlpha": true,
+      "avatar": "cartoon"
     },
     {
       "id": "wirtz",
@@ -109,7 +133,10 @@
       "fullName": "Florian Wirtz",
       "position": "AM",
       "nationality": "Germany",
-      "special": true
+      "special": true,
+      "photo": "players/wirtz.webp",
+      "photoAlpha": true,
+      "avatar": "cartoon"
     },
     {
       "id": "gakpo",
@@ -117,7 +144,10 @@
       "name": "Gakpo",
       "fullName": "Cody Gakpo",
       "position": "LW",
-      "nationality": "Netherlands"
+      "nationality": "Netherlands",
+      "photo": "players/gakpo.webp",
+      "photoAlpha": true,
+      "avatar": "cartoon"
     },
     {
       "id": "ekitike",
@@ -125,7 +155,10 @@
       "name": "Ekitiké",
       "fullName": "Hugo Ekitiké",
       "position": "ST",
-      "nationality": "France"
+      "nationality": "France",
+      "photo": "players/ekitike.webp",
+      "photoAlpha": true,
+      "avatar": "cartoon"
     },
     {
       "id": "sub-1",
@@ -133,7 +166,8 @@
       "name": "Substitute 1",
       "fullName": "Substitute 1",
       "position": "GK",
-      "nationality": ""
+      "nationality": "",
+      "avatar": "cartoon"
     },
     {
       "id": "sub-2",
@@ -141,7 +175,8 @@
       "name": "Substitute 2",
       "fullName": "Substitute 2",
       "position": "CB",
-      "nationality": ""
+      "nationality": "",
+      "avatar": "cartoon"
     },
     {
       "id": "sub-3",
@@ -149,7 +184,8 @@
       "name": "Substitute 3",
       "fullName": "Substitute 3",
       "position": "CB",
-      "nationality": ""
+      "nationality": "",
+      "avatar": "cartoon"
     },
     {
       "id": "sub-4",
@@ -157,7 +193,8 @@
       "name": "Substitute 4",
       "fullName": "Substitute 4",
       "position": "CM",
-      "nationality": ""
+      "nationality": "",
+      "avatar": "cartoon"
     },
     {
       "id": "sub-5",
@@ -165,7 +202,8 @@
       "name": "Substitute 5",
       "fullName": "Substitute 5",
       "position": "DM",
-      "nationality": ""
+      "nationality": "",
+      "avatar": "cartoon"
     },
     {
       "id": "sub-6",
@@ -173,7 +211,8 @@
       "name": "Substitute 6",
       "fullName": "Substitute 6",
       "position": "LW",
-      "nationality": ""
+      "nationality": "",
+      "avatar": "cartoon"
     },
     {
       "id": "sub-7",
@@ -181,7 +220,8 @@
       "name": "Substitute 7",
       "fullName": "Substitute 7",
       "position": "ST",
-      "nationality": ""
+      "nationality": "",
+      "avatar": "cartoon"
     }
   ]
 }

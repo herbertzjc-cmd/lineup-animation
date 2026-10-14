@@ -47,10 +47,45 @@ You only need to edit data and assets — no code changes:
 - **`src/data/players.json`** — team name, default colour (`team.colors.primary`; viewers can change it on the page with **Colors**), coach, formation, the 11 starters (`lineup.slots`, goalkeeper first, then each line left to right) and the full squad (`players`). Add `"special": true` to a player to give them the gold entrance.
 - **`public/`** — put images here and reference them from the JSON:
   - `team.logo` — a single-colour silhouette SVG works best (it is drawn red on the light side and white on the red panel)
-  - `photo` — a transparent PNG/SVG cut-out of the player (players without one get a generic placeholder portrait). A cut-out is needed for the pop-out effect; set `"photoAlpha": false` on a player whose photo has a solid background to keep it inside the card. Optional `"pop": { "on": true, "scale": 100, "x": 0, "y": 0, "depth": 60 }` tunes the effect
+  - `avatar` — what the card shows: `"cartoon"` (the default: the built-in cartoon figure) or `"photo"`. To show a real photo for a player, set `"avatar": "photo"`; if the photo is missing or cannot be loaded the card quietly falls back to the cartoon
+  - `cartoon` — optional image to use as that player's cartoon figure instead of the built-in drawing (the goalkeeper has one)
+  - `photo` — a transparent PNG/WebP/SVG cut-out of the player, used when `avatar` is `"photo"`. A cut-out is needed for the pop-out effect; set `"photoAlpha": false` on a player whose photo has a solid background to keep it inside the card. Optional `"pop": { "on": true, "scale": 100, "x": 0, "y": 0, "depth": 60 }` tunes the effect
   - `flag` — a small flag image next to the portrait (flags for a few common nationalities are built in; add your own in `public/flags/`)
 
 After editing `players.json`, press **Reset** on the page (saved lineups in your browser take priority over the file).
+
+## 如何添加球员照片（批量自动抠图）
+
+`tools/cutout.py` 会把原始球员照片批量处理成**背景透明、尺寸统一**的 PNG（默认 800×1000，人物底部居中对齐），让所有球员在卡片里大小、位置一致。
+
+**一次性准备**（需要 Python 3.9 以上）：
+
+```bash
+python3 -m venv .venv && source .venv/bin/activate   # Windows：.venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+**添加球员照片**：
+
+1. 把原始照片（jpg / jpeg / png / webp / bmp）放进 `assets/raw/`，文件名建议用球员 id，比如 `salah.jpg`
+2. 运行 `npm run cutout`，结果输出到 `assets/players/`，文件名相同、扩展名为 `.png`（如 `salah.png`）
+3. 在 `src/data/players.json` 里给对应球员填写文件名，并把显示方式改成照片：`"photo": "players/salah.png", "avatar": "photo"`。`avatar` 默认是 `"cartoon"`（卡通形象），只有设为 `"photo"` 才显示照片；找不到照片文件时会自动退回卡通，不会出现空白或裂图
+
+之后每次只会处理**新添加**的照片，已处理过的会被跳过。首次运行时 rembg 会自动下载模型（约 170 MB，需要联网），以后可离线使用。如果提示找不到 `python` 命令，请先激活上面的虚拟环境，或把 `package.json` 里 `cutout` 脚本的 `python` 改成 `python3`。
+
+**常用参数**（用 `npm run cutout -- 参数` 传入）：
+
+| 参数 | 作用 |
+| --- | --- |
+| `--preview` | 额外生成 `assets/players/_preview.png`：把所有结果排在棋盘格背景上，一眼检查抠图质量 |
+| `--model birefnet-portrait` | 人像更精细（模型很大，可能接近 1 GB，首次下载较久）；`u2net_human_seg` 最快；默认 `isnet-general-use` |
+| `--alpha-matting` | 边缘精修，头发细节更好但更慢 |
+| `--force` | 重新处理已存在的输出文件 |
+| `--width` / `--height` / `--padding` | 统一画布大小（默认 800×1000）和人物四周边距（默认 8px） |
+| `--no-canvas` | 只裁剪到人物轮廓，不放到统一画布 |
+| `--input` / `--output` | 修改输入、输出目录 |
+
+处理流程：去背景 → 只保留最大的人物区域（面积超过最大区域 15% 的部分也保留，避免手臂被误删）→ 按轮廓裁剪并留边距 → 等比缩放到统一画布。单张图片失败不会中断批处理，最后会打印"处理 / 跳过 / 失败"的数量和失败的文件名。`assets/players/` 里的图片开发时会按 `/players/文件名` 提供，构建时自动拷进发布目录；`assets/raw/` 里的原图不会被提交到 Git。
 
 ## Project layout
 
@@ -76,6 +111,7 @@ src/app.js                interaction wiring (select, swap, drag, formation)
 
 Free to use as-is, but **not to modify** the code — see [LICENSE](LICENSE).
 Customising `players.json` and `public/` is allowed. Club and player names in the sample data are placeholders and belong to their owners.
+The sample photos in `public/players/*.webp` (cut-outs of freely licensed Wikimedia Commons photographs, mostly CC0; authors and licences in [CREDITS.md](CREDITS.md)) are not shown by default: every player uses `"avatar": "cartoon"` until you switch them to `"photo"`.
 
 ---
 

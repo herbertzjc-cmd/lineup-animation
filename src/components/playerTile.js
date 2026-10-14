@@ -1,6 +1,6 @@
 import gsap from 'gsap';
 import { h, esc } from '../dom.js';
-import { asset, flagOf, popOf, canPop } from '../data.js';
+import { asset, flagOf, popOf, canPop, avatarOf, portraitSrc } from '../data.js';
 import { goldParticles } from './fx.js';
 
 // Stand-in portrait for players without a photo; the shirt follows the team colour.
@@ -32,6 +32,31 @@ function popStates(p) {
   return { rest, pop, shadowRest: shadow(0, 0, 0), shadowPop: shadow(0.28 + 0.3 * d, 8 + 8 * d, 10 + 8 * d) };
 }
 
+// A picture failed to load (missing file, broken link): show the cartoon instead of a broken image.
+// First the player's own cartoon image, if they have one and it is not the one that failed;
+// then the built-in drawing.
+function useCartoonInstead(el, p, failedSrc) {
+  const photo = el.querySelector('.tile__photo');
+  if (!photo) return;
+  const own = p.cartoon && asset(p.cartoon) !== failedSrc ? p.cartoon : '';
+  photo.classList.remove('tile__photo--cover');
+  photo.innerHTML = own ? `<img src="${esc(asset(own))}" alt="" draggable="false">` : PLACEHOLDER;
+  if (popOf(p).on) {
+    el._pop = popStates(p);
+    el.classList.remove('tile--nopop');
+    el.classList.add('tile--pop');
+  }
+  watchPortrait(el, p);
+}
+
+function watchPortrait(el, p) {
+  const img = el.querySelector('.tile__photo img');
+  if (!img) return;
+  const failed = () => useCartoonInstead(el, p, img.currentSrc || img.src);
+  if (img.complete && img.naturalWidth === 0) failed();
+  else img.addEventListener('error', failed, { once: true });
+}
+
 // How far (card px, per side) the popped figure reaches past the card's sides. Used to space
 // out the cards of a group so a figure never covers its neighbour.
 export function popOvershoot(p) {
@@ -58,9 +83,8 @@ export function createTile(p, { revealed = true } = {}) {
   el.tabIndex = 0;
   el.setAttribute('role', 'button');
   el.setAttribute('aria-label', `${p.fullName}, number ${p.number}${special ? ', special player' : ''}`);
-  const portrait = p.photo
-    ? `<img src="${esc(asset(p.photo))}" alt="" draggable="false">`
-    : PLACEHOLDER;
+  const src = portraitSrc(p);
+  const portrait = src ? `<img src="${esc(asset(src))}" alt="" draggable="false">` : PLACEHOLDER;
   el.innerHTML = `
     ${special ? '<div class="tile__halo"></div>' : ''}
     <div class="tile__inner">
@@ -69,7 +93,7 @@ export function createTile(p, { revealed = true } = {}) {
           <div class="tile__bg"></div>
           ${special ? '<div class="tile__holo"></div>' : ''}
           ${special ? '<div class="tile__fx"><i class="tile__sheen"></i><i class="tile__beam"></i><i class="tile__flash"></i></div>' : ''}
-          <div class="tile__stage"><div class="tile__person"><div class="tile__photo${p.photoAlpha === false ? ' tile__photo--cover' : ''}">${portrait}</div></div></div>
+          <div class="tile__stage"><div class="tile__person"><div class="tile__photo${avatarOf(p) === 'photo' && p.photoAlpha === false ? ' tile__photo--cover' : ''}">${portrait}</div></div></div>
           <div class="tile__fade"></div>
           <div class="tile__num tile__txt">${esc(p.number)}</div>
           <div class="tile__pos tile__txt">${esc(p.position)}</div>
@@ -86,6 +110,7 @@ export function createTile(p, { revealed = true } = {}) {
   const states = popStates(p);
   el._pop = pop ? states : null;
   gsap.set(el.querySelector('.tile__person'), { ...states.rest, transformOrigin: '50% 100%', transformPerspective: 700, filter: states.shadowRest });
+  watchPortrait(el, p);
   return el;
 }
 
