@@ -106,6 +106,7 @@ function render({ id, mode } = {}) {
     const fullName = $('fullName').value.trim();
     return {
       id: 'preview',
+      lookSeed: id || 'preview', // the preview card gets the same cartoon look as the saved player
       fullName: fullName || 'Player Name',
       name: $('name').value.trim() || fullName.split(/\s+/).slice(-1)[0] || 'Name',
       number: Number($('number').value) || '',

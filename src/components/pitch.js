@@ -1,5 +1,7 @@
 import gsap from 'gsap';
-import { h } from '../dom.js';
+import { h, esc } from '../dom.js';
+import { fitFont } from '../branding.js';
+import { nationCode } from '../data.js';
 import * as store from '../store.js';
 import { createTile, flipTimeline, specialTimeline, popBackTimeline, popOvershoot, SPECIAL_PREP } from './playerTile.js';
 
@@ -77,9 +79,10 @@ export function createPitch() {
 
   // id -> tile element, for everyone currently on the pitch.
   const fxLayer = h('div', 'fref__fx'); // gold sparks for special players
-  const dim = h('div', 'fref__dim'); // darkens the pitch while a group is in the spotlight
-  el.append(fxLayer, dim);
-  gsap.set(dim, { autoAlpha: 0 });
+  const dim = h('div', 'fref__dim'); // darkens (and slightly blurs) the pitch while a group is in the spotlight
+  const light = h('div', 'fref__light'); // the pool and shaft of light on the spotlighted row
+  el.append(fxLayer, dim, light);
+  gsap.set([dim, light], { autoAlpha: 0 });
   const tiles = new Map();
   let introTiles = [];
   const place = (tile, pos) => {
@@ -94,11 +97,11 @@ export function createPitch() {
     tiles.forEach((t) => { gsap.killTweensOf(t); t.remove(); });
     tiles.clear();
     fxLayer.replaceChildren();
-    el.querySelectorAll('.fref__caption').forEach((c) => c.remove());
-    gsap.set(dim, { autoAlpha: 0 });
+    el.querySelectorAll('.fref__caption, .fref__bar').forEach((c) => c.remove());
+    gsap.set([dim, light], { autoAlpha: 0 });
     el.classList.remove('is-picking');
     gsap.killTweensOf(el);
-    gsap.set(el, { x: 0, scale: 1 });
+    gsap.set(el, { x: 0, y: 0, scale: 1 });
     const pos = positions(store.getFormation());
     store.slots().forEach((id, i) => {
       const tile = createTile(store.player(id), { revealed: false });
@@ -118,14 +121,26 @@ export function createPitch() {
     // Figures that stand out of their card need extra room so they never cover a neighbour.
     const gapU = SPOT_GAP + 2 * Math.max(0, ...group.map((t) => popOvershoot(store.player(t.dataset.id))));
     const s = Math.min(SPOT_MAX, SPOT_W / (n * TILE_W + (n - 1) * gapU));
-    const caption = h('div', 'fref__caption', n > 1 ? `${title}S` : title);
+    // Group title: a slanted colour bar wipes in, the letters rise one by one, a line draws under them.
+    const label = n > 1 ? `${title}S` : title;
+    const caption = h('div', 'fref__caption');
+    caption.innerHTML = `<div class="cap"><i class="cap__bar"></i><span class="cap__text">${[...label].map((ch) => `<b>${esc(ch)}</b>`).join('')}</span><i class="cap__line"></i></div>`;
     el.append(caption);
+    const capBar = caption.querySelector('.cap__bar');
+    const capLetters = caption.querySelectorAll('.cap__text b');
+    const capLine = caption.querySelector('.cap__line');
     gsap.set(caption, { autoAlpha: 0 });
 
     const tl = gsap.timeline();
     tl.set(group, { zIndex: 40, transformPerspective: 1000 }, 0)
-      .to(dim, { autoAlpha: 1, duration: 0.5, ease: 'power1.out' }, 0)
-      .fromTo(caption, { autoAlpha: 0, y: -14 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0.25);
+      .to([dim, light], { autoAlpha: 1, duration: 0.6, ease: 'power1.out' }, 0)
+      .set(caption, { autoAlpha: 1 }, 0.1)
+      .fromTo(capBar, { scaleX: 0, transformOrigin: '0% 50%' }, { scaleX: 1, duration: 0.45, ease: 'power3.out' }, 0.1)
+      .fromTo(capLetters, { yPercent: 120, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: 0.4, ease: 'power3.out', stagger: 0.03 }, 0.25)
+      .fromTo(capLine, { scaleX: 0, transformOrigin: '0% 50%' }, { scaleX: 1, duration: 0.6, ease: 'power2.out' }, 0.4);
+
+    const bars = [];
+    const shadows = group.map((t) => t.querySelector('.tile__shadow'));
 
     group.forEach((t, i) => {
       const at = i * 0.05;
@@ -136,19 +151,41 @@ export function createPitch() {
         // lean towards the camera as it rises, then stand upright
         .to(t, { rotationX: -9, duration: 0.35, ease: 'power2.out' }, at)
         .to(t, { rotationX: 0, duration: 0.5, ease: 'power3.inOut' }, at + 0.35);
-      if (store.player(t.dataset.id).special) {
+      // the card leaves the pitch: its shadow stays behind, smaller and fainter
+      tl.to(shadows[i], { y: 26, scaleX: 0.82, opacity: 0.4, duration: RISE, ease: 'power3.inOut' }, at);
+
+      const p = store.player(t.dataset.id);
+      let revealed; // when this card's contents are showing
+      if (p.special) {
         tl.add(specialTimeline(t, fxLayer, { x: targetX, y: SPOT_Y, k: s }), 0);
+        revealed = SPECIAL_PREP + 1.45;
       } else {
         tl.add(flipTimeline(t), SPECIAL_PREP + i * 0.1);
+        revealed = SPECIAL_PREP + i * 0.1 + 0.9;
       }
+
+      // Lower third under the card: number, full name, position and nationality slide in.
+      // as wide as the slot the card occupies (a lone card gets a wider bar)
+      const w = n > 1 ? (TILE_W + gapU) * s - 14 : Math.max(TILE_W * s, 340);
+      const bar = h('div', 'fref__bar');
+      bar.style.cssText = `left:${targetX - w / 2}px; top:${SPOT_Y + (TILE_H * s) / 2 + 22}px; width:${w}px;`;
+      const nation = w < 330 ? nationCode(p.nationality) : (p.nationality || '').toUpperCase();
+      const meta = [p.position, nation].filter(Boolean).join(' · ');
+      bar.innerHTML = `<span class="bar__num">${esc(p.number)}</span><span class="bar__body"><b class="bar__name" style="font-size:${fitFont(p.fullName.toUpperCase(), (w - 96) * 0.84, { max: 30, min: 12 })}px">${esc(p.fullName.toUpperCase())}</b><i class="bar__meta" style="font-size:${Math.max(11, Math.min(16, w / 13))}px">${esc(meta)}</i></span>`;
+      el.append(bar);
+      gsap.set(bar, { autoAlpha: 0 });
+      bars.push(bar);
+      tl.fromTo(bar, { autoAlpha: 0, clipPath: 'inset(0 100% 0 0)' }, { autoAlpha: 1, clipPath: 'inset(0 0% 0 0)', duration: 0.5, ease: 'power3.out' }, revealed + 0.1)
+        .fromTo(bar.querySelectorAll('.bar__body > *'), { x: -24, autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.4, ease: 'power2.out', stagger: 0.07 }, revealed + 0.3);
     });
 
     // Everything has been revealed (a special card takes longer, and the group waits for it).
     const back = tl.duration() + HOLD;
-    tl.to(caption, { autoAlpha: 0, y: -10, duration: 0.3, ease: 'power2.in' }, back - 0.1)
+    tl.to([caption, ...bars], { autoAlpha: 0, x: -24, duration: 0.3, ease: 'power2.in' }, back - 0.1)
+      .to(shadows, { y: 0, scaleX: 1, opacity: 1, duration: RETURN, ease: 'power3.inOut', stagger: 0.04 }, back)
       .to(group, { x: 0, y: 0, scale: 1, rotationX: 0, duration: RETURN, ease: 'power3.inOut', stagger: 0.04 }, back)
       .add(group.reduce((all, t, i) => all.add(popBackTimeline(t, RETURN), i * 0.04), gsap.timeline()), back)
-      .to(dim, { autoAlpha: 0, duration: 0.5, ease: 'power1.in' }, back + 0.15)
+      .to([dim, light], { autoAlpha: 0, duration: 0.5, ease: 'power1.in' }, back + 0.15)
       .set(group, { clearProps: 'zIndex' }, back + RETURN + 0.2);
     return tl;
   }
@@ -162,6 +199,7 @@ export function createPitch() {
       .set(introTiles.map(flipperOf), { rotationY: 180 }, 0);
     // ...then each position group in turn is brought forward and introduced.
     let cursor = tl.duration() + 0.2;
+    const groupsStart = cursor;
     let from = 0;
     groupSizes(store.getFormation()).forEach((size, g) => {
       const group = introTiles.slice(from, from + size);
@@ -171,8 +209,10 @@ export function createPitch() {
       tl.add(groupTl, cursor);
       cursor += groupTl.duration() + GROUP_PAUSE;
     });
-    // Finally the whole starting XI stands on the pitch for a moment.
-    tl.to({}, { duration: 0.8 }, cursor);
+    // The camera creeps in while the groups are introduced, then pulls back to show the whole XI.
+    tl.fromTo(el, { scale: 1, y: 0 }, { scale: 1.035, y: -10, duration: cursor - groupsStart, ease: 'none' }, groupsStart)
+      .to(el, { scale: 1, y: 0, duration: 1.2, ease: 'power3.inOut' }, cursor - 0.1)
+      .to({}, { duration: 1.2 }, cursor);
     return tl;
   }
 

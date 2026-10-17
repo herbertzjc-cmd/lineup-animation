@@ -40,6 +40,7 @@ function load() {
       for (const p of s.players) {
         const d = defaults.players.find((x) => x.id === p.id);
         if (d?.cartoon && !p.cartoon) p.cartoon = d.cartoon;
+        if (p.cartoon === 'players/becker.svg' && !d?.cartoon) delete p.cartoon; // the old goalkeeper image
       }
       const b = defaultBrand();
       s.brand = { ...b, ...(s.brand || {}), mgr: { ...b.mgr, ...(s.brand?.mgr || {}) } };

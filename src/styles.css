@@ -113,6 +113,11 @@ ul { list-style: none; }
 
 /* ---------- Player tile ---------- */
 .tile { position: absolute; width: 128px; height: 191px; visibility: hidden; outline: none; }
+/* A soft shadow on the pitch; it stays behind, smaller and fainter, while the card is lifted out. */
+.tile__shadow {
+  position: absolute; left: 4px; right: 4px; bottom: -11px; height: 28px; border-radius: 50%; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.36), rgba(0, 0, 0, 0.15) 55%, transparent 72%); filter: blur(3px);
+}
 .tile__inner { position: absolute; inset: 0; perspective: 800px; transition: transform 0.18s ease-out; }
 .tile__flipper { position: absolute; inset: 0; transform-style: preserve-3d; }
 .tile__front, .tile__back { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
@@ -217,11 +222,44 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 .fref__dim {
   position: absolute; inset: -200px; z-index: 25; pointer-events: none;
   background: radial-gradient(ellipse at 50% 50%, rgba(10, 14, 34, 0.3) 0%, rgba(10, 14, 34, 0.58) 72%);
+  -webkit-backdrop-filter: blur(2.5px); backdrop-filter: blur(2.5px); /* depth of field: the background softens */
 }
+/* The pool and shaft of light on the spotlighted row. */
+.fref__light {
+  position: absolute; left: 819px; top: 700px; width: 1500px; height: 620px; margin: -310px 0 0 -750px; z-index: 30; pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(255, 240, 205, 0.5) 0%, rgba(255, 230, 180, 0.2) 38%, transparent 70%);
+  mix-blend-mode: screen;
+}
+.fref__light::before {
+  content: ''; position: absolute; left: 50%; bottom: 50%; width: 820px; height: 760px; transform: translateX(-50%);
+  background: linear-gradient(180deg, transparent, rgba(255, 244, 220, 0.24)); clip-path: polygon(36% 0, 64% 0, 100% 100%, 0 100%); filter: blur(16px);
+}
+/* Lower third under a spotlighted card. */
+.fref__bar {
+  position: absolute; z-index: 38; height: 76px; display: flex; align-items: stretch; pointer-events: none;
+  background: linear-gradient(90deg, var(--primary-dark), var(--primary)); color: var(--on-primary);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 14px 100%); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+}
+.bar__num { flex: none; width: 62px; display: grid; place-items: center; font: 700 40px/1 var(--card-font); background: var(--on-primary); color: var(--primary-ink); }
+.bar__body { flex: 1; min-width: 0; padding: 0 12px 0 14px; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+.bar__name { font: 700 28px/1 var(--card-font); white-space: nowrap; letter-spacing: 1px; }
+.bar__meta { font: 700 15px/1 var(--text-font); font-style: normal; letter-spacing: 1.5px; opacity: 0.85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar__name { overflow: hidden; text-overflow: ellipsis; }
 .fref__caption {
-  position: absolute; left: 319px; width: 1000px; top: 150px; z-index: 38; pointer-events: none; text-align: center;
-  font: 700 70px/1 var(--card-font); letter-spacing: 12px; color: #fff; text-shadow: 0 4px 22px rgba(0, 0, 0, 0.65);
+  position: absolute; left: 319px; width: 1000px; top: 138px; z-index: 38; pointer-events: none; text-align: center;
 }
+.cap { position: relative; display: inline-block; padding: 6px 44px 10px; }
+.cap__bar {
+  position: absolute; inset: 0; transform: skewX(-14deg); border-radius: 4px;
+  background: linear-gradient(90deg, var(--primary-hi), var(--primary) 60%, var(--primary-dark));
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+.cap__text {
+  position: relative; display: inline-flex; overflow: hidden; padding: 4px 0;
+  font: 700 66px/1 var(--card-font); letter-spacing: 12px; color: var(--on-primary);
+}
+.cap__text b { display: inline-block; font-weight: inherit; }
+.cap__line { position: absolute; left: 44px; right: 44px; bottom: 7px; height: 4px; background: var(--on-primary); opacity: 0.85; }
 @media (prefers-reduced-motion: reduce) { .tile__edge, .tile__holo { animation: none; } }
 
 /* While the intro (or a replay) runs, nothing is clickable except "skip". */
@@ -299,6 +337,8 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
   background: rgba(0, 0, 0, 0.22);
 }
 .detail__portrait img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: bottom; }
+.detail__cartoon { position: absolute; inset: 0; display: flex; justify-content: center; align-items: flex-end; }
+.detail__cartoon svg { width: 78%; height: 98%; filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.3)); }
 .detail__sil {
   position: absolute; inset: 22% 24% 0; background: color-mix(in srgb, var(--on-primary) 22%, transparent);
   border-radius: 50% 50% 0 0 / 38% 38% 0 0;
@@ -424,6 +464,17 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
   background: linear-gradient(165deg, var(--primary-hi), var(--primary) 50%, var(--primary-dark));
   clip-path: polygon(0 0, 100% 0, 86% 100%, 0 100%);
 }
+.intro__stripe {
+  position: absolute; top: 0; bottom: 0; left: 1130px; width: 96px; transform: skewX(-9deg);
+  background: linear-gradient(180deg, var(--primary-hi), var(--primary)); opacity: 0.5;
+}
+.intro__stripe--2 { left: 1262px; width: 26px; background: var(--on-primary); opacity: 0.35; }
+.intro__crest {
+  position: absolute; right: 120px; top: 50%; width: 430px; height: 520px; margin-top: -260px;
+  background: var(--primary-ink); -webkit-mask: var(--logo) center / contain no-repeat; mask: var(--logo) center / contain no-repeat;
+  filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.25));
+}
+.has-logo-img .intro__crest { background: var(--logo-img) center / contain no-repeat; -webkit-mask: none; mask: none; }
 .intro__content { position: absolute; left: 140px; top: 300px; width: 1000px; }
 .intro__kicker { font-size: 32px; letter-spacing: 6px; opacity: 0.9; }
 .intro__title { font: 700 200px/1 var(--card-font); margin: 20px 0; }

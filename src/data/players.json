@@ -43,10 +43,15 @@
       "position": "GK",
       "nationality": "Brazil",
       "flag": "flags/br.svg",
-      "cartoon": "players/becker.svg",
       "photo": "players/becker.webp",
       "photoAlpha": true,
-      "avatar": "cartoon"
+      "avatar": "cartoon",
+      "look": {
+        "skin": 1,
+        "hair": "#2a1a12",
+        "style": "long",
+        "beard": "full"
+      }
     },
     {
       "id": "szoboszlai",
@@ -57,7 +62,13 @@
       "nationality": "Hungary",
       "photo": "players/szoboszlai.webp",
       "photoAlpha": true,
-      "avatar": "cartoon"
+      "avatar": "cartoon",
+      "look": {
+        "skin": 0,
+        "hair": "#3a2a20",
+        "style": "waves",
+        "beard": "stubble"
+      }
     },
     {
       "id": "konate",
@@ -68,7 +79,13 @@
       "nationality": "France",
       "photo": "players/konate.webp",
       "photoAlpha": true,
-      "avatar": "cartoon"
+      "avatar": "cartoon",
+      "look": {
+        "skin": 4,
+        "hair": "#161616",
+        "style": "buzz",
+        "beard": "none"
+      }
     },
     {
       "id": "van-dijk",
@@ -79,7 +96,13 @@
       "nationality": "Netherlands",
       "photo": "players/van-dijk.webp",
       "photoAlpha": true,
-      "avatar": "cartoon"
+      "avatar": "cartoon",
+      "look": {
+        "skin": 4,
+        "hair": "#161616",
+        "style": "bun",
+        "beard": "stubble"
+      }
     },
     {
       "id": "kerkez",
@@ -90,7 +113,13 @@
       "nationality": "Hungary",
       "photo": "players/kerkez.webp",
       "photoAlpha": true,
-      "avatar": "cartoon"
+      "avatar": "cartoon",
+      "look": {
+        "skin": 0,
+        "hair": "#2a1a12",
+        "style": "crop",
+        "beard": "none"
+      }
     },
     {
       "id": "gravenberch",
@@ -101,7 +130,13 @@
       "nationality": "Netherlands",
       "photo": "players/gravenberch.webp",
       "photoAlpha": true,
-      "avatar": "cartoon"
+      "avatar": "cartoon",
+      "look": {
+        "skin": 3,
+        "hair": "#161616",
+        "style": "curly",
+        "beard": "none"
+      }
     },
     {
       "id": "mac-allister",
@@ -112,7 +147,13 @@
       "nationality": "Argentina",
       "photo": "players/mac-allister.webp",
       "photoAlpha": true,
-      "avatar": "cartoon"
+      "avatar": "cartoon",
+      "look": {
+        "skin": 0,
+        "hair": "#a67b45",
+        "style": "waves",
+        "beard": "stubble"
+      }
     },
     {
       "id": "salah",
@@ -124,7 +165,13 @@
       "special": true,
       "photo": "players/salah.webp",
       "photoAlpha": true,
-      "avatar": "cartoon"
+      "avatar": "cartoon",
+      "look": {
+        "skin": 2,
+        "hair": "#161616",
+        "style": "curly",
+        "beard": "full"
+      }
     },
     {
       "id": "wirtz",
@@ -136,7 +183,13 @@
       "special": true,
       "photo": "players/wirtz.webp",
       "photoAlpha": true,
-      "avatar": "cartoon"
+      "avatar": "cartoon",
+      "look": {
+        "skin": 0,
+        "hair": "#6a4a2a",
+        "style": "crop",
+        "beard": "none"
+      }
     },
     {
       "id": "gakpo",
@@ -147,7 +200,13 @@
       "nationality": "Netherlands",
       "photo": "players/gakpo.webp",
       "photoAlpha": true,
-      "avatar": "cartoon"
+      "avatar": "cartoon",
+      "look": {
+        "skin": 3,
+        "hair": "#161616",
+        "style": "fade",
+        "beard": "none"
+      }
     },
     {
       "id": "ekitike",
@@ -158,7 +217,13 @@
       "nationality": "France",
       "photo": "players/ekitike.webp",
       "photoAlpha": true,
-      "avatar": "cartoon"
+      "avatar": "cartoon",
+      "look": {
+        "skin": 3,
+        "hair": "#161616",
+        "style": "buzz",
+        "beard": "none"
+      }
     },
     {
       "id": "sub-1",

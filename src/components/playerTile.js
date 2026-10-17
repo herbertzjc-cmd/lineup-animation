@@ -2,21 +2,7 @@ import gsap from 'gsap';
 import { h, esc } from '../dom.js';
 import { asset, flagOf, popOf, canPop, avatarOf, portraitSrc } from '../data.js';
 import { goldParticles } from './fx.js';
-
-// Stand-in portrait for players without a photo; the shirt follows the team colour.
-const PLACEHOLDER = `
-  <svg viewBox="0 0 128 200" aria-hidden="true">
-    <path d="M2 200C2 140 20 120 50 112H78C108 120 126 140 126 200Z" style="fill:var(--on-primary)"/>
-    <path d="M50 112L64 130L78 112" fill="none" style="stroke:var(--primary-ink)" stroke-width="5" stroke-linejoin="round"/>
-    <g transform="translate(0,-20)">
-      <rect x="52" y="84" width="24" height="32" fill="#cf9272"/>
-      <ellipse cx="64" cy="74" rx="25" ry="31" fill="#e0a98a"/>
-      <path d="M39 70C37 44 52 28 66 28C86 28 93 46 89 70C86 58 78 52 64 52C52 52 43 58 39 70Z" fill="#3a2a20"/>
-      <ellipse cx="54" cy="72" rx="3" ry="2.2" fill="#2a1a12"/>
-      <ellipse cx="74" cy="72" rx="3" ry="2.2" fill="#2a1a12"/>
-      <path d="M56 90Q64 96 72 90" fill="none" stroke="#9a5a45" stroke-width="2.4" stroke-linecap="round"/>
-    </g>
-  </svg>`;
+import { cartoonSvg } from '../cartoon.js';
 
 const TILE_W = 128;
 const TILE_H = 191;
@@ -40,7 +26,7 @@ function useCartoonInstead(el, p, failedSrc) {
   if (!photo) return;
   const own = p.cartoon && asset(p.cartoon) !== failedSrc ? p.cartoon : '';
   photo.classList.remove('tile__photo--cover');
-  photo.innerHTML = own ? `<img src="${esc(asset(own))}" alt="" draggable="false">` : PLACEHOLDER;
+  photo.innerHTML = own ? `<img src="${esc(asset(own))}" alt="" draggable="false">` : cartoonSvg(p);
   if (popOf(p).on) {
     el._pop = popStates(p);
     el.classList.remove('tile--nopop');
@@ -84,8 +70,9 @@ export function createTile(p, { revealed = true } = {}) {
   el.setAttribute('role', 'button');
   el.setAttribute('aria-label', `${p.fullName}, number ${p.number}${special ? ', special player' : ''}`);
   const src = portraitSrc(p);
-  const portrait = src ? `<img src="${esc(asset(src))}" alt="" draggable="false">` : PLACEHOLDER;
+  const portrait = src ? `<img src="${esc(asset(src))}" alt="" draggable="false">` : cartoonSvg(p);
   el.innerHTML = `
+    <div class="tile__shadow"></div>
     ${special ? '<div class="tile__halo"></div>' : ''}
     <div class="tile__inner">
       <div class="tile__flipper">
