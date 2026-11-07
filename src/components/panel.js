@@ -1,7 +1,7 @@
 import gsap from 'gsap';
 import { h, esc } from '../dom.js';
 import * as store from '../store.js';
-import { fitFont, mgrTransform } from '../branding.js';
+import { fitFont, mgrTransform, matchText } from '../branding.js';
 import detail from './views/playerDetail.js';
 import bench from './views/bench.js';
 import list from './views/lineupList.js';
@@ -45,8 +45,18 @@ export function createPanel() {
     const m = store.getManager();
     const teamSize = fitFont(teamName, 270, { max: 76, min: 30, lines: 2 });
     const nameSize = fitFont(m.name, 270, { max: 42, min: 22, lines: 1 });
+    const t = matchText(store.getMatch());
+    const opp = store.getMatch().opponent || '';
+    const oppSize = fitFont(opp.toUpperCase(), 260, { max: 40, min: 20, lines: 1 });
     idle.innerHTML = `
       <div class="idle__team" style="font-size:${teamSize}px">${esc(teamName.toUpperCase())}</div>
+      <div class="idle__match">
+        ${opp ? `<div class="idle__vs">VS${t.side ? ` · ${esc(t.side.toUpperCase())}` : ''}</div><div class="idle__opp" style="font-size:${oppSize}px">${esc(opp.toUpperCase())}</div>` : ''}
+        ${t.kicker ? `<div class="idle__info">${esc(t.kicker)}</div>` : ''}
+        ${t.when ? `<div class="idle__info">${esc(t.when)}</div>` : ''}
+        ${t.venue ? `<div class="idle__info">${esc(t.venue)}</div>` : ''}
+        <div class="idle__formation"><span>FORMATION</span>${esc(store.getFormation())}</div>
+      </div>
       <div class="idle__mgr">
         ${m.hasPhoto ? `<div class="idle__photo${m.cutout ? '' : ' idle__photo--framed'}"><img src="${esc(m.photoUrl)}" alt="" style="transform:${mgrTransform(m)}"></div>` : ''}
         <div class="idle__plate">

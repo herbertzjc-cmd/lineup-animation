@@ -28,7 +28,7 @@ function render({ id }) {
     <div class="detail__first" data-anim>${esc(first.toUpperCase())}</div>
     <div class="detail__last" data-anim style="font-size:${lastSize}px">${esc(rest.join(' ').toUpperCase())}</div>
     <div class="detail__pos" data-anim>${esc(p.position)} · ${esc(store.getTeamName())}</div>
-    ${p.special ? '<div class="detail__badge" data-anim>★ SPECIAL PLAYER</div>' : ''}
+    ${p.captain || p.special ? `<div class="detail__badges" data-anim>${p.captain ? '<span class="detail__badge detail__badge--cap">C · CAPTAIN</span>' : ''}${p.special ? '<span class="detail__badge">★ SPECIAL PLAYER</span>' : ''}</div>` : ''}
     <dl class="detail__facts" data-anim>
       ${facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join('')}
     </dl>

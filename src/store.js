@@ -1,4 +1,4 @@
-import { defaults, team } from './data.js';
+import { defaults, team, match as defaultMatch } from './data.js';
 import { isHex } from './theme.js';
 import { idbGet, idbSet, idbDelete, idbClear } from './idb.js';
 
@@ -15,12 +15,17 @@ const defaultBrand = () => ({
   mgr: { useCut: false, scale: 100, x: 0, y: 0, hasAlpha: false },
 });
 
+// Match details (opponent, competition, date…) and display settings, both editable on the page.
+const defaultSettings = () => ({ introMode: 'short', pitchTheme: 'light' });
+
 const fresh = () => ({
   players: clone(defaults.players),
   formation: defaults.formation,
   slots: [...defaults.slots],
   color: team.colors.primary,
   brand: defaultBrand(),
+  match: { ...defaultMatch },
+  settings: defaultSettings(),
 });
 
 function valid(s) {
@@ -44,6 +49,14 @@ function load() {
       }
       const b = defaultBrand();
       s.brand = { ...b, ...(s.brand || {}), mgr: { ...b.mgr, ...(s.brand?.mgr || {}) } };
+      s.match = { ...defaultMatch, ...(s.match || {}) };
+      s.settings = { ...defaultSettings(), ...(s.settings || {}) };
+      // older saved lineups have no captain: take the default one if that player is still in the squad
+      if (!s.players.some((p) => p.captain)) {
+        const cap = defaults.players.find((p) => p.captain);
+        const mine = cap && s.players.find((p) => p.id === cap.id);
+        if (mine) mine.captain = true;
+      }
       return s;
     }
   } catch { /* fall through to defaults */ }
@@ -156,7 +169,14 @@ export function replaceSlot(i, inId) {
   return out;
 }
 
+export const getMatch = () => state.match;
+export function saveMatch(m) { state.match = { ...state.match, ...m }; save(); }
+export const getSettings = () => state.settings;
+export function setSetting(key, value) { state.settings = { ...state.settings, [key]: value }; save(); }
+export const captainId = () => state.players.find((p) => p.captain)?.id || null;
+
 export function upsertPlayer(data) {
+  if (data.captain) state.players.forEach((q) => { if (q.id !== data.id) q.captain = false; }); // one captain
   let p = data.id && player(data.id);
   if (p) Object.assign(p, data);
   else {

@@ -1,10 +1,12 @@
 {
   "match": {
     "competition": "Premier League",
-    "round": "Matchday",
-    "venue": "Stadium Name",
-    "date": "Match Date",
-    "kickoff": "00:00"
+    "round": "Matchday 12",
+    "opponent": "Arsenal",
+    "homeAway": "home",
+    "venue": "Anfield",
+    "date": "15 Nov 2026",
+    "kickoff": "17:30"
   },
   "team": {
     "name": "Liverpool",
@@ -102,7 +104,8 @@
         "hair": "#161616",
         "style": "bun",
         "beard": "stubble"
-      }
+      },
+      "captain": true
     },
     {
       "id": "kerkez",

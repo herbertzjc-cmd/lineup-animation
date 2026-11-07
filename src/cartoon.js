@@ -4,7 +4,9 @@
 //
 // A player can set the look by hand in players.json:
 //   "look": { "skin": 0-4, "hair": "#3a2a20", "style": "crop|fade|curly|long|bun|waves|buzz",
-//             "beard": "none|stubble|full", "kit": "keeper" }
+//             "beard": "none|stubble|full", "pose": "plain|arms|hips|thumb", "kit": "keeper" }
+// Outfield players wear the team colour with trim in the contrasting colour; goalkeepers wear a
+// green keeper kit and gloves. The captain gets a yellow armband.
 // The viewBox is 128 x 200 with the head near the top and the shoulders at the bottom edge, so
 // the figure fits the card and can step out of it exactly like a photo cut-out.
 
@@ -18,6 +20,7 @@ const SKIN = [
 const HAIR = ['#1f140e', '#33241a', '#4a3220', '#6a4a2a', '#a67b45', '#c9a35a', '#7a2e1a', '#161616'];
 const STYLES = ['crop', 'fade', 'curly', 'long', 'bun', 'waves', 'buzz'];
 const BEARDS = ['none', 'stubble', 'full', 'none', 'stubble'];
+const POSES = ['plain', 'arms', 'hips', 'thumb'];
 
 const hash = (s) => {
   let h = 2166136261;
@@ -30,6 +33,26 @@ const hash = (s) => {
 const pick = (list, seed, salt) => list[hash(`${seed}:${salt}`) % list.length];
 
 let counter = 0; // unique gradient ids, so several figures on one page never share definitions
+
+// Arms in front of the torso for each pose (sleeves in the shirt colour, hands or gloves).
+function arms(pose, shirt, edge, hand) {
+  const sleeve = (d) => `<path d="${d}" fill="none" stroke="rgba(0,0,0,.32)" stroke-width="19" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="${d}" fill="none" style="stroke:${shirt}" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>`;
+  const fist = (x, y, r = 8) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${hand}" stroke="rgba(0,0,0,.22)" stroke-width="1.2"/>`;
+  switch (pose) {
+    case 'arms': // folded across the chest
+      return `${sleeve('M18 140L24 170L92 166')}${fist(96, 164)}
+              ${sleeve('M110 140L104 178L36 178')}${fist(32, 177)}
+              <path d="M28 172L92 168M100 180L40 180" fill="none" style="stroke:${edge}" stroke-width="2" opacity=".5"/>`;
+    case 'hips': // hands on hips, elbows out
+      return `${sleeve('M24 128L6 168L26 196')}${fist(28, 195)}${sleeve('M104 128L122 168L102 196')}${fist(100, 195)}`;
+    case 'thumb': // one thumb up
+      return `${sleeve('M110 134L116 182L96 160')}${fist(94, 156, 9)}
+              <rect x="90" y="139" width="7" height="13" rx="3.5" fill="${hand}" stroke="rgba(0,0,0,.22)" stroke-width="1.2"/>`;
+    default:
+      return '';
+  }
+}
 
 // Hair on top of the head (drawn after the face).
 function hairTop(style, c) {
@@ -64,8 +87,10 @@ export function cartoonSvg(p) {
   const style = STYLES.includes(look.style) ? look.style : pick(STYLES, seed, 'style');
   const beard = ['none', 'stubble', 'full'].includes(look.beard) ? look.beard : pick(BEARDS, seed, 'beard');
   const keeper = look.kit === 'keeper' || p.position === 'GK';
-  const shirt = keeper ? '#72e6a4' : 'var(--on-primary)';
-  const trim = keeper ? '#2fb872' : 'var(--primary-ink)';
+  const shirt = keeper ? '#72e6a4' : 'var(--primary)';
+  const trim = keeper ? '#2fb872' : 'var(--on-primary)';
+  const pose = POSES.includes(look.pose) ? look.pose : pick(POSES, seed, 'pose');
+  const hand = keeper ? '#f4f6f2' : skin[1]; // keepers wear gloves
   const brow = '#2a1a12';
   const longHair = style === 'long';
 
@@ -76,10 +101,14 @@ export function cartoonSvg(p) {
       <linearGradient id="ck${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></linearGradient>
     </defs>
     <!-- torso and kit -->
-    <path d="M2 200C2 140 20 120 50 112H78C108 120 126 140 126 200Z" style="fill:${shirt}"/>
+    <path d="M2 200C2 140 20 120 50 112H78C108 120 126 140 126 200Z" style="fill:${shirt}" stroke="rgba(0,0,0,.32)" stroke-width="1.8"/>
     <path d="M2 200C2 140 20 120 50 112H78C108 120 126 140 126 200Z" fill="url(#ck${id})"/>
     <path d="M20 128C26 119 38 114 50 112M108 128C102 119 90 114 78 112" fill="none" style="stroke:${trim}" stroke-width="3.2" stroke-linecap="round"/>
-    <path d="M24 144C24 160 24 180 22 200M104 144C104 160 104 180 106 200" fill="none" stroke="rgba(0,0,0,.08)" stroke-width="2"/>
+    <path d="M52 113L64 128L76 113" fill="none" style="stroke:${trim}" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M24 144C24 160 24 180 22 200M104 144C104 160 104 180 106 200" fill="none" stroke="rgba(0,0,0,.1)" stroke-width="2"/>
+    ${arms(pose, shirt, trim, hand)}
+    ${p.captain ? `<g transform="rotate(-24 113 150)"><rect x="102" y="144" width="22" height="11" rx="2" fill="#ffd23f" stroke="rgba(0,0,0,.3)"/>
+      <text x="113" y="153" font-size="9" font-weight="700" text-anchor="middle" fill="#1a1a1a" font-family="Arial, sans-serif">C</text></g>` : ''}
     ${longHair ? `<path d="M37 62C32 88 34 108 42 122C48 126 54 122 58 116L70 116C74 122 80 126 86 122C94 108 96 88 91 62Z" fill="${hair}"/>
     <path d="M44 80C42 96 44 108 48 116M84 80C86 96 84 108 80 116" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="2" stroke-linecap="round"/>` : ''}
     <g transform="translate(0,-20)">

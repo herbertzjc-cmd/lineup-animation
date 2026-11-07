@@ -27,6 +27,18 @@ export function fitFont(text, width, { max, min, lines = 1 }) {
   return Math.round(Math.max(min, Math.min(max, byTotal, byWord)));
 }
 
+// Match details as display text. Empty fields are simply left out.
+export function matchText(m) {
+  const side = m.homeAway === 'away' ? 'Away' : m.homeAway === 'home' ? 'Home' : '';
+  return {
+    kicker: [m.competition, m.round].filter(Boolean).join(' · '),
+    vs: m.opponent ? `vs ${m.opponent}${side ? ` (${side})` : ''}` : '',
+    when: [m.date, m.kickoff && `KO ${m.kickoff}`].filter(Boolean).join(' · '),
+    venue: m.venue || '',
+    side,
+  };
+}
+
 // How the manager photo is placed inside its frame (scale and offsets are percentages).
 export const mgrTransform = (m) => `translate(${m.x}%, ${m.y}%) scale(${m.scale / 100})`;
 

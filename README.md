@@ -1,7 +1,7 @@
 # Lineup Animation
 
 A broadcast-style football starting-XI graphic for the web, built with **Vite + GSAP**.
-An intro animation plays once on page load, in a broadcast style: a spotlight and a soft depth of field for the group being introduced, a slanted title bar, a lower third with each player's name, a slow camera push that pulls back at the end. The cards arrive face down on the pitch, then each position group is introduced in turn — goalkeeper, defenders, midfielders, forwards: the group's cards rise out of the formation, enlarge into an evenly spaced row while the rest of the pitch dims, flip over in 3D to show portrait, number, position and name, then the figure steps out of its card (head and shoulders past the edges, with a cast shadow), hold for a moment and settle back into place. Click to skip (once for the opening board, again for the players). It then becomes an interactive lineup board:
+An intro animation plays once on page load, in a broadcast style: a spotlight and a soft depth of field for the group being introduced, a slanted title bar, a lower third with each player's name, a slow camera push that pulls back at the end. The cards arrive face down on the pitch, then each position group is introduced in turn — goalkeeper, defenders, midfielders, forwards: the group's cards rise out of the formation, enlarge into an evenly spaced row while the rest of the pitch dims, flip over in 3D to show portrait, number, position and name, then the figure steps out of its card (head and shoulders past the edges, with a cast shadow), hold for a moment and settle back into place. The short intro (default) lasts about 15 seconds — the goalkeeper is introduced slowly, then each group is a little quicker and overlaps the one before; a *Full* intro of about 24 seconds can be chosen in **Team → Match Settings**. With `prefers-reduced-motion` the intro is skipped. Each group starts with the same slanted-bar wipe, and the intro ends on a team sheet (formation, match details, substitutes). Click to skip (once for the opening board, again for the players). It then becomes an interactive lineup board:
 
 - Click any player for details in the side panel
 - Substitute players: pick from the bench, or drag a substitute onto the pitch
@@ -11,6 +11,11 @@ An intro animation plays once on page load, in a broadcast style: a spotlight an
 - **3D player pop-out**: after the flip the transparent cut-out of the player steps out of the card. Per player you can switch it on or off and adjust the size, horizontal / vertical position and pop depth in the editor (with a live preview); the settings are saved with the player. Photos without a transparent background are detected on upload and kept inside the card
 - **Team and manager**: the **Team** button (and the top of every player's editor) has *Team Settings* — team name (Chinese or English; the text is fitted to its space) and an uploadable club logo (PNG / JPG / WebP, original proportions kept) — and *Manager Settings* — name, photo with zoom and position, and **Remove Background**, which cuts the person out locally in the browser (MODNet through transformers.js, no paid API, nothing is uploaded) into a real transparent PNG. Original and cut-out are shown side by side and either can be used. The team name, logo, manager name and photo appear on the side panel of the lineup screen. Pictures are stored in IndexedDB, everything else in `localStorage`
 - **Special players**: switch on "Special Player" in the editor for a gold flash-card entrance (glow and sparks, slower flip with a gold sheen, a diagonal light beam on reveal), then a permanent animated gold frame and holographic sheen. Any number of players can be special; the setting is saved with the player
+- **Match details**: opponent, home / away / neutral, competition, round, date, kick-off and venue (**Team → Match Settings**). They appear on the opening board, the side panel and in the exported images
+- **Captain**: switch on "Captain" in a player's editor — the cartoon gets a yellow armband and the card a **C** badge (there is one captain, so this moves it). Special players are marked with **★**, not only by colour
+- **Export PNG**: the **Export** button draws the lineup as a still image in 16:9 (1920×1080), 1:1 (1080×1080) or 9:16 (1080×1920) for social media. The animation itself stays 16:9
+- **Clean mode**: press **H** (or open the page with `?clean=1`) to hide the toolbar and hints, e.g. for screen recording
+- **Dark pitch**: **Colors → Pitch** switches between the light and a dark night-time pitch
 - Team colors: 10 presets or any custom color (text switches between white and dark automatically so it stays readable)
 - **▶ Play** replays the opening animation with the current lineup
 - Your changes are saved in the browser (`localStorage`)
@@ -38,17 +43,17 @@ To get static files you can host anywhere: `npm run build`, then upload the `dis
 
 ### How the groups are formed
 
-Groups follow the lines of the current formation: the first line is the defence, the last line is the attack and every line in between is midfield — so 4-3-3 is 1 / 4 / 3 / 3, 4-4-2 is 1 / 4 / 4 / 2 and 4-2-3-1 is 1 / 4 / 5 / 1. The enlargement adapts to the group size so the row never overlaps. Timings (`RISE`, `HOLD`, `RETURN`, …) are constants at the top of `src/components/pitch.js`.
+Groups follow the lines of the current formation: the first line is the defence, the last line is the attack and every line in between is midfield — so 4-3-3 is 1 / 4 / 3 / 3, 4-4-2 is 1 / 4 / 4 / 2 and 4-2-3-1 is 1 / 4 / 5 / 1. The enlargement adapts to the group size so the row never overlaps. Timings for the short and full intro are in the `TIMING` table at the top of `src/components/pitch.js` (rise, hold, return, overlap between groups and a tempo per group).
 
 ## Use your own team
 
 You only need to edit data and assets — no code changes:
 
-- **`src/data/players.json`** — team name, default colour (`team.colors.primary`; viewers can change it on the page with **Colors**), coach, formation, the 11 starters (`lineup.slots`, goalkeeper first, then each line left to right) and the full squad (`players`). Add `"special": true` to a player to give them the gold entrance.
+- **`src/data/players.json`** — team name, default colour (`team.colors.primary`; viewers can change it on the page with **Colors**), coach, formation, the 11 starters (`lineup.slots`, goalkeeper first, then each line left to right) and the full squad (`players`). Add `"special": true` to a player to give them the gold entrance, and `"captain": true` to one player for the armband. `match` holds the default match details (`opponent`, `homeAway`: `home|away|neutral`, `competition`, `round`, `date`, `kickoff`, `venue`).
 - **`public/`** — put images here and reference them from the JSON:
   - `team.logo` — a single-colour silhouette SVG works best (it is drawn red on the light side and white on the red panel)
   - `avatar` — what the card shows: `"cartoon"` (the default: the built-in cartoon figure) or `"photo"`. To show a real photo for a player, set `"avatar": "photo"`; if the photo is missing or cannot be loaded the card quietly falls back to the cartoon
-  - `look` — tune the cartoon figure: `{ "skin": 0-4, "hair": "#3a2a20", "style": "crop|fade|curly|long|bun|waves|buzz", "beard": "none|stubble|full" }`. Without it every player still gets their own look, derived from their id (goalkeepers wear a keeper kit)
+  - `look` — tune the cartoon figure: `{ "skin": 0-4, "hair": "#3a2a20", "style": "crop|fade|curly|long|bun|waves|buzz", "beard": "none|stubble|full", "pose": "plain|arms|hips|thumb" }` (arms crossed, hands on hips, thumbs up). Without it every player still gets their own look and pose, derived from their id. Outfield players wear the team colour, goalkeepers a green keeper kit with gloves
   - `cartoon` — optional image to use as that player's cartoon figure instead of the drawn one
   - `photo` — a transparent PNG/WebP/SVG cut-out of the player, used when `avatar` is `"photo"`. A cut-out is needed for the pop-out effect; set `"photoAlpha": false` on a player whose photo has a solid background to keep it inside the card. Optional `"pop": { "on": true, "scale": 100, "x": 0, "y": 0, "depth": 60 }` tunes the effect
   - `flag` — a small flag image next to the portrait (flags for a few common nationalities are built in; add your own in `public/flags/`)
@@ -100,6 +105,8 @@ src/theme.js              team colour theming (contrast-aware)
 src/components/           intro, pitch, side panel, toolbar, player tile
 src/components/views/     panel views: player detail, bench, lineup list, editor
 src/timeline.js           GSAP master timeline for the page-load animation
+src/cartoon.js            the drawn cartoon players (look, kit, pose, armband)
+src/export.js             PNG export in 16:9, 1:1 and 9:16
 src/app.js                interaction wiring (select, swap, drag, formation)
 ```
 
@@ -118,6 +125,6 @@ The sample photos in `public/players/*.webp` (cut-outs of freely licensed Wikime
 
 ### 中文简介
 
-足球转播风格的首发阵容网页(Vite + GSAP)。打开页面播放一次开场动画,之后可以点击球员查看详情、换人(点选或拖拽)、切换阵型、切换/自定义球队配色、自建和编辑球员。
+足球转播风格的首发阵容网页(Vite + GSAP)。打开页面播放一次开场动画,之后可以点击球员查看详情、换人(点选或拖拽)、切换阵型、切换/自定义球队配色、自建和编辑球员。可以填写比赛信息(对手、主客场、赛事、轮次、日期、开球时间、球场)，设置队长(袖标和 C 标)，导出 16:9 / 1:1 / 9:16 的阵容图片，按 H 键或加 `?clean=1` 进入无控件的干净画面，在 Colors 里切换深色球场。开场动画默认是约 15 秒的精简版，可在 Team → Match Settings 选完整版(约 24 秒)。
 
 运行:安装 Node.js 22+,然后 `npm install && npm run dev`。换成自己的球队:只改 `src/data/players.json` 和 `public/` 里的图片。许可:可以免费使用,但不得修改代码(见 LICENSE)。

@@ -15,7 +15,8 @@ function popStates(p) {
   const rest = { x: (o.x / 100) * TILE_W, y: (o.y / 100) * TILE_H, scale: o.scale / 100, z: 0, rotationX: 0 };
   const pop = { x: rest.x, y: rest.y - (3 + 9 * d), scale: rest.scale * (1.06 + 0.24 * d), z: 20 + 50 * d, rotationX: -(2 + 4 * d) };
   const shadow = (a, y, b) => `drop-shadow(0px ${y}px ${b}px rgba(0,0,0,${a}))`;
-  return { rest, pop, shadowRest: shadow(0, 0, 0), shadowPop: shadow(0.28 + 0.3 * d, 8 + 8 * d, 10 + 8 * d) };
+  // At rest the figure has no filter at all (filters are costly); the shadow only exists while it stands out.
+  return { rest, pop, shadowRest: 'none', shadowZero: shadow(0, 0, 0), shadowPop: shadow(0.28 + 0.3 * d, 8 + 8 * d, 10 + 8 * d) };
 }
 
 // A picture failed to load (missing file, broken link): show the cartoon instead of a broken image.
@@ -85,6 +86,7 @@ export function createTile(p, { revealed = true } = {}) {
           <div class="tile__num tile__txt">${esc(p.number)}</div>
           <div class="tile__pos tile__txt">${esc(p.position)}</div>
           <div class="tile__name tile__txt">${esc(p.name)}</div>
+          ${p.captain || special ? `<div class="tile__badges tile__txt">${p.captain ? '<b class="tile__cap" title="Captain">C</b>' : ''}${special ? '<b class="tile__star" title="Special player">★</b>' : ''}</div>` : ''}
           ${flag ? `<img class="tile__flag" src="${esc(asset(flag))}" alt="" draggable="false">` : ''}
           ${special ? '<div class="tile__edge"></div>' : ''}
         </div>
@@ -109,7 +111,7 @@ export function popOutTimeline(tile) {
   if (!st) return tl;
   const person = tile.querySelector('.tile__person');
   tl.to(person, { ...st.pop, duration: 0.5, ease: 'back.out(1.35)' }, 0)
-    .to(person, { filter: st.shadowPop, duration: 0.5, ease: 'power2.out' }, 0);
+    .fromTo(person, { filter: st.shadowZero }, { filter: st.shadowPop, duration: 0.5, ease: 'power2.out' }, 0);
   return tl;
 }
 
@@ -119,7 +121,8 @@ export function popBackTimeline(tile, duration = 0.6) {
   const st = tile._pop;
   if (!st) return tl;
   const person = tile.querySelector('.tile__person');
-  tl.to(person, { ...st.rest, filter: st.shadowRest, duration, ease: 'power3.inOut' }, 0);
+  tl.to(person, { ...st.rest, filter: st.shadowZero, duration, ease: 'power3.inOut' }, 0)
+    .set(person, { filter: 'none' });
   return tl;
 }
 

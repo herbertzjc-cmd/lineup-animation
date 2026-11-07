@@ -31,11 +31,13 @@ function positions(formation) {
   return out;
 }
 
-// Group spotlight timing (seconds) and layout.
-const RISE = 0.8;      // cards fly from the formation to the spotlight row
-const HOLD = 0.7;      // how long the revealed cards stay up
-const RETURN = 0.6;    // cards settle back into the formation
-const GROUP_PAUSE = 0.05; // pause between groups
+// Group spotlight timing (seconds). "short" is the default (about 15 s in all); "full" is the
+// longer original version. `overlap` starts the next group while the previous one is still
+// settling back; `tempo` speeds up each group in turn (goalkeeper slowest, forwards quickest).
+const TIMING = {
+  short: { rise: 0.55, hold: 0.35, ret: 0.45, overlap: 0.45, tempo: [1.1, 1.3, 1.4, 1.5], drop: 0.6, end: 0.6, pull: 0.9 },
+  full: { rise: 0.8, hold: 0.7, ret: 0.6, overlap: -0.05, tempo: [1, 1, 1, 1], drop: 0.9, end: 1.2, pull: 1.1 },
+};
 const SPOT_Y = 700;    // vertical centre of the spotlight row (low enough that a popped head clears the title)
 const SPOT_W = 1240;   // width available for the row
 const SPOT_GAP = 24;   // space between spotlighted cards, before allowing for figures that step out
@@ -55,20 +57,20 @@ const PITCH_SVG = `
   <svg class="fref__pitch" viewBox="0 0 2000 1123" width="2000" height="1123">
     <defs>
       <linearGradient id="pitchFill" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#fff"/>
-        <stop offset="0.6" stop-color="#fff"/>
-        <stop offset="1" stop-color="#f1f1f3"/>
+        <stop offset="0" style="stop-color:var(--pitch-a)"/>
+        <stop offset="0.6" style="stop-color:var(--pitch-a)"/>
+        <stop offset="1" style="stop-color:var(--pitch-b)"/>
       </linearGradient>
     </defs>
     <path class="pitch__fill" fill="url(#pitchFill)"
       d="M-66 1123L237 192Q245 163 270 163L1373 163Q1398 163 1406 192L1709 1123Z"/>
-    <g class="pitch__lines" fill="none" stroke="#8d8e93" stroke-width="2">
+    <g class="pitch__lines" fill="none" style="stroke:var(--pitch-line)" stroke-width="2">
       <path pathLength="1" d="M509 163L491 258Q490 268 502 268L1140 268Q1151 268 1150 258L1135 163"/>
       <path pathLength="1" d="M630 268A190 54 0 0 0 1010 268"/>
-      <path pathLength="1" stroke="#66676c" d="M78 688L1568 688"/>
+      <path pathLength="1" style="stroke:var(--pitch-line-strong)" d="M78 688L1568 688"/>
       <ellipse pathLength="1" cx="818" cy="688" rx="195" ry="112"/>
     </g>
-    <path class="pitch__goal" pathLength="1" stroke="#1d1d21" stroke-width="5" d="M745 163L893 163"/>
+    <path class="pitch__goal" pathLength="1" style="stroke:var(--pitch-goal)" stroke-width="5" d="M745 163L893 163"/>
   </svg>`;
 
 export function createPitch() {
@@ -81,7 +83,17 @@ export function createPitch() {
   const fxLayer = h('div', 'fref__fx'); // gold sparks for special players
   const dim = h('div', 'fref__dim'); // darkens (and slightly blurs) the pitch while a group is in the spotlight
   const light = h('div', 'fref__light'); // the pool and shaft of light on the spotlighted row
-  el.append(fxLayer, dim, light);
+  // The signature transition: three slanted bars that sweep across at the start of every group
+  // and once more when the whole XI is shown (the same bars as on the opening board).
+  const wipeEl = h('div', 'fref__wipe');
+  wipeEl.innerHTML = '<i></i><i></i><i></i>';
+  const wipeBars = [...wipeEl.children];
+  el.append(fxLayer, dim, light, wipeEl);
+  gsap.set(wipeBars, { x: -400, autoAlpha: 0 });
+  const wipe = () =>
+    gsap.timeline()
+      .fromTo(wipeBars, { x: -400, autoAlpha: 0.9 }, { x: 2400, autoAlpha: 0.9, duration: 0.75, ease: 'power2.inOut', stagger: 0.07 })
+      .set(wipeBars, { autoAlpha: 0 });
   gsap.set([dim, light], { autoAlpha: 0 });
   const tiles = new Map();
   let introTiles = [];
@@ -116,7 +128,7 @@ export function createPitch() {
   // One group of cards flies out of the formation into a row of enlarged cards, flips over,
   // holds, then returns. Time 0 is the start of the group; special players start their gold
   // preparation at once so that every card flips together.
-  function spotlight(group, title) {
+  function spotlight(group, title, T) {
     const n = group.length;
     // Figures that stand out of their card need extra room so they never cover a neighbour.
     const gapU = SPOT_GAP + 2 * Math.max(0, ...group.map((t) => popOvershoot(store.player(t.dataset.id))));
@@ -140,6 +152,8 @@ export function createPitch() {
       .fromTo(capLine, { scaleX: 0, transformOrigin: '0% 50%' }, { scaleX: 1, duration: 0.6, ease: 'power2.out' }, 0.4);
 
     const bars = [];
+    const flipAt = group.some((t) => store.player(t.dataset.id).special) ? SPECIAL_PREP : T.rise;
+    tl.add(wipe(), 0); // the signature slanted bars sweep behind the row
     const shadows = group.map((t) => t.querySelector('.tile__shadow'));
 
     group.forEach((t, i) => {
@@ -147,12 +161,12 @@ export function createPitch() {
       const targetX = CENTER_X + (i - (n - 1) / 2) * (TILE_W + gapU) * s;
       const dx = targetX - (parseFloat(t.style.left) + TILE_W / 2);
       const dy = SPOT_Y - (parseFloat(t.style.top) + TILE_H / 2);
-      tl.to(t, { x: dx, y: dy, scale: s, duration: RISE, ease: 'power3.inOut' }, at)
+      tl.to(t, { x: dx, y: dy, scale: s, duration: T.rise, ease: 'power3.inOut' }, at)
         // lean towards the camera as it rises, then stand upright
         .to(t, { rotationX: -9, duration: 0.35, ease: 'power2.out' }, at)
         .to(t, { rotationX: 0, duration: 0.5, ease: 'power3.inOut' }, at + 0.35);
       // the card leaves the pitch: its shadow stays behind, smaller and fainter
-      tl.to(shadows[i], { y: 26, scaleX: 0.82, opacity: 0.4, duration: RISE, ease: 'power3.inOut' }, at);
+      tl.to(shadows[i], { y: 26, scaleX: 0.82, opacity: 0.4, duration: T.rise, ease: 'power3.inOut' }, at);
 
       const p = store.player(t.dataset.id);
       let revealed; // when this card's contents are showing
@@ -160,8 +174,8 @@ export function createPitch() {
         tl.add(specialTimeline(t, fxLayer, { x: targetX, y: SPOT_Y, k: s }), 0);
         revealed = SPECIAL_PREP + 1.45;
       } else {
-        tl.add(flipTimeline(t), SPECIAL_PREP + i * 0.1);
-        revealed = SPECIAL_PREP + i * 0.1 + 0.9;
+        tl.add(flipTimeline(t), flipAt + i * 0.1);
+        revealed = flipAt + i * 0.1 + 0.9;
       }
 
       // Lower third under the card: number, full name, position and nationality slide in.
@@ -171,7 +185,7 @@ export function createPitch() {
       bar.style.cssText = `left:${targetX - w / 2}px; top:${SPOT_Y + (TILE_H * s) / 2 + 22}px; width:${w}px;`;
       const nation = w < 330 ? nationCode(p.nationality) : (p.nationality || '').toUpperCase();
       const meta = [p.position, nation].filter(Boolean).join(' · ');
-      bar.innerHTML = `<span class="bar__num">${esc(p.number)}</span><span class="bar__body"><b class="bar__name" style="font-size:${fitFont(p.fullName.toUpperCase(), (w - 96) * 0.84, { max: 30, min: 12 })}px">${esc(p.fullName.toUpperCase())}</b><i class="bar__meta" style="font-size:${Math.max(11, Math.min(16, w / 13))}px">${esc(meta)}</i></span>`;
+      bar.innerHTML = `<span class="bar__num">${esc(p.number)}</span><span class="bar__body"><b class="bar__name" style="font-size:${fitFont(p.fullName.toUpperCase() + (p.captain ? ' (C)' : ''), (w - 96) * 0.84, { max: 30, min: 12 })}px">${esc(p.fullName.toUpperCase())}${p.captain ? ' <span class="bar__cap">(C)</span>' : ''}</b><i class="bar__meta" style="font-size:${Math.max(11, Math.min(16, w / 13))}px">${esc(meta)}</i></span>`;
       el.append(bar);
       gsap.set(bar, { autoAlpha: 0 });
       bars.push(bar);
@@ -180,39 +194,43 @@ export function createPitch() {
     });
 
     // Everything has been revealed (a special card takes longer, and the group waits for it).
-    const back = tl.duration() + HOLD;
+    const back = tl.duration() + T.hold;
     tl.to([caption, ...bars], { autoAlpha: 0, x: -24, duration: 0.3, ease: 'power2.in' }, back - 0.1)
-      .to(shadows, { y: 0, scaleX: 1, opacity: 1, duration: RETURN, ease: 'power3.inOut', stagger: 0.04 }, back)
-      .to(group, { x: 0, y: 0, scale: 1, rotationX: 0, duration: RETURN, ease: 'power3.inOut', stagger: 0.04 }, back)
-      .add(group.reduce((all, t, i) => all.add(popBackTimeline(t, RETURN), i * 0.04), gsap.timeline()), back)
+      .to(shadows, { y: 0, scaleX: 1, opacity: 1, duration: T.ret, ease: 'power3.inOut', stagger: 0.04 }, back)
+      .to(group, { x: 0, y: 0, scale: 1, rotationX: 0, duration: T.ret, ease: 'power3.inOut', stagger: 0.04 }, back)
+      .add(group.reduce((all, t, i) => all.add(popBackTimeline(t, T.ret), i * 0.04), gsap.timeline()), back)
       .to([dim, light], { autoAlpha: 0, duration: 0.5, ease: 'power1.in' }, back + 0.15)
-      .set(group, { clearProps: 'zIndex' }, back + RETURN + 0.2);
+      .set(group, { clearProps: 'zIndex' }, back + T.ret + 0.2);
     return tl;
   }
 
   function enter() {
+    const T = TIMING[store.getSettings().introMode] || TIMING.short;
     const tl = gsap.timeline();
-    tl.fromTo(svg, { y: 140, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.9, ease: 'power3.out' }, 0)
-      .fromTo(q('.pitch__lines > *, .pitch__goal'), { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.9, ease: 'power2.inOut', stagger: 0.1 }, 0.5)
+    tl.fromTo(svg, { y: 140, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: T.drop, ease: 'power3.out' }, 0)
+      .fromTo(q('.pitch__lines > *, .pitch__goal'), { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: T.drop, ease: 'power2.inOut', stagger: 0.08 }, T.drop * 0.5)
       // The cards arrive face down in their places...
-      .fromTo(introTiles, { y: -60, scale: 0.85, autoAlpha: 0 }, { y: 0, scale: 1, autoAlpha: 1, duration: 0.45, ease: 'power3.out', stagger: 0.04 }, 0.9)
+      .fromTo(introTiles, { y: -60, scale: 0.85, autoAlpha: 0 }, { y: 0, scale: 1, autoAlpha: 1, duration: 0.4, ease: 'power3.out', stagger: 0.03 }, T.drop)
       .set(introTiles.map(flipperOf), { rotationY: 180 }, 0);
-    // ...then each position group in turn is brought forward and introduced.
-    let cursor = tl.duration() + 0.2;
+    // ...then each position group in turn is brought forward and introduced, each a little quicker.
+    let cursor = tl.duration() + 0.15;
     const groupsStart = cursor;
     let from = 0;
     groupSizes(store.getFormation()).forEach((size, g) => {
       const group = introTiles.slice(from, from + size);
       from += size;
       if (!group.length) return;
-      const groupTl = spotlight(group, GROUP_NAMES[g]);
+      const groupTl = spotlight(group, GROUP_NAMES[g], T).timeScale(T.tempo[g] || 1);
       tl.add(groupTl, cursor);
-      cursor += groupTl.duration() + GROUP_PAUSE;
+      cursor += groupTl.duration() / groupTl.timeScale() - T.overlap;
     });
-    // The camera creeps in while the groups are introduced, then pulls back to show the whole XI.
+    cursor += T.overlap;
+    // The camera creeps in while the groups are introduced, then pulls back to show the whole XI,
+    // and the signature bars sweep across once more to close.
     tl.fromTo(el, { scale: 1, y: 0 }, { scale: 1.035, y: -10, duration: cursor - groupsStart, ease: 'none' }, groupsStart)
-      .to(el, { scale: 1, y: 0, duration: 1.2, ease: 'power3.inOut' }, cursor - 0.1)
-      .to({}, { duration: 1.2 }, cursor);
+      .to(el, { scale: 1, y: 0, duration: T.pull, ease: 'power3.inOut' }, cursor - 0.1)
+      .add(wipe(), cursor - 0.05)
+      .to({}, { duration: T.end }, cursor);
     return tl;
   }
 

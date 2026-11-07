@@ -5,6 +5,7 @@ import * as store from '../../store.js';
 import { createTile, showPopNow } from '../playerTile.js';
 import { enterView, exitView } from './common.js';
 import { createBrandSections } from './brandSections.js';
+import { createMatchSection } from './matchSection.js';
 import { readImage, blobToDataUrl, readErrorMessage, IMAGE_ACCEPT, IMAGE_FORMATS_HINT } from '../../imageutil.js';
 
 // Read an uploaded photo (any common format), shrink it so it fits comfortably in localStorage
@@ -25,7 +26,7 @@ function renderTeam() {
   el.dataset.mode = 'team';
   el.innerHTML = `
     <button class="close" data-action="cancel" aria-label="Close">×</button>
-    <h2 class="view__title" data-anim>TEAM</h2>
+    <h2 class="view__title" data-anim>TEAM &amp; MATCH</h2>
     <div class="editor__scroll"></div>
     <div class="detail__actions" data-anim>
       <button class="btn" data-action="save">Save</button>
@@ -33,7 +34,8 @@ function renderTeam() {
     </div>
   `;
   el._brand = createBrandSections({ open: true });
-  el.querySelector('.editor__scroll').append(el._brand.el);
+  el._match = createMatchSection({ open: true });
+  el.querySelector('.editor__scroll').append(el._brand.el, el._match.el);
   return el;
 }
 
@@ -72,6 +74,10 @@ function render({ id, mode } = {}) {
       <label class="switch" data-anim>
         <input type="checkbox" name="special"${p.special ? ' checked' : ''}><span class="switch__track"></span>
         <span>Special Player<small>Gold flash-card entrance, animated gold frame and a holographic sheen</small></span>
+      </label>
+      <label class="switch" data-anim>
+        <input type="checkbox" name="captain"${p.captain ? ' checked' : ''}><span class="switch__track"></span>
+        <span>Captain<small>Armband and a C on the card; there is one captain, so this takes it from whoever had it</small></span>
       </label>
       <div class="pop" data-anim>
         <label class="switch">
@@ -214,6 +220,7 @@ export function readEditor(el) {
     photo: el._photo || '',
     photoAlpha: el._photo ? el._alpha : undefined,
     special: el.querySelector('[name=special]').checked,
+    captain: el.querySelector('[name=captain]').checked,
     pop: {
       on: el.querySelector('[name=popOn]').checked,
       scale: num('popScale', 60, 160),

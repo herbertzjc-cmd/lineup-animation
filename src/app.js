@@ -4,9 +4,10 @@ import { createTile } from './components/playerTile.js';
 import { readEditor } from './components/views/editor.js';
 import { applyTheme } from './theme.js';
 import { applyLogo } from './branding.js';
+import { exportLineup } from './export.js';
 
 // Wires the pitch, panel and toolbar together once the intro has played.
-export function initApp({ stage, ref, pitch, panel, toolbar, intro }) {
+export function initApp({ stage, ref, pitch, panel, toolbar, intro, sheet }) {
   const ui = { view: 'idle', selectedId: null, swapFor: null, picking: null, editing: null };
   let live = false;
   const api = { onPlay: null };
@@ -79,6 +80,7 @@ export function initApp({ stage, ref, pitch, panel, toolbar, intro }) {
     if (slot < 0 || store.slotOf(benchId) >= 0) return;
     store.replaceSlot(slot, benchId);
     pitch.replace(slot, starterId, benchId).eventCallback('onComplete', () => pitch.setSelected(benchId));
+    sheet.refresh();
     openDetail(benchId);
   }
 
@@ -109,19 +111,38 @@ export function initApp({ stage, ref, pitch, panel, toolbar, intro }) {
     if (form._brand?.isBusy()) return; // background removal is still running
     if (form.dataset.mode === 'team') {
       await applyBrand(form);
+      if (form._match) {
+        const r = form._match.read();
+        store.saveMatch(r.match);
+        store.setSetting('introMode', r.introMode);
+        intro.refresh();
+        panel.refreshBrand();
+      }
       closePanel();
       return;
     }
     const values = readEditor(form);
     if (!values) return;
     await applyBrand(form);
+    const prevCaptain = store.captainId();
     const p = store.upsertPlayer(ui.editing ? { id: ui.editing, ...values } : values);
     if (store.slotOf(p.id) >= 0) pitch.refresh(p.id);
+    // the armband moved: redraw the card that lost it
+    const nowCaptain = store.captainId();
+    if (prevCaptain && prevCaptain !== nowCaptain && store.slotOf(prevCaptain) >= 0) pitch.refresh(prevCaptain);
+    sheet.refresh();
     openDetail(p.id);
     if (store.storageIsFull()) {
       toolbar.setHint('The browser storage is full, so this change may be lost on refresh. Remove unused photos or players to free space.');
     }
   }
+
+  function setPitchTheme(v) {
+    store.setSetting('pitchTheme', v);
+    stage.classList.toggle('pitch-dark', v === 'dark');
+    toolbar.setPitchTheme(v);
+  }
+  setPitchTheme(store.getSettings().pitchTheme);
 
   function setColor(hex) {
     store.setColor(hex);
@@ -146,8 +167,11 @@ export function initApp({ stage, ref, pitch, panel, toolbar, intro }) {
     team: () => openTeamEditor(),
     cancel: () => (ui.editing ? openDetail(ui.editing) : closePanel()),
     save,
-    delete: ({ id }) => { store.removePlayer(id); openBench(); },
-    formation: ({ f }) => { store.setFormation(f); toolbar.setFormation(f); pitch.layout(); },
+    delete: ({ id }) => { store.removePlayer(id); sheet.refresh(); openBench(); },
+    formation: ({ f }) => { store.setFormation(f); toolbar.setFormation(f); pitch.layout(); panel.refreshBrand(); },
+    'toggle-export': () => toolbar.toggleExport(),
+    export: ({ r }) => { toolbar.closeTheme(); exportLineup(r, stage); },
+    'pitch-theme': ({ v }) => setPitchTheme(v),
     'toggle-list': () => (ui.view === 'list' ? closePanel() : openList()),
     'toggle-bench': () => (ui.view === 'bench' && !ui.swapFor ? closePanel() : openBench()),
     reset: () => {
@@ -183,6 +207,12 @@ export function initApp({ stage, ref, pitch, panel, toolbar, intro }) {
       e.preventDefault();
       openDetail(e.target.dataset.id);
     }
+  });
+  // H hides every control (toolbar, hints) so the lineup can be screen-captured or streamed clean.
+  window.addEventListener('keydown', (e) => {
+    if (e.key.toLowerCase() !== 'h' || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.target.closest?.('input, textarea, select, [contenteditable]')) return;
+    stage.classList.toggle('is-clean');
   });
   window.addEventListener('keydown', (e) => {
     if (live && e.key === 'Escape') {

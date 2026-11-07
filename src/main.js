@@ -11,6 +11,7 @@ import { createIntro } from './components/intro.js';
 import { createPitch } from './components/pitch.js';
 import { createPanel } from './components/panel.js';
 import { createToolbar } from './components/toolbar.js';
+import { createSheet } from './components/sheet.js';
 import { buildMaster } from './timeline.js';
 import { initApp } from './app.js';
 
@@ -23,11 +24,12 @@ const intro = createIntro();
 const pitch = createPitch();
 const panel = createPanel();
 const toolbar = createToolbar();
+const sheet = createSheet(); // substitutes strip of the final lineup screen
 
 // Pitch, panel and toolbar share one 2000x1123 reference frame (see .fref).
 const sceneEl = h('section', 'scene formation');
 const ref = h('div', 'fref');
-ref.append(pitch.el, panel.el, toolbar.el);
+ref.append(pitch.el, panel.el, sheet.el, toolbar.el);
 sceneEl.append(ref);
 
 const scene = {
@@ -36,15 +38,16 @@ const scene = {
     const tl = gsap.timeline().set(sceneEl, { autoAlpha: 1 });
     const pitchTl = pitch.enter();
     tl.add(pitchTl, 0).add(panel.enter(), 0.2);
-    // the controls appear once all the players have been introduced
-    tl.add(toolbar.enter(), Math.max(0, pitchTl.duration() - 0.6));
+    // the substitutes strip and the controls appear once all the players have been introduced
+    const end = Math.max(0, pitchTl.duration() - 0.9);
+    tl.add(sheet.enter(), end).add(toolbar.enter(), end + 0.3);
     return tl;
   },
 };
 stage.append(sceneEl, intro.el);
 
 applyLogo(stage); // after the panel exists: it holds the crest image
-const app = initApp({ stage, ref, pitch, panel, toolbar, intro });
+const app = initApp({ stage, ref, pitch, panel, toolbar, intro, sheet });
 
 // The whole opening sequence: board, then players. The page does not respond to anything
 // except "skip" until it has finished: the first click jumps from the board to the players,
@@ -91,6 +94,7 @@ function play({ skip = false } = {}) {
   pitch.build();
   panel.reset();
   toolbar.reset();
+  sheet.reset();
   gsap.set([sceneEl, intro.el], { autoAlpha: 0 });
   master = buildMaster({ intro, scene });
   window.master = master; // handy for console debugging
@@ -107,4 +111,8 @@ function play({ skip = false } = {}) {
 app.onPlay = () => play();
 
 window.gsap = gsap;
-play({ skip: new URLSearchParams(location.search).get('intro') === '0' }); // ?intro=0 for development
+const params = new URLSearchParams(location.search);
+if (params.get('clean') === '1') stage.classList.add('is-clean'); // ?clean=1: no controls (for capture / streaming)
+// ?intro=0 skips the intro (development); so does the system's "reduce motion" setting.
+const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+play({ skip: params.get('intro') === '0' || reduceMotion });
