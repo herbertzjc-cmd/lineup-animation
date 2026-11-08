@@ -504,14 +504,14 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 
 /* ---------- Substitutes strip of the final lineup screen ---------- */
 .fsheet {
-  position: absolute; left: 40px; bottom: 26px; width: 660px; z-index: 6;
+  position: absolute; left: 40px; bottom: 26px; width: 660px; z-index: 6; box-sizing: border-box;
   padding: 10px 14px 12px 18px; border-left: 6px solid var(--primary); border-radius: 0 10px 10px 0;
   background: rgba(16, 18, 30, 0.82); color: #fff; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
 }
 #stage:not(.is-live) .fsheet { pointer-events: none; }
 .fsheet__head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
 .fsheet__label { font: 700 13px/1 var(--text-font); letter-spacing: 4px; opacity: 0.75; }
-.fsheet__tip { flex: 1; font: 700 12px/1 var(--text-font); opacity: 0.45; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fsheet__tip { flex: 1; min-width: 0; font: 700 12px/1 var(--text-font); opacity: 0.45; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .fsheet__btn {
   flex: none; padding: 5px 10px; border: 0; border-radius: 999px; cursor: pointer;
   font: 700 13px/1 var(--text-font); color: #fff; background: rgba(255, 255, 255, 0.12);
@@ -530,7 +530,8 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 .fsheet__sub.is-selected { background: var(--primary); color: var(--on-primary); box-shadow: 0 0 0 2px var(--on-primary) inset; }
 .fsheet__sub.is-selected b { color: inherit; }
 .fsheet__sub.is-dragged { opacity: 0.35; }
-#stage.is-clean .fsheet__head > :not(.fsheet__label) { display: none; }
+#stage.is-clean .fsheet__head > :not(.fsheet__label), .fsheet.is-narrow .fsheet__tip { display: none; }
+.fsheet.is-narrow .fsheet__head { justify-content: space-between; }
 #stage.is-clean .fsheet__sub { cursor: default; }
 
 /* ---------- Captain / special badges on the card ---------- */

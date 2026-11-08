@@ -269,8 +269,23 @@ export function createPitch() {
     gsap.to(el, { x: on ? -110 : 0, scale: on ? 0.9 : 1, duration: 0.7, ease: 'power3.inOut', overwrite: 'auto' });
   }
 
+  // Where the cards are, in reference px, for anything that must stay clear of them (the
+  // substitutes strip). Each card is counted twice, in its normal place and where it sits while the
+  // side panel is open (see setShifted), with room above for a figure that stands out of the card.
+  function obstacles() {
+    const out = [];
+    for (const p of positions(store.getFormation())) {
+      for (const [dx, k] of [[0, 1], [-110, 0.9]]) {
+        const x = CENTER_X + (p.left - CENTER_X) * k + dx;
+        const y = 560 + (p.top - 560) * k;
+        out.push({ l: x - 14, t: y - 50 * k, r: x + TILE_W * k + 14, b: y + TILE_H * k + 12 });
+      }
+    }
+    return out;
+  }
+
   const setPicking = (on) => el.classList.toggle('is-picking', on);
   const setDrop = (id) => tiles.forEach((t, tid) => t.classList.toggle('is-drop', tid === id));
 
-  return { name: 'pitch', el, build, enter, exit, layout, replace, refresh, setSelected, setShifted, setPicking, setDrop };
+  return { name: 'pitch', el, build, enter, exit, layout, replace, refresh, setSelected, setShifted, setPicking, setDrop, obstacles };
 }

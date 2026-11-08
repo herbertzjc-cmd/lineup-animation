@@ -176,7 +176,7 @@ export function initApp({ stage, ref, pitch, panel, toolbar, intro, sheet }) {
     cancel: () => (ui.editing ? openDetail(ui.editing) : closePanel()),
     save,
     delete: ({ id }) => { store.removePlayer(id); sheet.refresh(); openBench(); },
-    formation: ({ f }) => { store.setFormation(f); toolbar.setFormation(f); pitch.layout(); panel.refreshBrand(); },
+    formation: ({ f }) => { store.setFormation(f); toolbar.setFormation(f); pitch.layout(); panel.refreshBrand(); sheet.fit(); },
     'toggle-export': () => toolbar.toggleExport(),
     export: ({ r }) => { toolbar.closeTheme(); exportLineup(r, stage); },
     'pitch-theme': ({ v }) => setPitchTheme(v),

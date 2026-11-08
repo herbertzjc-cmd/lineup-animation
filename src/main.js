@@ -28,12 +28,14 @@ const intro = createIntro();
 const pitch = createPitch();
 const panel = createPanel();
 const toolbar = createToolbar();
-const sheet = createSheet(); // substitutes strip of the final lineup screen
+const sheet = createSheet({ obstacles: () => pitch.obstacles() }); // substitutes strip, kept clear of the cards
 
 // Pitch, panel and toolbar share one 2000x1123 reference frame (see .fref).
 const sceneEl = h('section', 'scene formation');
 const ref = h('div', 'fref');
 ref.append(pitch.el, panel.el, sheet.el, toolbar.el);
+sheet.fit();
+document.fonts?.ready.then(() => sheet.fit()); // names are measured, so refit with the real font
 sceneEl.append(ref);
 
 const scene = {
