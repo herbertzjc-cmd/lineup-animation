@@ -223,7 +223,7 @@ export function initApp({ stage, ref, pitch, panel, toolbar, intro, sheet }) {
     cancel: back, // leaving an editor without saving returns to where it was opened from
     save,
     delete: ({ id }) => { store.removePlayer(id); sheet.refresh(); openBench(); },
-    formation: ({ f }) => { store.setFormation(f); toolbar.setFormation(f); pitch.layout(); panel.refreshBrand(); sheet.fit(); },
+    formation: ({ f }) => { store.setFormation(f); toolbar.setFormation(f); toolbar.closeTheme(); pitch.layout(); panel.refreshBrand(); sheet.fit(); },
     'toggle-export': () => toolbar.toggleExport(),
     export: ({ r }) => { toolbar.closeTheme(); exportLineup(r, stage); },
     'pitch-theme': ({ v }) => setPitchTheme(v),

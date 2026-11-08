@@ -271,30 +271,55 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 #stage.is-live .skip-hint { opacity: 0; }
 
 /* ---------- Toolbar (top left) ---------- */
-.ftool { position: absolute; left: 40px; top: 30px; width: 700px; }
-.ftool__row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-.chip {
-  height: 46px; padding: 0 12px; border: 0; border-radius: 23px; cursor: pointer;
-  background: #fff; color: var(--ink); font: 700 18px/1 var(--text-font);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1); transition: background 0.15s, color 0.15s, transform 0.15s;
+.ftool { position: absolute; left: 32px; top: 26px; transition: opacity 0.45s; }
+/* rests out of sight while the mouse is still (see toolbar.js); any movement brings it back */
+#stage.is-live .ftool.is-idle { opacity: 0; }
+.dock {
+  display: flex; align-items: center; gap: 4px; padding: 6px; border-radius: 16px;
+  background: rgba(12, 16, 22, 0.72); border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28); color: #fff;
 }
-.chip:hover { transform: translateY(-2px); }
-.chip.is-active { background: var(--primary); color: var(--on-primary); }
-.chip--play { background: var(--primary); color: var(--on-primary); }
-.chip--quiet { background: transparent; box-shadow: none; opacity: 0.6; padding: 0 6px; }
+.dock__btn {
+  position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 44px; padding: 0 14px; border: 0; border-radius: 11px; cursor: pointer;
+  background: transparent; color: inherit; font: 700 17px/1 var(--text-font); transition: background 0.15s;
+}
+.dock__btn:hover, .dock__btn.is-open { background: rgba(255, 255, 255, 0.12); }
+.dock__btn.is-active { background: var(--primary); color: var(--on-primary); }
+.dock__btn:focus-visible { outline: 2px solid #fff; outline-offset: 1px; }
+.dock__play { background: var(--primary); color: var(--on-primary); }
+.dock__play:hover { background: var(--primary-hi); }
+.dock__formation { min-width: 112px; font: 700 22px/1 var(--card-font); letter-spacing: 0.5px; }
+.dock__formation i { font-style: normal; font-size: 14px; opacity: 0.7; }
+.dock__icon { width: 44px; padding: 0; }
+.dock__icon svg { width: 22px; height: 22px; }
+.dock__sep { width: 1px; height: 26px; margin: 0 4px; background: rgba(255, 255, 255, 0.16); }
+/* tooltips */
+.dock__btn[data-tip]:hover::after {
+  content: attr(data-tip); position: absolute; left: 50%; top: calc(100% + 10px); transform: translateX(-50%); z-index: 6;
+  padding: 7px 10px; border-radius: 8px; background: rgba(12, 16, 22, 0.92); color: #fff; white-space: nowrap;
+  font: 700 13px/1 var(--text-font); pointer-events: none;
+}
+.dock__btn.is-open::after { display: none; }
+.tpop { position: absolute; left: 0; top: 70px; z-index: 5; padding: 20px 22px 18px; background: #fff; border-radius: 18px; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18); color: var(--ink); }
+.formation-pop__grid { display: grid; grid-template-columns: repeat(4, auto); gap: 8px; }
+.more-pop { padding: 8px; display: flex; flex-direction: column; min-width: 260px; }
+.menu-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 14px; border: 0; border-radius: 10px;
+  background: transparent; color: var(--ink); font: 700 16px/1 var(--text-font); text-align: left; cursor: pointer;
+}
+.menu-item:hover { background: rgba(0, 0, 0, 0.06); }
+.menu-item--warn { color: #b3261e; }
+.menu-item kbd { padding: 3px 7px; border-radius: 5px; border: 1px solid rgba(0, 0, 0, 0.18); font: 700 12px/1 var(--text-font); }
 .ftool__hint:empty { display: none; }
-.ftool__hint { font: 700 17px/1.4 var(--text-font); opacity: 0.55; max-width: 620px; }
+.ftool__hint { margin-top: 10px; padding: 8px 12px; border-radius: 10px; background: rgba(12, 16, 22, 0.72); color: #fff; font: 700 16px/1.4 var(--text-font); max-width: 620px; }
 
 /* ---------- Colors popover ---------- */
 .chip__dot {
-  display: inline-block; width: 16px; height: 16px; margin: 0 8px -2px 0; border-radius: 50%;
-  background: var(--primary); box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.15);
+  display: inline-block; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--primary); box-shadow: 0 0 0 2px #fff;
 }
-.chip.is-active .chip__dot { background: var(--on-primary); box-shadow: none; }
-.theme-pop {
-  position: absolute; left: 0; top: 112px; z-index: 5; width: 420px; padding: 20px 22px 18px;
-  background: #fff; border-radius: 18px; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
-}
+.theme-pop { width: 420px; }
 .theme-pop__title { font: 700 14px/1 var(--text-font); letter-spacing: 3px; opacity: 0.55; margin-bottom: 14px; }
 .theme-pop__swatches { display: flex; flex-wrap: wrap; gap: 12px; }
 .swatch {
@@ -528,14 +553,13 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
     radial-gradient(ellipse 70% 38% at 42% -6%, rgba(235, 245, 255, 0.22), transparent 70%),
     linear-gradient(180deg, #08100b 0%, #0d1a11 40%, #0b160e 100%);
 }
-#stage.pitch-grass .ftool__hint, #stage.pitch-grass .chip--quiet, #stage.pitch-dark .chip--quiet { color: #fff; }
+
 
 /* ---------- Dark pitch theme ---------- */
 #stage.pitch-dark {
   --pitch-a: #1d2333; --pitch-b: #131826; --pitch-line: rgba(255, 255, 255, 0.28); --pitch-line-strong: rgba(255, 255, 255, 0.42); --pitch-goal: #e8e8ee;
   background: linear-gradient(180deg, #0c0f1a 0%, #11162a 50%, #0a0d18 100%);
 }
-#stage.pitch-dark .ftool__hint { color: #fff; }
 #stage.pitch-dark .fref__pitch { filter: drop-shadow(0 6px 24px rgba(0, 0, 0, 0.5)); }
 
 /* ---------- Clean mode (H key or ?clean=1): nothing but the graphic ---------- */
@@ -613,9 +637,6 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 }
 .seg:hover { border-color: var(--primary); }
 .seg.is-active { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
-.export-pop {
-  position: absolute; left: 0; top: 112px; z-index: 5; width: 440px; padding: 20px 22px 16px;
-  background: #fff; border-radius: 18px; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
-}
+.export-pop { width: 440px; }
 .export-pop__list { flex-direction: column; align-items: stretch; }
 .export-pop__note { margin-top: 12px; font: 700 13px/1.4 var(--text-font); opacity: 0.6; }

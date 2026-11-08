@@ -17,7 +17,7 @@ An intro animation plays once on page load, in a broadcast style: a spotlight an
 - **Clean mode**: press **H** (or open the page with `?clean=1`) to hide the toolbar and hints, e.g. for screen recording
 - **Pitch**: a realistic **grass** pitch by default (mowing stripes, turf texture, floodlight and full white markings, painted once onto a canvas so the camera moves stay smooth); **Colors → Pitch** also offers the original light pitch and a dark night-time one
 - Team colors: 10 presets or any custom color (text switches between white and dark automatically so it stays readable)
-- **▶ Play** replays the opening animation with the current lineup
+- **Controls**: one compact dark bar in the top-left corner: **▶ Play** (replays the opening animation), the formation menu, then icons (with tooltips) for Lineup, Bench, Add player, Team & match, Colors & pitch, Export and **⋯** (Hide controls, Reset). The bar fades out after a few seconds without mouse movement and comes back as soon as the mouse moves
 - Your changes are saved in the browser (`localStorage`)
 
 The 1920×1080 stage scales to fit any screen.
