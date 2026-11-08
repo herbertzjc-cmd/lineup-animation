@@ -468,6 +468,24 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 .intro__team { font-size: 76px; font-weight: 700; }
 .intro__meta { font-size: 32px; margin-top: 30px; opacity: 0.9; }
 
+/* ---------- Grass pitch theme (default): realistic turf under a stadium sky ---------- */
+.fref__grass { position: absolute; left: 0; top: 0; width: 2000px; height: 1123px; display: none; }
+.pitch__touch, .pitch__net { display: none; }
+#stage.pitch-grass .fref__grass { display: block; }
+#stage.pitch-grass .pitch__touch, #stage.pitch-grass .pitch__net { display: inline; }
+#stage.pitch-grass .pitch__fill { display: none; }
+#stage.pitch-grass .fref__pitch { filter: none; }
+#stage.pitch-grass .pitch__lines { stroke-width: 3; }
+#stage.pitch-grass .fref__dim { background: radial-gradient(ellipse at 50% 50%, rgba(4, 14, 8, 0.45) 0%, rgba(4, 14, 8, 0.7) 72%); }
+.pitch__net { fill: rgba(255, 255, 255, 0.14); stroke: rgba(255, 255, 255, 0.75); stroke-width: 2; }
+#stage.pitch-grass {
+  --pitch-line: rgba(255, 255, 255, 0.82); --pitch-line-strong: rgba(255, 255, 255, 0.9); --pitch-goal: #ffffff;
+  background:
+    radial-gradient(ellipse 70% 38% at 42% -6%, rgba(235, 245, 255, 0.22), transparent 70%),
+    linear-gradient(180deg, #08100b 0%, #0d1a11 40%, #0b160e 100%);
+}
+#stage.pitch-grass .ftool__hint, #stage.pitch-grass .chip--quiet, #stage.pitch-dark .chip--quiet { color: #fff; }
+
 /* ---------- Dark pitch theme ---------- */
 #stage.pitch-dark {
   --pitch-a: #1d2333; --pitch-b: #131826; --pitch-line: rgba(255, 255, 255, 0.28); --pitch-line-strong: rgba(255, 255, 255, 0.42); --pitch-goal: #e8e8ee;

@@ -31,7 +31,7 @@ export function createToolbar() {
       <div class="theme-pop__hex"><span>Custom</span><b></b></div>
       <div class="theme-pop__title theme-pop__title--sub">PITCH</div>
       <div class="theme-pop__seg">
-        <button class="seg" data-action="pitch-theme" data-v="light">Light</button><button class="seg" data-action="pitch-theme" data-v="dark">Dark</button>
+        <button class="seg" data-action="pitch-theme" data-v="grass">Grass</button><button class="seg" data-action="pitch-theme" data-v="light">Light</button><button class="seg" data-action="pitch-theme" data-v="dark">Dark</button>
       </div>
     </div>
     <div class="export-pop">

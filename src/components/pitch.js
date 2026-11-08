@@ -1,6 +1,7 @@
 import gsap from 'gsap';
 import { h, esc } from '../dom.js';
 import * as store from '../store.js';
+import { paintGrass } from '../grass.js';
 import { createTile, flipTimeline, specialTimeline, popBackTimeline, popOvershoot, SPECIAL_PREP } from './playerTile.js';
 
 // Every number below is in pixels of the 2000x1123 reference frame; the whole
@@ -62,12 +63,16 @@ const PITCH_SVG = `
     </defs>
     <path class="pitch__fill" fill="url(#pitchFill)"
       d="M-66 1123L237 192Q245 163 270 163L1373 163Q1398 163 1406 192L1709 1123Z"/>
+    <path class="pitch__net" d="M745 163L750 137L888 137L893 163Z"/>
     <g class="pitch__lines" fill="none" style="stroke:var(--pitch-line)" stroke-width="2">
+      <path class="pitch__touch" pathLength="1" d="M-66 1123L270 163L1373 163L1709 1123"/>
       <path pathLength="1" d="M509 163L491 258Q490 268 502 268L1140 268Q1151 268 1150 258L1135 163"/>
+      <path pathLength="1" d="M676 163L671 199Q671 203 676 203L967 203Q972 203 971 199L966 163"/>
       <path pathLength="1" d="M630 268A190 54 0 0 0 1010 268"/>
-      <path pathLength="1" style="stroke:var(--pitch-line-strong)" d="M78 688L1568 688"/>
+      <path pathLength="1" style="stroke:var(--pitch-line-strong)" d="M86 688L1557 688"/>
       <ellipse pathLength="1" cx="818" cy="688" rx="195" ry="112"/>
     </g>
+    <g class="pitch__spots" style="fill:var(--pitch-line)"><ellipse cx="821" cy="236" rx="4.5" ry="3"/><ellipse cx="818" cy="688" rx="6.5" ry="4"/></g>
     <path class="pitch__goal" pathLength="1" style="stroke:var(--pitch-goal)" stroke-width="5" d="M745 163L893 163"/>
   </svg>`;
 
@@ -75,6 +80,20 @@ export function createPitch() {
   const el = h('div', 'fref__world');
   el.innerHTML = PITCH_SVG;
   const svg = el.querySelector('.fref__pitch');
+  // The realistic turf of the "Grass" theme, painted the first time that theme is used.
+  const grass = document.createElement('canvas');
+  grass.className = 'fref__grass';
+  grass.width = 2000;
+  grass.height = 1123;
+  el.prepend(grass);
+  let grassPainted = false;
+  function setGround(theme) {
+    if (theme === 'grass' && !grassPainted) {
+      paintGrass(grass);
+      grassPainted = true;
+    }
+  }
+  const ground = [grass, svg];
   const q = gsap.utils.selector(el);
 
   // id -> tile element, for everyone currently on the pitch.
@@ -184,7 +203,7 @@ export function createPitch() {
   function enter() {
     const T = TIMING[store.getSettings().introMode] || TIMING.short;
     const tl = gsap.timeline();
-    tl.fromTo(svg, { y: 140, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: T.drop, ease: 'power3.out' }, 0)
+    tl.fromTo(ground, { y: 140, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: T.drop, ease: 'power3.out' }, 0)
       .fromTo(q('.pitch__lines > *, .pitch__goal'), { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: T.drop, ease: 'power2.inOut', stagger: 0.08 }, T.drop * 0.5)
       // The cards arrive face down in their places...
       .fromTo(introTiles, { y: -60, scale: 0.85, autoAlpha: 0 }, { y: 0, scale: 1, autoAlpha: 1, duration: 0.4, ease: 'power3.out', stagger: 0.03 }, T.drop)
@@ -216,7 +235,7 @@ export function createPitch() {
       .timeline()
       .to(store.slots().map((id) => flipperOf(tiles.get(id))).reverse(), { rotationY: 180, duration: 0.5, ease: 'power2.in', stagger: 0.06 })
       .to(store.slots().map((id) => tiles.get(id)).reverse(), { y: 70, scale: 0.85, autoAlpha: 0, duration: 0.3, ease: 'power2.in', stagger: 0.04 }, '-=0.4')
-      .to(svg, { y: 140, autoAlpha: 0, duration: 0.6, ease: 'power2.in' }, '-=0.4');
+      .to(ground, { y: 140, autoAlpha: 0, duration: 0.6, ease: 'power2.in' }, '-=0.4');
   }
 
   // Slide every tile to where the current formation / slot order puts it.
@@ -287,5 +306,5 @@ export function createPitch() {
   const setPicking = (on) => el.classList.toggle('is-picking', on);
   const setDrop = (id) => tiles.forEach((t, tid) => t.classList.toggle('is-drop', tid === id));
 
-  return { name: 'pitch', el, build, enter, exit, layout, replace, refresh, setSelected, setShifted, setPicking, setDrop, obstacles };
+  return { name: 'pitch', el, build, enter, exit, layout, replace, refresh, setSelected, setShifted, setPicking, setDrop, obstacles, setGround };
 }

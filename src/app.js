@@ -148,6 +148,8 @@ export function initApp({ stage, ref, pitch, panel, toolbar, intro, sheet }) {
   function setPitchTheme(v) {
     store.setSetting('pitchTheme', v);
     stage.classList.toggle('pitch-dark', v === 'dark');
+    stage.classList.toggle('pitch-grass', v === 'grass');
+    pitch.setGround(v);
     toolbar.setPitchTheme(v);
   }
   setPitchTheme(store.getSettings().pitchTheme);

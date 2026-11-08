@@ -16,7 +16,9 @@ const defaultBrand = () => ({
 });
 
 // Match details (opponent, competition, date…) and display settings, both editable on the page.
-const defaultSettings = () => ({ introMode: 'short', pitchTheme: 'light' });
+// pitchV marks settings saved since the Grass pitch exists: older saves still had the old
+// default 'light' (rarely a real choice), so they move to the new default 'grass' once.
+const defaultSettings = () => ({ introMode: 'short', pitchTheme: 'grass', pitchV: 2 });
 
 const fresh = () => ({
   players: clone(defaults.players),
@@ -50,7 +52,9 @@ function load() {
       const b = defaultBrand();
       s.brand = { ...b, ...(s.brand || {}), mgr: { ...b.mgr, ...(s.brand?.mgr || {}) } };
       s.match = { ...defaultMatch, ...(s.match || {}) };
+      const savedV = s.settings?.pitchV;
       s.settings = { ...defaultSettings(), ...(s.settings || {}) };
+      if (savedV !== 2) s.settings = { ...s.settings, pitchTheme: 'grass', pitchV: 2 };
       // older saved lineups have no captain: take the default one if that player is still in the squad
       if (!s.players.some((p) => p.captain)) {
         const cap = defaults.players.find((p) => p.captain);

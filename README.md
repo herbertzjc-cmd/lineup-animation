@@ -15,7 +15,7 @@ An intro animation plays once on page load, in a broadcast style: a spotlight an
 - **Captain**: switch on "Captain" in a player's editor — the card gets a **C** badge (there is one captain, so this moves it). Special players are marked with **★**, not only by colour
 - **Export PNG**: the **Export** button draws the lineup as a still image in 16:9 (1920×1080), 1:1 (1080×1080) or 9:16 (1080×1920) for social media. The animation itself stays 16:9
 - **Clean mode**: press **H** (or open the page with `?clean=1`) to hide the toolbar and hints, e.g. for screen recording
-- **Dark pitch**: **Colors → Pitch** switches between the light and a dark night-time pitch
+- **Pitch**: a realistic **grass** pitch by default (mowing stripes, turf texture, floodlight and full white markings, painted once onto a canvas so the camera moves stay smooth); **Colors → Pitch** also offers the original light pitch and a dark night-time one
 - Team colors: 10 presets or any custom color (text switches between white and dark automatically so it stays readable)
 - **▶ Play** replays the opening animation with the current lineup
 - Your changes are saved in the browser (`localStorage`)
@@ -107,6 +107,7 @@ src/components/views/     panel views: player detail, bench, lineup list, editor
 src/timeline.js           GSAP master timeline for the page-load animation
 src/cartoon.js            the drawn cartoon players (look, kit, pose)
 src/export.js             PNG export in 16:9, 1:1 and 9:16
+src/grass.js              the painted grass pitch
 src/app.js                interaction wiring (select, swap, drag, formation)
 ```
 
@@ -125,6 +126,6 @@ The sample photos in `public/players/*.webp` (cut-outs of freely licensed Wikime
 
 ### 中文简介
 
-足球转播风格的首发阵容网页(Vite + GSAP)。打开页面播放一次开场动画,之后可以点击球员查看详情、换人(点选或拖拽，左下角替补条里的名字也可以点击查看、拖到场上换人)、切换阵型、切换/自定义球队配色、自建和编辑球员。可以填写比赛信息(对手及其队徽或简称配色、主客场、赛事、轮次、日期、开球时间、球场)，设置队长(卡片上的 C 标)，导出 16:9 / 1:1 / 9:16 的阵容图片，按 H 键或加 `?clean=1` 进入无控件的干净画面，在 Colors 里切换深色球场。开场动画默认是约 18 秒的精简版(每组速度一致)，可在 Team → Match Settings 选完整版(约 24 秒)。
+足球转播风格的首发阵容网页(Vite + GSAP)。打开页面播放一次开场动画,之后可以点击球员查看详情、换人(点选或拖拽，左下角替补条里的名字也可以点击查看、拖到场上换人)、切换阵型、切换/自定义球队配色、自建和编辑球员。可以填写比赛信息(对手及其队徽或简称配色、主客场、赛事、轮次、日期、开球时间、球场)，设置队长(卡片上的 C 标)，导出 16:9 / 1:1 / 9:16 的阵容图片，按 H 键或加 `?clean=1` 进入无控件的干净画面，默认是真实草皮球场(修剪条纹、草地纹理、灯光和完整白色标线)，在 Colors 里还可以切换浅色或深色球场。开场动画默认是约 18 秒的精简版(每组速度一致)，可在 Team → Match Settings 选完整版(约 24 秒)。
 
 运行:安装 Node.js 22+,然后 `npm install && npm run dev`。换成自己的球队:只改 `src/data/players.json` 和 `public/` 里的图片。许可:可以免费使用,但不得修改代码(见 LICENSE)。
