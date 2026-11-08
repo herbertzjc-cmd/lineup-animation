@@ -127,7 +127,7 @@ export function initApp({ stage, ref, pitch, panel, toolbar, intro, sheet }) {
     const prevCaptain = store.captainId();
     const p = store.upsertPlayer(ui.editing ? { id: ui.editing, ...values } : values);
     if (store.slotOf(p.id) >= 0) pitch.refresh(p.id);
-    // the armband moved: redraw the card that lost it
+    // the captaincy moved: redraw the card that lost it
     const nowCaptain = store.captainId();
     if (prevCaptain && prevCaptain !== nowCaptain && store.slotOf(prevCaptain) >= 0) pitch.refresh(prevCaptain);
     sheet.refresh();

@@ -1,6 +1,6 @@
 import gsap from 'gsap';
 import { h, esc } from '../../dom.js';
-import { asset, portraitSrc } from '../../data.js';
+import { asset, portraitSrc, flagOf } from '../../data.js';
 import { cartoonSvg } from '../../cartoon.js';
 import * as store from '../../store.js';
 import { exitView } from './common.js';
@@ -30,7 +30,7 @@ function render({ id }) {
     <div class="detail__pos" data-anim>${esc(p.position)} · ${esc(store.getTeamName())}</div>
     ${p.captain || p.special ? `<div class="detail__badges" data-anim>${p.captain ? '<span class="detail__badge detail__badge--cap">C · CAPTAIN</span>' : ''}${p.special ? '<span class="detail__badge">★ SPECIAL PLAYER</span>' : ''}</div>` : ''}
     <dl class="detail__facts" data-anim>
-      ${facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join('')}
+      ${facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${k === 'Nationality' && flagOf(p) ? `<img class="detail__flag" src="${esc(asset(flagOf(p)))}" alt="">` : ''}${esc(v)}</dd></div>`).join('')}
     </dl>
     <div class="detail__actions" data-anim>
       ${onPitch

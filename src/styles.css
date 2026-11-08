@@ -74,16 +74,6 @@ ul { list-style: none; }
 /* The panel edge sits 57px into the crest: red on the light side, white on the panel. */
 .crest__layer--red { background: var(--primary-ink); clip-path: inset(0 56px 0 0); }
 .crest__layer--white { background: var(--on-primary); clip-path: inset(0 0 0 57px); }
-.fref__bug {
-  position: absolute; left: 1915px; top: 1022px; width: 66px; height: 66px; border-radius: 7px;
-  background: linear-gradient(135deg, #4b2287, #8d3fc4); border: 2px solid #b784e0;
-  display: grid; place-items: center; pointer-events: none;
-}
-.fref__bug i {
-  width: 28px; height: 28px; background: linear-gradient(135deg, #ffb347, #ff6a1a);
-  clip-path: polygon(0 0, 100% 50%, 0 100%);
-}
-
 /* Idle panel: team name and manager, shown in the strip of the closed side panel. */
 /* The closed panel is pushed 222px right, so the visible strip is the first 338px of the panel. */
 .panel__idle { position: absolute; left: 24px; width: 290px; top: 0; bottom: 0; pointer-events: none; }
@@ -171,14 +161,10 @@ ul { list-style: none; }
 .tile__photo--cover img { width: 100%; height: 100%; object-fit: cover; object-position: bottom; }
 
 /* Until a tile is revealed only its blank front is there; the entrance animation brings in the rest. */
-.tile:not(.tile--revealed) :is(.tile__photo, .tile__fade, .tile__txt, .tile__flag, .tile__holo, .tile__edge) { opacity: 0; visibility: hidden; }
+.tile:not(.tile--revealed) :is(.tile__photo, .tile__fade, .tile__txt, .tile__holo, .tile__edge) { opacity: 0; visibility: hidden; }
 .tile__fade {
   position: absolute; left: 0; right: 0; bottom: 0; height: 72px; border-radius: 0 0 10px 10px;
   background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--primary-dark) 92%, transparent));
-}
-.tile__flag {
-  position: absolute; left: -6px; top: 83px; width: 36px; height: 25px; object-fit: cover; border-radius: 3px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
 }
 body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 
@@ -226,29 +212,14 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 .fref__fx { position: absolute; inset: 0; pointer-events: none; z-index: 35; }
 .fref__dim {
   position: absolute; inset: -200px; z-index: 25; pointer-events: none;
-  background: radial-gradient(ellipse at 50% 50%, rgba(10, 14, 34, 0.3) 0%, rgba(10, 14, 34, 0.58) 72%);
+  background: radial-gradient(ellipse at 50% 50%, rgba(10, 14, 34, 0.62) 0%, rgba(10, 14, 34, 0.8) 72%);
 }
-/* The pool and shaft of light on the spotlighted row. */
+/* A soft pool of light on the spotlighted row. */
 .fref__light {
   position: absolute; left: 819px; top: 700px; width: 1500px; height: 620px; margin: -310px 0 0 -750px; z-index: 30; pointer-events: none;
-  background: radial-gradient(ellipse at center, rgba(255, 240, 205, 0.5) 0%, rgba(255, 230, 180, 0.2) 38%, transparent 70%);
+  background: radial-gradient(ellipse at center, rgba(255, 240, 205, 0.32) 0%, rgba(255, 230, 180, 0.12) 38%, transparent 70%);
   mix-blend-mode: screen;
 }
-.fref__light::before {
-  content: ''; position: absolute; left: 50%; bottom: 50%; width: 820px; height: 760px; transform: translateX(-50%);
-  background: linear-gradient(180deg, transparent, rgba(255, 244, 220, 0.24)); clip-path: polygon(36% 0, 64% 0, 100% 100%, 0 100%); filter: blur(16px);
-}
-/* Lower third under a spotlighted card. */
-.fref__bar {
-  position: absolute; z-index: 38; height: 76px; display: flex; align-items: stretch; pointer-events: none;
-  background: linear-gradient(90deg, var(--primary-dark), var(--primary)); color: var(--on-primary);
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 14px 100%); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
-}
-.bar__num { flex: none; width: 62px; display: grid; place-items: center; font: 700 40px/1 var(--card-font); background: var(--on-primary); color: var(--primary-ink); }
-.bar__body { flex: 1; min-width: 0; padding: 0 12px 0 14px; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
-.bar__name { font: 700 28px/1 var(--card-font); white-space: nowrap; letter-spacing: 1px; }
-.bar__meta { font: 700 15px/1 var(--text-font); font-style: normal; letter-spacing: 1.5px; opacity: 0.85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.bar__name { overflow: hidden; text-overflow: ellipsis; }
 .fref__caption {
   position: absolute; left: 319px; width: 1000px; top: 138px; z-index: 38; pointer-events: none; text-align: center;
 }
@@ -263,7 +234,6 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
   font: 700 66px/1 var(--card-font); letter-spacing: 12px; color: var(--on-primary);
 }
 .cap__text b { display: inline-block; font-weight: inherit; }
-.cap__line { position: absolute; left: 44px; right: 44px; bottom: 7px; height: 4px; background: var(--on-primary); opacity: 0.85; }
 @media (prefers-reduced-motion: reduce) { .tile__edge, .tile__holo { animation: none; } }
 
 /* While the intro (or a replay) runs, nothing is clickable except "skip". */
@@ -288,6 +258,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 .chip.is-active { background: var(--primary); color: var(--on-primary); }
 .chip--play { background: var(--primary); color: var(--on-primary); }
 .chip--quiet { background: transparent; box-shadow: none; opacity: 0.6; padding: 0 6px; }
+.ftool__hint:empty { display: none; }
 .ftool__hint { font: 700 17px/1.4 var(--text-font); opacity: 0.55; max-width: 620px; }
 
 /* ---------- Colors popover ---------- */
@@ -532,7 +503,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 }
 .tile__cap { background: #ffd23f; color: #1a1a1a; }
 .tile__star { background: linear-gradient(135deg, #c89a35, #ffe08a); color: #3a2800; font-size: 12px !important; }
-.bar__cap { color: #ffd23f; }
+.detail__flag { width: 30px; height: 20px; object-fit: cover; border-radius: 3px; margin-right: 10px; vertical-align: -2px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35); }
 .detail__badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .detail__badges .detail__badge { margin-top: 0; }
 .detail__badge--cap { background: #ffd23f !important; color: #1a1a1a !important; }

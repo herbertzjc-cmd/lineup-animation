@@ -1,6 +1,6 @@
 import gsap from 'gsap';
 import { h, esc } from '../dom.js';
-import { asset, flagOf, popOf, canPop, avatarOf, portraitSrc } from '../data.js';
+import { asset, popOf, canPop, avatarOf, portraitSrc } from '../data.js';
 import { goldParticles } from './fx.js';
 import { cartoonSvg } from '../cartoon.js';
 
@@ -55,12 +55,11 @@ export function popOvershoot(p) {
 // A player card. The front is built in layers, bottom to top:
 //   card background (+ gold holo / sheen / beam for special players)
 //   the player figure (own layer so it can stand out of the card; only clipped at the bottom)
-//   bottom fade, then number / position / name (always above the figure), flag, gold frame.
+//   bottom fade, then number / position / name (always above the figure), badges, gold frame.
 // The back carries the crest. During the intro a tile starts unrevealed (back up, front
 // contents hidden); flipTimeline() or specialTimeline() turns it over, and popOutTimeline()
 // then lets the figure step out of the card. Tiles created later start already revealed.
 export function createTile(p, { revealed = true } = {}) {
-  const flag = flagOf(p);
   const special = !!p.special;
   const pop = canPop(p);
   const cls = ['tile', revealed && 'tile--revealed', special && 'tile--special', pop ? 'tile--pop' : 'tile--nopop'];
@@ -87,7 +86,6 @@ export function createTile(p, { revealed = true } = {}) {
           <div class="tile__pos tile__txt">${esc(p.position)}</div>
           <div class="tile__name tile__txt">${esc(p.name)}</div>
           ${p.captain || special ? `<div class="tile__badges tile__txt">${p.captain ? '<b class="tile__cap" title="Captain">C</b>' : ''}${special ? '<b class="tile__star" title="Special player">★</b>' : ''}</div>` : ''}
-          ${flag ? `<img class="tile__flag" src="${esc(asset(flag))}" alt="" draggable="false">` : ''}
           ${special ? '<div class="tile__edge"></div>' : ''}
         </div>
         <div class="tile__back">
@@ -142,9 +140,6 @@ export function flipTimeline(tile) {
     .fromTo(q('.tile__photo, .tile__fade'), { autoAlpha: 0, y: 26 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0.36)
     .fromTo(q('.tile__txt'), { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.35, ease: 'power2.out', stagger: 0.06 }, 0.8)
     .add(popOutTimeline(tile), 0.8); // only once the card has finished turning
-  if (q('.tile__flag').length) {
-    tl.fromTo(q('.tile__flag'), { scale: 0, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.35, ease: 'back.out(2.2)' }, 0.85);
-  }
   return tl;
 }
 
@@ -190,9 +185,6 @@ export function specialTimeline(tile, fxLayer, center) {
     .add(goldParticles(fxLayer, center.x, center.y, 'burst', center.k), REVEAL)
     .fromTo(q('.tile__txt'), { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: 0.4, ease: 'power2.out', stagger: 0.07 }, REVEAL + 0.1)
     .add(popOutTimeline(tile), REVEAL + 0.35); // the figure steps out as the beam passes
-  if (q('.tile__flag').length) {
-    tl.fromTo(q('.tile__flag'), { scale: 0, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.35, ease: 'back.out(2.2)' }, REVEAL + 0.2);
-  }
   // 4 hologram, 5 settle
   tl.fromTo(holo, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.9 }, REVEAL + 0.2)
     .to(holo, { autoAlpha: 0.5, duration: 0.8 }, REVEAL + 1.1)

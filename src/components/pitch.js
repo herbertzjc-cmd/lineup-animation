@@ -1,7 +1,5 @@
 import gsap from 'gsap';
 import { h, esc } from '../dom.js';
-import { fitFont } from '../branding.js';
-import { nationCode } from '../data.js';
 import * as store from '../store.js';
 import { createTile, flipTimeline, specialTimeline, popBackTimeline, popOvershoot, SPECIAL_PREP } from './playerTile.js';
 
@@ -35,8 +33,8 @@ function positions(formation) {
 // longer original version. `overlap` starts the next group while the previous one is still
 // settling back; `tempo` speeds up each group in turn (goalkeeper slowest, forwards quickest).
 const TIMING = {
-  short: { rise: 0.55, hold: 0.35, ret: 0.45, overlap: 0.45, tempo: [1.1, 1.3, 1.4, 1.5], drop: 0.6, end: 0.6, pull: 0.9 },
-  full: { rise: 0.8, hold: 0.7, ret: 0.6, overlap: -0.05, tempo: [1, 1, 1, 1], drop: 0.9, end: 1.2, pull: 1.1 },
+  short: { rise: 0.55, hold: 0.8, ret: 0.45, overlap: 0.45, tempo: [1.1, 1.3, 1.4, 1.5], drop: 0.6, end: 0.6, pull: 0.9 },
+  full: { rise: 0.8, hold: 1.3, ret: 0.6, overlap: -0.05, tempo: [1, 1, 1, 1], drop: 0.9, end: 1.2, pull: 1.1 },
 };
 const SPOT_Y = 700;    // vertical centre of the spotlight row (low enough that a popped head clears the title)
 const SPOT_W = 1240;   // width available for the row
@@ -82,7 +80,7 @@ export function createPitch() {
   // id -> tile element, for everyone currently on the pitch.
   const fxLayer = h('div', 'fref__fx'); // gold sparks for special players
   const dim = h('div', 'fref__dim'); // darkens (and slightly blurs) the pitch while a group is in the spotlight
-  const light = h('div', 'fref__light'); // the pool and shaft of light on the spotlighted row
+  const light = h('div', 'fref__light'); // a soft pool of light on the spotlighted row
   // The signature transition: three slanted bars that sweep across at the start of every group
   // and once more when the whole XI is shown (the same bars as on the opening board).
   const wipeEl = h('div', 'fref__wipe');
@@ -109,7 +107,7 @@ export function createPitch() {
     tiles.forEach((t) => { gsap.killTweensOf(t); t.remove(); });
     tiles.clear();
     fxLayer.replaceChildren();
-    el.querySelectorAll('.fref__caption, .fref__bar').forEach((c) => c.remove());
+    el.querySelectorAll('.fref__caption').forEach((c) => c.remove());
     gsap.set([dim, light], { autoAlpha: 0 });
     el.classList.remove('is-picking');
     gsap.killTweensOf(el);
@@ -133,14 +131,13 @@ export function createPitch() {
     // Figures that stand out of their card need extra room so they never cover a neighbour.
     const gapU = SPOT_GAP + 2 * Math.max(0, ...group.map((t) => popOvershoot(store.player(t.dataset.id))));
     const s = Math.min(SPOT_MAX, SPOT_W / (n * TILE_W + (n - 1) * gapU));
-    // Group title: a slanted colour bar wipes in, the letters rise one by one, a line draws under them.
+    // Group title: a slanted colour bar wipes in and the letters rise one by one.
     const label = n > 1 ? `${title}S` : title;
     const caption = h('div', 'fref__caption');
-    caption.innerHTML = `<div class="cap"><i class="cap__bar"></i><span class="cap__text">${[...label].map((ch) => `<b>${esc(ch)}</b>`).join('')}</span><i class="cap__line"></i></div>`;
+    caption.innerHTML = `<div class="cap"><i class="cap__bar"></i><span class="cap__text">${[...label].map((ch) => `<b>${esc(ch)}</b>`).join('')}</span></div>`;
     el.append(caption);
     const capBar = caption.querySelector('.cap__bar');
     const capLetters = caption.querySelectorAll('.cap__text b');
-    const capLine = caption.querySelector('.cap__line');
     gsap.set(caption, { autoAlpha: 0 });
 
     const tl = gsap.timeline();
@@ -148,10 +145,8 @@ export function createPitch() {
       .to([dim, light], { autoAlpha: 1, duration: 0.6, ease: 'power1.out' }, 0)
       .set(caption, { autoAlpha: 1 }, 0.1)
       .fromTo(capBar, { scaleX: 0, transformOrigin: '0% 50%' }, { scaleX: 1, duration: 0.45, ease: 'power3.out' }, 0.1)
-      .fromTo(capLetters, { yPercent: 120, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: 0.4, ease: 'power3.out', stagger: 0.03 }, 0.25)
-      .fromTo(capLine, { scaleX: 0, transformOrigin: '0% 50%' }, { scaleX: 1, duration: 0.6, ease: 'power2.out' }, 0.4);
+      .fromTo(capLetters, { yPercent: 120, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: 0.4, ease: 'power3.out', stagger: 0.03 }, 0.25);
 
-    const bars = [];
     const flipAt = group.some((t) => store.player(t.dataset.id).special) ? SPECIAL_PREP : T.rise;
     tl.add(wipe(), 0); // the signature slanted bars sweep behind the row
     const shadows = group.map((t) => t.querySelector('.tile__shadow'));
@@ -169,33 +164,16 @@ export function createPitch() {
       tl.to(shadows[i], { y: 26, scaleX: 0.82, opacity: 0.4, duration: T.rise, ease: 'power3.inOut' }, at);
 
       const p = store.player(t.dataset.id);
-      let revealed; // when this card's contents are showing
       if (p.special) {
         tl.add(specialTimeline(t, fxLayer, { x: targetX, y: SPOT_Y, k: s }), 0);
-        revealed = SPECIAL_PREP + 1.45;
       } else {
         tl.add(flipTimeline(t), flipAt + i * 0.1);
-        revealed = flipAt + i * 0.1 + 0.9;
       }
-
-      // Lower third under the card: number, full name, position and nationality slide in.
-      // as wide as the slot the card occupies (a lone card gets a wider bar)
-      const w = n > 1 ? (TILE_W + gapU) * s - 14 : Math.max(TILE_W * s, 340);
-      const bar = h('div', 'fref__bar');
-      bar.style.cssText = `left:${targetX - w / 2}px; top:${SPOT_Y + (TILE_H * s) / 2 + 22}px; width:${w}px;`;
-      const nation = w < 330 ? nationCode(p.nationality) : (p.nationality || '').toUpperCase();
-      const meta = [p.position, nation].filter(Boolean).join(' · ');
-      bar.innerHTML = `<span class="bar__num">${esc(p.number)}</span><span class="bar__body"><b class="bar__name" style="font-size:${fitFont(p.fullName.toUpperCase() + (p.captain ? ' (C)' : ''), (w - 96) * 0.84, { max: 30, min: 12 })}px">${esc(p.fullName.toUpperCase())}${p.captain ? ' <span class="bar__cap">(C)</span>' : ''}</b><i class="bar__meta" style="font-size:${Math.max(11, Math.min(16, w / 13))}px">${esc(meta)}</i></span>`;
-      el.append(bar);
-      gsap.set(bar, { autoAlpha: 0 });
-      bars.push(bar);
-      tl.fromTo(bar, { autoAlpha: 0, clipPath: 'inset(0 100% 0 0)' }, { autoAlpha: 1, clipPath: 'inset(0 0% 0 0)', duration: 0.5, ease: 'power3.out' }, revealed + 0.1)
-        .fromTo(bar.querySelectorAll('.bar__body > *'), { x: -24, autoAlpha: 0 }, { x: 0, autoAlpha: 1, duration: 0.4, ease: 'power2.out', stagger: 0.07 }, revealed + 0.3);
     });
 
     // Everything has been revealed (a special card takes longer, and the group waits for it).
     const back = tl.duration() + T.hold;
-    tl.to([caption, ...bars], { autoAlpha: 0, x: -24, duration: 0.3, ease: 'power2.in' }, back - 0.1)
+    tl.to(caption, { autoAlpha: 0, x: -24, duration: 0.3, ease: 'power2.in' }, back - 0.1)
       .to(shadows, { y: 0, scaleX: 1, opacity: 1, duration: T.ret, ease: 'power3.inOut', stagger: 0.04 }, back)
       .to(group, { x: 0, y: 0, scale: 1, rotationX: 0, duration: T.ret, ease: 'power3.inOut', stagger: 0.04 }, back)
       .add(group.reduce((all, t, i) => all.add(popBackTimeline(t, T.ret), i * 0.04), gsap.timeline()), back)

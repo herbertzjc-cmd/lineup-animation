@@ -6,7 +6,7 @@
 //   "look": { "skin": 0-4, "hair": "#3a2a20", "style": "crop|fade|curly|long|bun|waves|buzz",
 //             "beard": "none|stubble|full", "pose": "plain|arms|hips|thumb", "kit": "keeper" }
 // Outfield players wear the team colour with trim in the contrasting colour; goalkeepers wear a
-// green keeper kit and gloves. The captain gets a yellow armband.
+// green keeper kit and gloves.
 // The viewBox is 128 x 200 with the head near the top and the shoulders at the bottom edge, so
 // the figure fits the card and can step out of it exactly like a photo cut-out.
 
@@ -107,8 +107,6 @@ export function cartoonSvg(p) {
     <path d="M52 113L64 128L76 113" fill="none" style="stroke:${trim}" stroke-width="4" stroke-linejoin="round"/>
     <path d="M24 144C24 160 24 180 22 200M104 144C104 160 104 180 106 200" fill="none" stroke="rgba(0,0,0,.1)" stroke-width="2"/>
     ${arms(pose, shirt, trim, hand)}
-    ${p.captain ? `<g transform="rotate(-24 113 150)"><rect x="102" y="144" width="22" height="11" rx="2" fill="#ffd23f" stroke="rgba(0,0,0,.3)"/>
-      <text x="113" y="153" font-size="9" font-weight="700" text-anchor="middle" fill="#1a1a1a" font-family="Arial, sans-serif">C</text></g>` : ''}
     ${longHair ? `<path d="M37 62C32 88 34 108 42 122C48 126 54 122 58 116L70 116C74 122 80 126 86 122C94 108 96 88 91 62Z" fill="${hair}"/>
     <path d="M44 80C42 96 44 108 48 116M84 80C86 96 84 108 80 116" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="2" stroke-linecap="round"/>` : ''}
     <g transform="translate(0,-20)">

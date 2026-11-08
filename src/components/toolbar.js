@@ -3,7 +3,7 @@ import { h } from '../dom.js';
 import { FORMATIONS, THEMES } from '../data.js';
 import * as store from '../store.js';
 
-export const DEFAULT_HINT = 'Click a player for details · Drag substitutes onto the pitch · Press H to hide the controls';
+export const DEFAULT_HINT = ''; // the hint line only shows messages that need attention (picking a substitute, storage full)
 
 export function createToolbar() {
   const el = h('div', 'ftool');

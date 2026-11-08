@@ -27,16 +27,13 @@ export function createPanel() {
       <div class="crest__layer crest__layer--white"></div>
       <img class="crest__img" alt="">
     </div>
-    <div class="fref__bug"><i></i></div>
   `;
   const bg = el.querySelector('.fref__panel');
   const content = el.querySelector('.panel__content');
   const idle = el.querySelector('.panel__idle');
   const crest = el.querySelector('.fref__crest');
-  const bug = el.querySelector('.fref__bug');
   gsap.set([bg, crest], { x: OFFSCREEN_X });
   gsap.set(crest, { autoAlpha: 0 });
-  gsap.set(bug, { autoAlpha: 0 });
 
   // What the closed panel shows on the lineup screen: team name, then the manager.
   // It is part of the panel, so it slides in with it and is hidden while a view is open.
@@ -85,10 +82,10 @@ export function createPanel() {
     current = null;
     open = false;
     content.replaceChildren();
-    gsap.killTweensOf([bg, crest, bug, idle]);
+    gsap.killTweensOf([bg, crest, idle]);
     gsap.set(idle, { autoAlpha: 1 });
     gsap.set([bg, crest], { x: OFFSCREEN_X });
-    gsap.set([crest, bug], { autoAlpha: 0 });
+    gsap.set(crest, { autoAlpha: 0 });
   }
 
   async function show(name, ctx = {}) {
@@ -128,15 +125,13 @@ export function createPanel() {
     return gsap
       .timeline()
       .fromTo(bg, { x: OFFSCREEN_X }, { x: CLOSED_X, duration: 0.9, ease: 'power3.out' }, 0)
-      .fromTo(crest, { x: OFFSCREEN_X, scale: 0.8, autoAlpha: 0 }, { x: CLOSED_X, scale: 1, autoAlpha: 1, duration: 0.9, ease: 'power3.out' }, 0)
-      .fromTo(bug, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 0.4, ease: 'back.out(2)' }, 0.8);
+      .fromTo(crest, { x: OFFSCREEN_X, scale: 0.8, autoAlpha: 0 }, { x: CLOSED_X, scale: 1, autoAlpha: 1, duration: 0.9, ease: 'power3.out' }, 0);
   }
 
   function exit() {
     return gsap
       .timeline()
-      .to(bug, { autoAlpha: 0, duration: 0.25 })
-      .to([bg, crest], { x: OFFSCREEN_X, duration: 0.6, ease: 'power3.in' }, '-=0.1');
+      .to([bg, crest], { x: OFFSCREEN_X, duration: 0.6, ease: 'power3.in' });
   }
 
   return Object.assign(api, {
