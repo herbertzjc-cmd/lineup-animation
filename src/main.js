@@ -15,6 +15,10 @@ import { createSheet } from './components/sheet.js';
 import { buildMaster } from './timeline.js';
 import { initApp } from './app.js';
 
+// A newer build may be online while the browser served an old cached page: wait (briefly) for the
+// check injected at build time, which reloads onto the new version when needed.
+if (window.__versionCheck) await Promise.race([window.__versionCheck, new Promise((resolve) => setTimeout(resolve, 1500))]);
+
 const stage = initStage();
 // Saved pictures (club logo, manager photos) live in IndexedDB; wait for them, but never hang.
 await Promise.race([store.loadImages(), new Promise((resolve) => setTimeout(resolve, 2000))]);

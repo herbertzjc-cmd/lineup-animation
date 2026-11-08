@@ -36,10 +36,31 @@ function playerCutouts() {
   };
 }
 
+// Browsers may keep serving a cached index.html (GitHub Pages allows 10 minutes, some keep it
+// longer), which still points at the previous build. Every build gets an id, written to
+// version.json; a tiny script at the top of the page fetches that file uncached and, if a newer
+// build is online, reloads once with ?v=<id> (a URL that cannot come from the cache). main.js
+// waits for the check, so an outdated intro never starts playing.
+function versionCheck() {
+  const id = Date.now().toString(36);
+  const script = `(function(){var id=${JSON.stringify(id)};window.__versionCheck=fetch("version.json?t="+Date.now(),{cache:"no-store"})`
+    + `.then(function(r){return r.ok?r.json():null}).then(function(v){if(!v||v.id===id)return;var u=new URL(location.href);`
+    + `if(u.searchParams.get("v")===v.id)return;u.searchParams.set("v",v.id);location.replace(u.href);return new Promise(function(){})})`
+    + `.catch(function(){})})();`;
+  return {
+    name: 'version-check',
+    apply: 'build',
+    transformIndexHtml: () => [{ tag: 'script', injectTo: 'head-prepend', children: script }],
+    generateBundle() {
+      this.emitFile({ type: 'asset', fileName: 'version.json', source: JSON.stringify({ id }) });
+    },
+  };
+}
+
 // Relative base so the build works from any URL (GitHub Pages subpath, a folder, etc.).
 export default defineConfig({
   base: './',
-  plugins: [playerCutouts()],
+  plugins: [playerCutouts(), versionCheck()],
   // The background-removal and HEIC libraries are loaded on demand in their own chunks, so they are allowed to be big.
   build: { chunkSizeWarningLimit: 1500 },
 });
