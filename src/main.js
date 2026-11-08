@@ -35,7 +35,7 @@ const sceneEl = h('section', 'scene formation');
 const ref = h('div', 'fref');
 ref.append(pitch.el, panel.el, sheet.el, toolbar.el);
 sheet.fit();
-document.fonts?.ready.then(() => sheet.fit()); // names are measured, so refit with the real font
+document.fonts?.ready.then(() => { sheet.fit(); panel.refreshBrand(); }); // text is measured: redo it with the real fonts
 sceneEl.append(ref);
 
 const scene = {

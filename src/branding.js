@@ -29,6 +29,19 @@ export function fitFont(text, width, { max, min, lines = 1 }) {
   return Math.round(Math.max(min, Math.min(max, byTotal, byWord)));
 }
 
+// Like fitFont, but measured with the real font (a canvas), for text that must never break inside
+// a word: the largest size at which the longest word fits `width` and the whole text fits in
+// `lines` lines. Call again once the web fonts have loaded for exact results.
+let measureCtx;
+export function fitText(text, width, { max, min, lines = 1, family = 'Barlow Semi Condensed', weight = 700 }) {
+  measureCtx ??= document.createElement('canvas').getContext('2d');
+  measureCtx.font = `${weight} 100px "${family}", "Arial Narrow", sans-serif`;
+  const w = (s) => measureCtx.measureText(s).width || 1;
+  const longestWord = Math.max(...String(text).split(/\s+/).map(w));
+  const size = Math.min(max, (width * 100) / longestWord, ((width * lines * 100) / w(text)) * 0.92);
+  return Math.floor(Math.max(min, size));
+}
+
 // Match details as display text. Empty fields are simply left out.
 export function matchText(m) {
   const side = m.homeAway === 'away' ? 'Away' : m.homeAway === 'home' ? 'Home' : '';

@@ -76,25 +76,49 @@ ul { list-style: none; }
 .crest__layer--white { background: var(--on-primary); clip-path: inset(0 0 0 57px); }
 /* Idle panel: team name and manager, shown in the strip of the closed side panel. */
 /* The closed panel is pushed 222px right, so the visible strip is the first 338px of the panel. */
-.panel__idle { position: absolute; left: 24px; width: 290px; top: 0; bottom: 0; pointer-events: none; }
-.idle__team {
-  position: absolute; left: 0; right: 0; top: 96px; text-align: center; overflow-wrap: break-word;
-  font: 700 70px/1.02 var(--card-font); letter-spacing: 1px; text-shadow: 0 3px 16px rgba(0, 0, 0, 0.25);
+.panel__idle {
+  /* starts right of the crest that sits on the panel edge (it reaches 56px into the panel) */
+  position: absolute; left: 40px; width: 274px; top: 0; bottom: 0; pointer-events: none;
+  display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 66px 0 70px; text-align: center;
 }
-.idle__mgr { position: absolute; left: 0; right: 0; bottom: 112px; height: 330px; }
-.idle__photo { position: absolute; left: 0; right: 0; top: 0; bottom: 0; overflow: hidden; }
+.idle__head, .idle__match { width: 100%; display: flex; flex-direction: column; align-items: center; }
+.idle__kicker { font: 700 12px/1.5 var(--text-font); letter-spacing: 1.5px; opacity: 0.8; margin-bottom: 12px; text-wrap: balance; }
+.idle__team {
+  width: 100%; overflow-wrap: break-word; font: 700 64px/1 var(--card-font); letter-spacing: 1px;
+  text-shadow: 0 3px 16px rgba(0, 0, 0, 0.25);
+}
+.idle__vs { display: flex; align-items: center; gap: 12px; width: 224px; margin-bottom: 18px; }
+.idle__vs i { flex: 1; height: 2px; background: color-mix(in srgb, var(--on-primary) 35%, transparent); }
+.idle__vs span { font: 700 13px/1 var(--text-font); letter-spacing: 4px; opacity: 0.85; white-space: nowrap; }
+.idle__opprow { display: flex; align-items: center; justify-content: center; gap: 14px; width: 252px; }
+.idle__opprow .obadge { flex: none; }
+.idle__opp { min-width: 0; text-align: left; font: 700 40px/1 var(--card-font); overflow-wrap: break-word; }
+/* match facts and the formation: one small table, label left, value right */
+.idle__facts { width: 224px; margin-top: 28px; border-top: 2px solid color-mix(in srgb, var(--on-primary) 22%, transparent); }
+.idle__facts > div {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 13px 2px;
+  border-bottom: 1px solid color-mix(in srgb, var(--on-primary) 16%, transparent);
+}
+.idle__facts dt { flex: none; font: 700 11px/1 var(--text-font); letter-spacing: 2.5px; text-transform: uppercase; opacity: 0.72; }
+.idle__facts dd { min-width: 0; font: 700 17px/1.2 var(--text-font); text-align: right; overflow-wrap: anywhere; }
+.idle__facts .idle__formation { border-bottom: 0; margin-top: 14px; padding: 12px 14px; border-radius: 10px; align-items: center;
+  background: color-mix(in srgb, var(--on-primary) 13%, transparent); }
+.idle__formation dd { font: 700 36px/1 var(--card-font); letter-spacing: 1px; white-space: nowrap; }
+.idle__mgr { position: relative; width: 100%; }
+.idle__photo { position: relative; height: 300px; overflow: hidden; }
 .idle__photo img {
   position: absolute; left: 50%; bottom: 0; height: 100%; width: auto; max-width: none;
   margin-left: -50%; transform-origin: 50% 100%; filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.35));
 }
 .idle__photo--framed { border-radius: 14px 14px 0 0; background: rgba(0, 0, 0, 0.18); }
 .idle__photo--framed img { left: 0; width: 100%; height: 100%; margin: 0; object-fit: cover; object-position: top; filter: none; }
-.idle__plate {
-  position: absolute; left: 0; right: 0; bottom: 0; padding: 36px 6px 8px; text-align: center;
-  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--primary-dark) 82%, transparent) 55%);
+.idle__plate { position: relative; padding: 16px 6px 4px; border-top: 2px solid color-mix(in srgb, var(--on-primary) 22%, transparent); }
+.idle__mgr.has-photo .idle__plate {
+  margin-top: -64px; padding-top: 40px; border-top: 0;
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--primary-dark) 85%, transparent) 55%);
 }
-.idle__role { font: 700 15px/1 var(--text-font); letter-spacing: 6px; opacity: 0.85; }
-.idle__name { margin-top: 6px; font: 700 40px/1.05 var(--card-font); overflow-wrap: anywhere; }
+.idle__role { font: 700 13px/1 var(--text-font); letter-spacing: 6px; opacity: 0.8; }
+.idle__name { margin-top: 8px; font: 700 40px/1.05 var(--card-font); overflow-wrap: anywhere; }
 
 /* A custom club logo is shown as it is (full colour, original proportions) instead of as a mask. */
 .crest__img { display: none; position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
@@ -526,19 +550,11 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 .fref__wipe i:nth-child(3) { width: 26px; margin-left: 420px; --a: 0.25; }
 
 /* ---------- Match block and formation on the side panel ---------- */
-.idle__match { position: absolute; left: 0; right: 0; top: 232px; text-align: center; }
 .opp { display: flex; gap: 16px; align-items: center; margin: 4px 0 12px; }
 .opp__preview { flex: none; width: 90px; height: 90px; display: grid; place-items: center; }
 .opp__fields { flex: 1; min-width: 0; }
 .opp__fields .btn { margin: 0 6px 6px 0; }
 .field input[type=color] { padding: 2px; height: 42px; cursor: pointer; }
-.idle__obadge { margin-bottom: 10px; line-height: 0; }
-.idle__vs { font: 700 14px/1 var(--text-font); letter-spacing: 5px; opacity: 0.8; }
-.idle__opp { margin: 4px 0 10px; font: 700 40px/1.05 var(--card-font); overflow-wrap: break-word; }
-.idle__info { font: 700 15px/1.55 var(--text-font); opacity: 0.88; }
-.idle__formation { display: inline-flex; align-items: baseline; gap: 8px; margin-top: 10px; padding: 5px 12px; border-radius: 6px;
-  background: color-mix(in srgb, var(--on-primary) 14%, transparent); font: 700 26px/1 var(--card-font); }
-.idle__formation span { font: 700 11px/1 var(--text-font); letter-spacing: 3px; opacity: 0.8; }
 
 /* ---------- Substitutes strip of the final lineup screen ---------- */
 .fsheet {

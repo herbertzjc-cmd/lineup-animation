@@ -1,7 +1,7 @@
 import gsap from 'gsap';
 import { h, esc } from '../dom.js';
 import * as store from '../store.js';
-import { fitFont, mgrTransform, matchText, opponentBadge } from '../branding.js';
+import { fitText, mgrTransform, matchText, opponentBadge } from '../branding.js';
 import detail from './views/playerDetail.js';
 import bench from './views/bench.js';
 import list from './views/lineupList.js';
@@ -42,24 +42,33 @@ export function createPanel() {
 
   // What the closed panel shows on the lineup screen: team name, then the manager.
   // It is part of the panel, so it slides in with it and is hidden while a view is open.
+  // The closed panel's strip: a matchday card. Competition, our team, the opponent, a small
+  // table of match facts and the formation, with the manager at the bottom. Laid out as one column
+  // (see .panel__idle), so it reads top to bottom with no large gaps whatever is filled in.
   function refreshBrand() {
     const teamName = store.getTeamName();
     const m = store.getManager();
-    const teamSize = fitFont(teamName, 270, { max: 76, min: 30, lines: 2 });
-    const nameSize = fitFont(m.name, 270, { max: 42, min: 22, lines: 1 });
-    const t = matchText(store.getMatch());
-    const opp = store.getMatch().opponent || '';
-    const oppSize = fitFont(opp.toUpperCase(), 260, { max: 40, min: 20, lines: 1 });
+    const match = store.getMatch();
+    const t = matchText(match);
+    const opp = match.opponent || '';
+    const teamSize = fitText(teamName.toUpperCase(), 258, { max: 64, min: 26, lines: 2 });
+    const oppSize = fitText(opp.toUpperCase(), 172, { max: 40, min: 16, lines: 2 });
+    const nameSize = fitText(m.name, 250, { max: 40, min: 20, lines: 1 });
+    const facts = [['Date', match.date], ['Kick-off', match.kickoff], ['Venue', match.venue]].filter(([, v]) => v);
     idle.innerHTML = `
-      <div class="idle__team" style="font-size:${teamSize}px">${esc(teamName.toUpperCase())}</div>
-      <div class="idle__match">
-        ${opp ? `<div class="idle__obadge">${opponentBadge(store.getMatch(), 58)}</div><div class="idle__vs">VS${t.side ? ` · ${esc(t.side.toUpperCase())}` : ''}</div><div class="idle__opp" style="font-size:${oppSize}px">${esc(opp.toUpperCase())}</div>` : ''}
-        ${t.kicker ? `<div class="idle__info">${esc(t.kicker)}</div>` : ''}
-        ${t.when ? `<div class="idle__info">${esc(t.when)}</div>` : ''}
-        ${t.venue ? `<div class="idle__info">${esc(t.venue)}</div>` : ''}
-        <div class="idle__formation"><span>FORMATION</span>${esc(store.getFormation())}</div>
+      <div class="idle__head">
+        ${t.kicker ? `<div class="idle__kicker">${esc(t.kicker.toUpperCase())}</div>` : ''}
+        <div class="idle__team" style="font-size:${teamSize}px">${esc(teamName.toUpperCase())}</div>
       </div>
-      <div class="idle__mgr">
+      <div class="idle__match">
+      ${opp ? `<div class="idle__vs"><i></i><span>VS${t.side ? ` · ${esc(t.side.toUpperCase())}` : ''}</span><i></i></div>
+      <div class="idle__opprow">${opponentBadge(match, 64)}<div class="idle__opp" style="font-size:${oppSize}px">${esc(opp.toUpperCase())}</div></div>` : ''}
+      <dl class="idle__facts">
+        ${facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join('')}
+        <div class="idle__formation"><dt>Formation</dt><dd>${esc(store.getFormation())}</dd></div>
+      </dl>
+      </div>
+      <div class="idle__mgr${m.hasPhoto ? ' has-photo' : ''}">
         ${m.hasPhoto ? `<div class="idle__photo${m.cutout ? '' : ' idle__photo--framed'}"><img src="${esc(m.photoUrl)}" alt="" style="transform:${mgrTransform(m)}"></div>` : ''}
         <div class="idle__plate">
           <div class="idle__role">MANAGER</div>
