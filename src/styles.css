@@ -486,14 +486,34 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 
 /* ---------- Substitutes strip of the final lineup screen ---------- */
 .fsheet {
-  position: absolute; left: 40px; bottom: 26px; width: 660px; z-index: 6; pointer-events: none;
-  padding: 12px 16px 12px 18px; border-left: 6px solid var(--primary); border-radius: 0 10px 10px 0;
+  position: absolute; left: 40px; bottom: 26px; width: 660px; z-index: 6;
+  padding: 10px 14px 12px 18px; border-left: 6px solid var(--primary); border-radius: 0 10px 10px 0;
   background: rgba(16, 18, 30, 0.82); color: #fff; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
 }
-.fsheet__label { font: 700 13px/1 var(--text-font); letter-spacing: 4px; opacity: 0.75; margin-bottom: 8px; }
-.fsheet__list { display: flex; flex-wrap: wrap; gap: 6px 16px; max-height: 58px; overflow: hidden; }
-.fsheet__sub { font: 700 18px/1.2 var(--card-font); white-space: nowrap; }
-.fsheet__sub b { margin-right: 6px; color: var(--primary-hi); }
+#stage:not(.is-live) .fsheet { pointer-events: none; }
+.fsheet__head { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.fsheet__label { font: 700 13px/1 var(--text-font); letter-spacing: 4px; opacity: 0.75; }
+.fsheet__tip { flex: 1; font: 700 12px/1 var(--text-font); opacity: 0.45; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fsheet__btn {
+  flex: none; padding: 5px 10px; border: 0; border-radius: 999px; cursor: pointer;
+  font: 700 13px/1 var(--text-font); color: #fff; background: rgba(255, 255, 255, 0.12);
+}
+.fsheet__btn:hover { background: rgba(255, 255, 255, 0.24); }
+.fsheet__list { display: flex; flex-wrap: wrap; gap: 4px 6px; max-height: 66px; overflow: hidden; }
+.fsheet__sub {
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 9px; border: 0; border-radius: 6px;
+  font: 700 18px/1.2 var(--card-font); white-space: nowrap; color: #fff; background: transparent;
+  cursor: grab; touch-action: none; transition: background 0.15s, box-shadow 0.15s;
+}
+.fsheet__sub b { color: var(--primary-hi); }
+.fsheet__sub i { font-style: normal; font-size: 14px; color: #ffd23f; }
+.fsheet__sub:hover { background: rgba(255, 255, 255, 0.12); }
+.fsheet__sub:focus-visible, .fsheet__btn:focus-visible { outline: 2px solid #fff; outline-offset: 1px; }
+.fsheet__sub.is-selected { background: var(--primary); color: var(--on-primary); box-shadow: 0 0 0 2px var(--on-primary) inset; }
+.fsheet__sub.is-selected b { color: inherit; }
+.fsheet__sub.is-dragged { opacity: 0.35; }
+#stage.is-clean .fsheet__head > :not(.fsheet__label) { display: none; }
+#stage.is-clean .fsheet__sub { cursor: default; }
 
 /* ---------- Captain / special badges on the card ---------- */
 .tile__badges { position: absolute; top: 6px; right: 6px; display: flex; flex-direction: column; gap: 4px; z-index: 2; }

@@ -12,17 +12,24 @@ export function initApp({ stage, ref, pitch, panel, toolbar, intro, sheet }) {
   let live = false;
   const api = { onPlay: null };
 
+  // The selected player is highlighted on the pitch or, for a substitute, in the strip.
+  function select(id) {
+    pitch.setSelected(id);
+    sheet.setSelected(id);
+  }
+
   function cancelPicking() {
     if (!ui.picking) return;
     ui.picking = null;
     pitch.setPicking(false);
+    sheet.setSelected(ui.selectedId);
     toolbar.setHint();
   }
 
   function closePanel() {
     cancelPicking();
     Object.assign(ui, { view: 'idle', selectedId: null, swapFor: null, editing: null });
-    pitch.setSelected(null);
+    select(null);
     toolbar.setActive(null);
     panel.hide();
   }
@@ -30,7 +37,7 @@ export function initApp({ stage, ref, pitch, panel, toolbar, intro, sheet }) {
   function openDetail(id) {
     cancelPicking();
     Object.assign(ui, { view: 'detail', selectedId: id, swapFor: null, editing: null });
-    pitch.setSelected(id);
+    select(id);
     toolbar.setActive(null);
     panel.show('detail', { id });
   }
@@ -38,7 +45,7 @@ export function initApp({ stage, ref, pitch, panel, toolbar, intro, sheet }) {
   function openBench(swapFor = null) {
     cancelPicking();
     Object.assign(ui, { view: 'bench', selectedId: swapFor, swapFor, editing: null });
-    pitch.setSelected(swapFor);
+    select(swapFor);
     toolbar.setActive('bench');
     panel.show('bench', { swapFor });
   }
@@ -46,7 +53,7 @@ export function initApp({ stage, ref, pitch, panel, toolbar, intro, sheet }) {
   function openList() {
     cancelPicking();
     Object.assign(ui, { view: 'list', selectedId: null, swapFor: null, editing: null });
-    pitch.setSelected(null);
+    select(null);
     toolbar.setActive('list');
     panel.show('list');
   }
@@ -54,7 +61,7 @@ export function initApp({ stage, ref, pitch, panel, toolbar, intro, sheet }) {
   function openEditor(id) {
     cancelPicking();
     Object.assign(ui, { view: 'editor', selectedId: id, swapFor: null, editing: id });
-    pitch.setSelected(id);
+    select(id);
     toolbar.setActive(null);
     panel.show('editor', { id });
   }
@@ -62,7 +69,7 @@ export function initApp({ stage, ref, pitch, panel, toolbar, intro, sheet }) {
   function openTeamEditor() {
     cancelPicking();
     Object.assign(ui, { view: 'editor', selectedId: null, swapFor: null, editing: null });
-    pitch.setSelected(null);
+    select(null);
     toolbar.setActive(null);
     panel.show('editor', { mode: 'team' });
   }
@@ -71,6 +78,7 @@ export function initApp({ stage, ref, pitch, panel, toolbar, intro, sheet }) {
     const p = store.player(id);
     ui.picking = id;
     pitch.setPicking(true);
+    sheet.setSelected(id);
     toolbar.setHint(`Click a player on the pitch to replace with #${p.number} ${p.name} · Esc to cancel`);
   }
 
@@ -184,10 +192,13 @@ export function initApp({ stage, ref, pitch, panel, toolbar, intro, sheet }) {
   const dispatch = (name, data) => live && actions[name]?.(data);
   panel.onAction = dispatch;
   panel.onToggle = (open) => pitch.setShifted(open);
-  toolbar.el.addEventListener('click', (e) => {
-    const b = e.target.closest('[data-action]');
-    if (b) dispatch(b.dataset.action, b.dataset);
-  });
+  // the toolbar and the substitutes strip both use data-action buttons
+  for (const bar of [toolbar.el, sheet.el]) {
+    bar.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-action]');
+      if (b) dispatch(b.dataset.action, b.dataset);
+    });
+  }
 
   // Players on the pitch, and click-away to close.
   stage.addEventListener('click', (e) => {
@@ -196,7 +207,7 @@ export function initApp({ stage, ref, pitch, panel, toolbar, intro, sheet }) {
     if (tile) {
       if (ui.picking) doSwap(tile.dataset.id, ui.picking);
       else openDetail(tile.dataset.id);
-    } else if (!e.target.closest('.fref__panel, .ftool')) {
+    } else if (!e.target.closest('.fref__panel, .ftool, .fsheet')) {
       toolbar.closeTheme();
       if (ui.picking) cancelPicking();
       else if (ui.view !== 'idle') closePanel();
