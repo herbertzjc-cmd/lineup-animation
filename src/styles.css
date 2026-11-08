@@ -287,14 +287,34 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 .theme-pop__hex { display: flex; gap: 10px; margin-top: 14px; font: 700 16px/1 var(--text-font); opacity: 0.7; }
 
 /* ---------- Panel views ---------- */
-.view { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 56px 0 118px; }
+.view { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 104px 0 118px; }
+/* The views' own corner buttons are replaced by the Back / Close bar. */
+.view > .close { display: none; }
+.pnav {
+  position: absolute; left: 112px; top: 32px; width: 400px; z-index: 3; display: flex; justify-content: space-between; gap: 12px;
+  opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s;
+}
+.pnav.is-open { opacity: 1; visibility: visible; transition-delay: 0.25s; }
+.pnav__btn {
+  display: inline-flex; align-items: center; gap: 8px; height: 46px; padding: 0 18px; min-width: 0; border-radius: 23px; cursor: pointer;
+  border: 2px solid color-mix(in srgb, var(--on-primary) 70%, transparent); background: color-mix(in srgb, var(--on-primary) 10%, transparent);
+  color: var(--on-primary); font: 700 18px/1 var(--text-font);
+}
+.pnav__btn:hover { background: color-mix(in srgb, var(--on-primary) 24%, transparent); }
+.pnav__btn:focus-visible { outline: 3px solid var(--on-primary); outline-offset: 2px; }
+.pnav__btn i { font-style: normal; font-size: 20px; }
+.pnav__back { max-width: 250px; }
+.pnav__back i { font-size: 30px; line-height: 0; margin-top: -4px; }
+.pnav__back span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pnav__back[hidden] { display: none; }
+.pnav__close { margin-left: auto; }
 .close {
   position: absolute; top: 44px; right: 0; width: 52px; height: 52px; border-radius: 50%; z-index: 2;
   border: 2px solid color-mix(in srgb, var(--on-primary) 70%, transparent); background: transparent; color: var(--on-primary);
   font: 400 34px/1 var(--text-font); cursor: pointer;
 }
 .close:hover { background: color-mix(in srgb, var(--on-primary) 18%, transparent); }
-.view__title { font: 700 68px/1 var(--card-font); margin-bottom: 10px; padding-right: 62px; white-space: nowrap; }
+.view__title { font: 700 68px/1 var(--card-font); margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .view__sub { font: 700 18px/1.5 var(--text-font); opacity: 0.8; margin-bottom: 26px; }
 .btn {
   height: 58px; padding: 0 28px; border: 2px solid var(--on-primary); border-radius: 29px; cursor: pointer;

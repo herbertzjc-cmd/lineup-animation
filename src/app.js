@@ -26,7 +26,46 @@ export function initApp({ stage, ref, pitch, panel, toolbar, intro, sheet }) {
     toolbar.setHint();
   }
 
+  // Screens visited in the side panel, so Back can step through them like a browser. Editors are
+  // never returned to (they are left by Save or Cancel), and entries that no longer make sense (a
+  // deleted player) are skipped.
+  const history = [];
+  let here = null; // the screen showing now: { name, arg }
+  let restoring = false;
+  const same = (a, b) => a && b && a.name === b.name && a.arg === b.arg;
+  const labelOf = (e) =>
+    ({ detail: store.player(e.arg)?.name || 'Player', bench: 'Substitutes', list: 'Lineup' })[e.name] || 'Back';
+  function visit(name, arg = null) {
+    const next = { name, arg };
+    if (!restoring && here && !same(here, next) && here.name !== 'editor' && here.name !== 'team') {
+      history.push(here);
+      if (history.length > 12) history.shift();
+    }
+    while (history.length && same(history[history.length - 1], next)) history.pop();
+    here = next;
+    panel.setNav({ back: history.length ? labelOf(history[history.length - 1]) : null });
+  }
+  function back() {
+    while (history.length) {
+      const e = history.pop();
+      if (e.name === 'detail' && !store.player(e.arg)) continue;
+      restoring = true;
+      try {
+        if (e.name === 'detail') openDetail(e.arg);
+        else if (e.name === 'bench') openBench(e.arg && store.slotOf(e.arg) >= 0 ? e.arg : null);
+        else if (e.name === 'list') openList();
+      } finally {
+        restoring = false;
+      }
+      return;
+    }
+    closePanel();
+  }
+
   function closePanel() {
+    history.length = 0;
+    here = null;
+    panel.setNav();
     cancelPicking();
     Object.assign(ui, { view: 'idle', selectedId: null, swapFor: null, editing: null });
     select(null);
@@ -35,6 +74,7 @@ export function initApp({ stage, ref, pitch, panel, toolbar, intro, sheet }) {
   }
 
   function openDetail(id) {
+    visit('detail', id);
     cancelPicking();
     Object.assign(ui, { view: 'detail', selectedId: id, swapFor: null, editing: null });
     select(id);
@@ -43,6 +83,7 @@ export function initApp({ stage, ref, pitch, panel, toolbar, intro, sheet }) {
   }
 
   function openBench(swapFor = null) {
+    visit('bench', swapFor);
     cancelPicking();
     Object.assign(ui, { view: 'bench', selectedId: swapFor, swapFor, editing: null });
     select(swapFor);
@@ -51,6 +92,7 @@ export function initApp({ stage, ref, pitch, panel, toolbar, intro, sheet }) {
   }
 
   function openList() {
+    visit('list');
     cancelPicking();
     Object.assign(ui, { view: 'list', selectedId: null, swapFor: null, editing: null });
     select(null);
@@ -59,6 +101,7 @@ export function initApp({ stage, ref, pitch, panel, toolbar, intro, sheet }) {
   }
 
   function openEditor(id) {
+    visit('editor', id);
     cancelPicking();
     Object.assign(ui, { view: 'editor', selectedId: id, swapFor: null, editing: id });
     select(id);
@@ -67,6 +110,7 @@ export function initApp({ stage, ref, pitch, panel, toolbar, intro, sheet }) {
   }
 
   function openTeamEditor() {
+    visit('team');
     cancelPicking();
     Object.assign(ui, { view: 'editor', selectedId: null, swapFor: null, editing: null });
     select(null);
@@ -175,7 +219,8 @@ export function initApp({ stage, ref, pitch, panel, toolbar, intro, sheet }) {
     edit: ({ id }) => openEditor(id),
     new: () => openEditor(null),
     team: () => openTeamEditor(),
-    cancel: () => (ui.editing ? openDetail(ui.editing) : closePanel()),
+    back,
+    cancel: back, // leaving an editor without saving returns to where it was opened from
     save,
     delete: ({ id }) => { store.removePlayer(id); sheet.refresh(); openBench(); },
     formation: ({ f }) => { store.setFormation(f); toolbar.setFormation(f); pitch.layout(); panel.refreshBrand(); sheet.fit(); },
@@ -230,7 +275,8 @@ export function initApp({ stage, ref, pitch, panel, toolbar, intro, sheet }) {
   window.addEventListener('keydown', (e) => {
     if (live && e.key === 'Escape') {
       toolbar.closeTheme();
-      (ui.picking ? cancelPicking : closePanel)();
+      if (ui.picking) cancelPicking();
+      else if (ui.view !== 'idle') back(); // one step back; closes once there is nothing left
     }
   });
 
@@ -258,6 +304,8 @@ export function initApp({ stage, ref, pitch, panel, toolbar, intro, sheet }) {
       live = false;
       stage.classList.remove('is-live');
       Object.assign(ui, { view: 'idle', selectedId: null, swapFor: null, picking: null, editing: null });
+      history.length = 0;
+      here = null;
     },
   });
 }

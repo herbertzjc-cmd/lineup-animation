@@ -21,7 +21,12 @@ const wait = (tl) =>
 export function createPanel() {
   const el = h('div', 'fpanel');
   el.innerHTML = `
-    <div class="fref__panel"><div class="panel__idle"></div><div class="panel__content"></div></div>
+    <div class="fref__panel"><div class="panel__idle"></div><div class="panel__content"></div>
+      <nav class="pnav" aria-label="Panel">
+        <button class="pnav__btn pnav__back" type="button" data-action="back" hidden><i>‹</i><span></span></button>
+        <button class="pnav__btn pnav__close" type="button" data-action="close" title="Close (Esc)">Close<i>✕</i></button>
+      </nav>
+    </div>
     <div class="fref__crest">
       <div class="crest__layer crest__layer--red"></div>
       <div class="crest__layer crest__layer--white"></div>
@@ -69,8 +74,19 @@ export function createPanel() {
   let token = 0;
   const api = { onToggle: () => {}, onAction: () => {} };
 
+  // Back / Close bar at the top of the open panel. `back` is the label of the previous screen
+  // (null when there is nothing to go back to).
+  const nav = el.querySelector('.pnav');
+  function setNav({ back = null } = {}) {
+    const b = nav.querySelector('.pnav__back');
+    b.hidden = !back;
+    b.querySelector('span').textContent = back || '';
+    b.title = back ? `Back to ${back} (Esc)` : '';
+  }
+
   function slide(isOpen) {
     open = isOpen;
+    nav.classList.toggle('is-open', isOpen);
     gsap.to(idle, { autoAlpha: isOpen ? 0 : 1, duration: 0.3, overwrite: 'auto' });
     gsap.to([bg, crest], { x: isOpen ? 0 : CLOSED_X, duration: 0.7, ease: 'power3.inOut', overwrite: 'auto' });
     api.onToggle(isOpen);
@@ -81,6 +97,8 @@ export function createPanel() {
     token += 1;
     current = null;
     open = false;
+    nav.classList.remove('is-open');
+    setNav();
     content.replaceChildren();
     gsap.killTweensOf([bg, crest, idle]);
     gsap.set(idle, { autoAlpha: 1 });
@@ -135,7 +153,7 @@ export function createPanel() {
   }
 
   return Object.assign(api, {
-    name: 'panel', el, content, enter, exit, show, hide, reset, refreshBrand,
+    name: 'panel', el, content, enter, exit, show, hide, reset, refreshBrand, setNav,
     get isOpen() { return open; },
   });
 }
