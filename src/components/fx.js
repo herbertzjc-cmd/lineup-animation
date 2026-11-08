@@ -18,7 +18,9 @@ export function goldParticles(layer, cx, cy, mode, k = 1) {
       tl.fromTo(
         dot,
         { x: 0, y: 0, autoAlpha: 0.9, scale: 1 },
-        { x: Math.cos(angle) * dist, y: Math.sin(angle) * dist * 1.2, autoAlpha: 0, scale: 0.3, duration: 0.7 + Math.random() * 0.4, ease: 'power2.out' },
+        // immediateRender off: the sparks must stay hidden until the burst plays, or they sit
+        // stacked on the card's spot as a stray dot from the moment the timeline is built
+        { x: Math.cos(angle) * dist, y: Math.sin(angle) * dist * 1.2, autoAlpha: 0, scale: 0.3, duration: 0.7 + Math.random() * 0.4, ease: 'power2.out', immediateRender: false },
         Math.random() * 0.15
       );
     } else {
