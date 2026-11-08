@@ -1,7 +1,7 @@
 # Lineup Animation
 
 A broadcast-style football starting-XI graphic for the web, built with **Vite + GSAP**.
-An intro animation plays once on page load, in a broadcast style: a spotlight and a soft depth of field for the group being introduced, a slanted title bar, a slow camera push that pulls back at the end. The cards arrive face down on the pitch, then each position group is introduced in turn — goalkeeper, defenders, midfielders, forwards: the group's cards rise out of the formation, enlarge into an evenly spaced row while the rest of the pitch dims, flip over in 3D to show portrait, number, position and name, then the figure steps out of its card (head and shoulders past the edges, with a cast shadow), hold for a moment and settle back into place. The short intro (default) lasts about 15 seconds — the goalkeeper is introduced slowly, then each group is a little quicker and overlaps the one before; a *Full* intro of about 24 seconds can be chosen in **Team → Match Settings**. With `prefers-reduced-motion` the intro is skipped. Each group starts with the same slanted-bar wipe, and the intro ends on a team sheet (formation, match details, substitutes). Click to skip (once for the opening board, again for the players). It then becomes an interactive lineup board:
+An intro animation plays once on page load, in a broadcast style: a spotlight and a soft depth of field for the group being introduced, a slanted title bar, a slow camera push that pulls back at the end. The cards arrive face down on the pitch, then each position group is introduced in turn — goalkeeper, defenders, midfielders, forwards: the group's cards rise out of the formation, enlarge into an evenly spaced row while the rest of the pitch dims, flip over in 3D to show portrait, number, position and name, then the figure steps out of its card (head and shoulders past the edges, with a cast shadow), hold for a moment and settle back into place. The short intro (default) lasts about 18 seconds, with every group at the same even pace; a *Full* intro of about 24 seconds can be chosen in **Team → Match Settings**. With `prefers-reduced-motion` the intro is skipped. The intro ends with a soft sweep of light across the pitch and a team sheet (formation, match details, substitutes). Click to skip (once for the opening board, again for the players). It then becomes an interactive lineup board:
 
 - Click any player for details in the side panel
 - Substitute players: pick from the bench, or drag a substitute onto the pitch
@@ -43,7 +43,7 @@ To get static files you can host anywhere: `npm run build`, then upload the `dis
 
 ### How the groups are formed
 
-Groups follow the lines of the current formation: the first line is the defence, the last line is the attack and every line in between is midfield — so 4-3-3 is 1 / 4 / 3 / 3, 4-4-2 is 1 / 4 / 4 / 2 and 4-2-3-1 is 1 / 4 / 5 / 1. The enlargement adapts to the group size so the row never overlaps. Timings for the short and full intro are in the `TIMING` table at the top of `src/components/pitch.js` (rise, hold, return, overlap between groups and a tempo per group).
+Groups follow the lines of the current formation: the first line is the defence, the last line is the attack and every line in between is midfield — so 4-3-3 is 1 / 4 / 3 / 3, 4-4-2 is 1 / 4 / 4 / 2 and 4-2-3-1 is 1 / 4 / 5 / 1. The enlargement adapts to the group size so the row never overlaps. Timings for the short and full intro are in the `TIMING` table at the top of `src/components/pitch.js` (rise, hold, return, overlap between groups and the tempo shared by all groups).
 
 ## Use your own team
 
@@ -125,6 +125,6 @@ The sample photos in `public/players/*.webp` (cut-outs of freely licensed Wikime
 
 ### 中文简介
 
-足球转播风格的首发阵容网页(Vite + GSAP)。打开页面播放一次开场动画,之后可以点击球员查看详情、换人(点选或拖拽)、切换阵型、切换/自定义球队配色、自建和编辑球员。可以填写比赛信息(对手、主客场、赛事、轮次、日期、开球时间、球场)，设置队长(卡片上的 C 标)，导出 16:9 / 1:1 / 9:16 的阵容图片，按 H 键或加 `?clean=1` 进入无控件的干净画面，在 Colors 里切换深色球场。开场动画默认是约 15 秒的精简版，可在 Team → Match Settings 选完整版(约 24 秒)。
+足球转播风格的首发阵容网页(Vite + GSAP)。打开页面播放一次开场动画,之后可以点击球员查看详情、换人(点选或拖拽)、切换阵型、切换/自定义球队配色、自建和编辑球员。可以填写比赛信息(对手、主客场、赛事、轮次、日期、开球时间、球场)，设置队长(卡片上的 C 标)，导出 16:9 / 1:1 / 9:16 的阵容图片，按 H 键或加 `?clean=1` 进入无控件的干净画面，在 Colors 里切换深色球场。开场动画默认是约 18 秒的精简版(每组速度一致)，可在 Team → Match Settings 选完整版(约 24 秒)。
 
 运行:安装 Node.js 22+,然后 `npm install && npm run dev`。换成自己的球队:只改 `src/data/players.json` 和 `public/` 里的图片。许可:可以免费使用,但不得修改代码(见 LICENSE)。

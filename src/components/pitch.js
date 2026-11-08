@@ -30,11 +30,11 @@ function positions(formation) {
 }
 
 // Group spotlight timing (seconds). "short" is the default (about 15 s in all); "full" is the
-// longer original version. `overlap` starts the next group while the previous one is still
-// settling back; `tempo` speeds up each group in turn (goalkeeper slowest, forwards quickest).
+// longer original version. Every group plays at the same `tempo`, so the pace stays even;
+// `overlap` starts the next group just as the previous one finishes settling back.
 const TIMING = {
-  short: { rise: 0.55, hold: 0.8, ret: 0.45, overlap: 0.45, tempo: [1.1, 1.3, 1.4, 1.5], drop: 0.6, end: 0.6, pull: 0.9 },
-  full: { rise: 0.8, hold: 1.3, ret: 0.6, overlap: -0.05, tempo: [1, 1, 1, 1], drop: 0.9, end: 1.2, pull: 1.1 },
+  short: { rise: 0.55, hold: 0.8, ret: 0.45, overlap: 0.15, tempo: 1.15, drop: 0.6, end: 0.6, pull: 0.9 },
+  full: { rise: 0.8, hold: 1.3, ret: 0.6, overlap: -0.05, tempo: 1, drop: 0.9, end: 1.2, pull: 1.1 },
 };
 const SPOT_Y = 700;    // vertical centre of the spotlight row (low enough that a popped head clears the title)
 const SPOT_W = 1240;   // width available for the row
@@ -81,16 +81,16 @@ export function createPitch() {
   const fxLayer = h('div', 'fref__fx'); // gold sparks for special players
   const dim = h('div', 'fref__dim'); // darkens (and slightly blurs) the pitch while a group is in the spotlight
   const light = h('div', 'fref__light'); // a soft pool of light on the spotlighted row
-  // The signature transition: three slanted bars that sweep across at the start of every group
-  // and once more when the whole XI is shown (the same bars as on the opening board).
+  // A soft slanted band of light sweeps across the pitch, behind the cards, once the whole XI is shown.
   const wipeEl = h('div', 'fref__wipe');
   wipeEl.innerHTML = '<i></i><i></i><i></i>';
   const wipeBars = [...wipeEl.children];
-  el.append(fxLayer, dim, light, wipeEl);
-  gsap.set(wipeBars, { x: -400, autoAlpha: 0 });
+  svg.after(wipeEl); // right above the pitch, below every card
+  el.append(fxLayer, dim, light);
+  gsap.set(wipeBars, { x: -500, skewX: -14, autoAlpha: 0 });
   const wipe = () =>
     gsap.timeline()
-      .fromTo(wipeBars, { x: -400, autoAlpha: 0.9 }, { x: 2400, autoAlpha: 0.9, duration: 0.75, ease: 'power2.inOut', stagger: 0.07 })
+      .fromTo(wipeBars, { x: -500, autoAlpha: 1 }, { x: 2400, autoAlpha: 1, duration: 1.2, ease: 'power1.inOut', stagger: 0.06, immediateRender: false })
       .set(wipeBars, { autoAlpha: 0 });
   gsap.set([dim, light], { autoAlpha: 0 });
   const tiles = new Map();
@@ -148,7 +148,6 @@ export function createPitch() {
       .fromTo(capLetters, { yPercent: 120, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: 0.4, ease: 'power3.out', stagger: 0.03 }, 0.25);
 
     const flipAt = group.some((t) => store.player(t.dataset.id).special) ? SPECIAL_PREP : T.rise;
-    tl.add(wipe(), 0); // the signature slanted bars sweep behind the row
     const shadows = group.map((t) => t.querySelector('.tile__shadow'));
 
     group.forEach((t, i) => {
@@ -198,13 +197,13 @@ export function createPitch() {
       const group = introTiles.slice(from, from + size);
       from += size;
       if (!group.length) return;
-      const groupTl = spotlight(group, GROUP_NAMES[g], T).timeScale(T.tempo[g] || 1);
+      const groupTl = spotlight(group, GROUP_NAMES[g], T).timeScale(T.tempo);
       tl.add(groupTl, cursor);
       cursor += groupTl.duration() / groupTl.timeScale() - T.overlap;
     });
     cursor += T.overlap;
     // The camera creeps in while the groups are introduced, then pulls back to show the whole XI,
-    // and the signature bars sweep across once more to close.
+    // and a soft band of light sweeps across the pitch behind the cards to close.
     tl.fromTo(el, { scale: 1, y: 0 }, { scale: 1.035, y: -10, duration: cursor - groupsStart, ease: 'none' }, groupsStart)
       .to(el, { scale: 1, y: 0, duration: T.pull, ease: 'power3.inOut' }, cursor - 0.1)
       .add(wipe(), cursor - 0.05)

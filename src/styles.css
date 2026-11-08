@@ -469,11 +469,11 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 #stage.is-clean .tile { cursor: default; }
 
 /* ---------- Signature wipe: slanted bars that sweep across at every group and at the end ---------- */
-.fref__wipe { position: absolute; left: 0; top: 360px; width: 0; height: 700px; z-index: 32; pointer-events: none; }
-.fref__wipe i { position: absolute; top: 0; bottom: 0; left: 0; transform: skewX(-14deg); visibility: hidden; }
-.fref__wipe i:nth-child(1) { width: 120px; background: linear-gradient(180deg, var(--primary-hi), var(--primary)); opacity: 0.55; }
-.fref__wipe i:nth-child(2) { width: 34px; margin-left: 150px; background: var(--on-primary); opacity: 0.35; }
-.fref__wipe i:nth-child(3) { width: 14px; margin-left: 200px; background: var(--primary-hi); opacity: 0.5; }
+.fref__wipe { position: absolute; left: 0; top: 163px; width: 0; height: 960px; z-index: 0; pointer-events: none; }
+.fref__wipe i { position: absolute; top: 0; bottom: 0; left: 0; visibility: hidden; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, var(--a)), transparent); }
+.fref__wipe i:nth-child(1) { width: 300px; --a: 0.45; }
+.fref__wipe i:nth-child(2) { width: 70px; margin-left: 330px; --a: 0.3; }
+.fref__wipe i:nth-child(3) { width: 26px; margin-left: 420px; --a: 0.25; }
 
 /* ---------- Match block and formation on the side panel ---------- */
 .idle__match { position: absolute; left: 0; right: 0; top: 232px; text-align: center; }
