@@ -16,12 +16,13 @@ export const asset = (path) =>
 // Flag images by nationality (files live in /public/flags). A player's own `flag` field wins.
 const NATION_FLAGS = {
   Brazil: 'flags/br.svg', Hungary: 'flags/hu.svg', France: 'flags/fr.svg', Netherlands: 'flags/nl.svg',
-  Argentina: 'flags/ar.svg', Egypt: 'flags/eg.svg', Germany: 'flags/de.svg',
+  Argentina: 'flags/ar.svg', Egypt: 'flags/eg.svg', Germany: 'flags/de.svg', England: 'flags/gb-eng.svg',
+  Scotland: 'flags/gb-sct.svg', Italy: 'flags/it.svg', Sweden: 'flags/se.svg', Georgia: 'flags/ge.svg',
 };
 // Three-letter codes for the narrow lower thirds; other nationalities use their first three letters.
 const NATION_CODES = {
   Brazil: 'BRA', Hungary: 'HUN', France: 'FRA', Netherlands: 'NED', Argentina: 'ARG', Egypt: 'EGY', Germany: 'GER',
-  England: 'ENG', Spain: 'ESP', Portugal: 'POR', Italy: 'ITA', Belgium: 'BEL', Croatia: 'CRO', Japan: 'JPN', Scotland: 'SCO',
+  England: 'ENG', Spain: 'ESP', Portugal: 'POR', Italy: 'ITA', Belgium: 'BEL', Croatia: 'CRO', Japan: 'JPN', Scotland: 'SCO', Sweden: 'SWE', Georgia: 'GEO',
 };
 export const nationCode = (n) => (n ? NATION_CODES[n] || n.slice(0, 3).toUpperCase() : '');
 export const flagOf = (p) => p.flag || NATION_FLAGS[p.nationality] || '';

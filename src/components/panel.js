@@ -1,7 +1,7 @@
 import gsap from 'gsap';
 import { h, esc } from '../dom.js';
 import * as store from '../store.js';
-import { fitFont, mgrTransform, matchText } from '../branding.js';
+import { fitFont, mgrTransform, matchText, opponentBadge } from '../branding.js';
 import detail from './views/playerDetail.js';
 import bench from './views/bench.js';
 import list from './views/lineupList.js';
@@ -48,7 +48,7 @@ export function createPanel() {
     idle.innerHTML = `
       <div class="idle__team" style="font-size:${teamSize}px">${esc(teamName.toUpperCase())}</div>
       <div class="idle__match">
-        ${opp ? `<div class="idle__vs">VS${t.side ? ` · ${esc(t.side.toUpperCase())}` : ''}</div><div class="idle__opp" style="font-size:${oppSize}px">${esc(opp.toUpperCase())}</div>` : ''}
+        ${opp ? `<div class="idle__obadge">${opponentBadge(store.getMatch(), 58)}</div><div class="idle__vs">VS${t.side ? ` · ${esc(t.side.toUpperCase())}` : ''}</div><div class="idle__opp" style="font-size:${oppSize}px">${esc(opp.toUpperCase())}</div>` : ''}
         ${t.kicker ? `<div class="idle__info">${esc(t.kicker)}</div>` : ''}
         ${t.when ? `<div class="idle__info">${esc(t.when)}</div>` : ''}
         ${t.venue ? `<div class="idle__info">${esc(t.venue)}</div>` : ''}

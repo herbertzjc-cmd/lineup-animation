@@ -11,7 +11,7 @@ An intro animation plays once on page load, in a broadcast style: a spotlight an
 - **3D player pop-out**: after the flip the transparent cut-out of the player steps out of the card. Per player you can switch it on or off and adjust the size, horizontal / vertical position and pop depth in the editor (with a live preview); the settings are saved with the player. Photos without a transparent background are detected on upload and kept inside the card
 - **Team and manager**: the **Team** button (and the top of every player's editor) has *Team Settings* — team name (Chinese or English; the text is fitted to its space) and an uploadable club logo (PNG / JPG / WebP, original proportions kept) — and *Manager Settings* — name, photo with zoom and position, and **Remove Background**, which cuts the person out locally in the browser (MODNet through transformers.js, no paid API, nothing is uploaded) into a real transparent PNG. Original and cut-out are shown side by side and either can be used. The team name, logo, manager name and photo appear on the side panel of the lineup screen. Pictures are stored in IndexedDB, everything else in `localStorage`
 - **Special players**: switch on "Special Player" in the editor for a gold flash-card entrance (glow and sparks, slower flip with a gold sheen, a diagonal light beam on reveal), then a permanent animated gold frame and holographic sheen. Any number of players can be special; the setting is saved with the player
-- **Match details**: opponent, home / away / neutral, competition, round, date, kick-off and venue (**Team → Match Settings**). They appear on the opening board, the side panel and in the exported images
+- **Match details**: opponent, home / away / neutral, competition, round, date, kick-off and venue (**Team → Match Settings**). They appear on the opening board, the side panel and in the exported images. The opponent gets a badge next to yours, like on a matchday graphic: upload their logo, or use a roundel in their colour with a short name (`ARS`)
 - **Captain**: switch on "Captain" in a player's editor — the card gets a **C** badge (there is one captain, so this moves it). Special players are marked with **★**, not only by colour
 - **Export PNG**: the **Export** button draws the lineup as a still image in 16:9 (1920×1080), 1:1 (1080×1080) or 9:16 (1080×1920) for social media. The animation itself stays 16:9
 - **Clean mode**: press **H** (or open the page with `?clean=1`) to hide the toolbar and hints, e.g. for screen recording
@@ -49,7 +49,7 @@ Groups follow the lines of the current formation: the first line is the defence,
 
 You only need to edit data and assets — no code changes:
 
-- **`src/data/players.json`** — team name, default colour (`team.colors.primary`; viewers can change it on the page with **Colors**), coach, formation, the 11 starters (`lineup.slots`, goalkeeper first, then each line left to right) and the full squad (`players`). Add `"special": true` to a player to give them the gold entrance, and `"captain": true` to one player for the **C** badge. `match` holds the default match details (`opponent`, `homeAway`: `home|away|neutral`, `competition`, `round`, `date`, `kickoff`, `venue`).
+- **`src/data/players.json`** — team name, default colour (`team.colors.primary`; viewers can change it on the page with **Colors**), coach, formation, the 11 starters (`lineup.slots`, goalkeeper first, then each line left to right) and the full squad (`players`). Add `"special": true` to a player to give them the gold entrance, and `"captain": true` to one player for the **C** badge. `match` holds the default match details (`opponent`, `opponentShort`, `opponentColor`, `homeAway`: `home|away|neutral`, `competition`, `round`, `date`, `kickoff`, `venue`).
 - **`public/`** — put images here and reference them from the JSON:
   - `team.logo` — a single-colour silhouette SVG works best (it is drawn red on the light side and white on the red panel)
   - `avatar` — what the card shows: `"cartoon"` (the default: the built-in cartoon figure) or `"photo"`. To show a real photo for a player, set `"avatar": "photo"`; if the photo is missing or cannot be loaded the card quietly falls back to the cartoon
@@ -125,6 +125,6 @@ The sample photos in `public/players/*.webp` (cut-outs of freely licensed Wikime
 
 ### 中文简介
 
-足球转播风格的首发阵容网页(Vite + GSAP)。打开页面播放一次开场动画,之后可以点击球员查看详情、换人(点选或拖拽，左下角替补条里的名字也可以点击查看、拖到场上换人)、切换阵型、切换/自定义球队配色、自建和编辑球员。可以填写比赛信息(对手、主客场、赛事、轮次、日期、开球时间、球场)，设置队长(卡片上的 C 标)，导出 16:9 / 1:1 / 9:16 的阵容图片，按 H 键或加 `?clean=1` 进入无控件的干净画面，在 Colors 里切换深色球场。开场动画默认是约 18 秒的精简版(每组速度一致)，可在 Team → Match Settings 选完整版(约 24 秒)。
+足球转播风格的首发阵容网页(Vite + GSAP)。打开页面播放一次开场动画,之后可以点击球员查看详情、换人(点选或拖拽，左下角替补条里的名字也可以点击查看、拖到场上换人)、切换阵型、切换/自定义球队配色、自建和编辑球员。可以填写比赛信息(对手及其队徽或简称配色、主客场、赛事、轮次、日期、开球时间、球场)，设置队长(卡片上的 C 标)，导出 16:9 / 1:1 / 9:16 的阵容图片，按 H 键或加 `?clean=1` 进入无控件的干净画面，在 Colors 里切换深色球场。开场动画默认是约 18 秒的精简版(每组速度一致)，可在 Team → Match Settings 选完整版(约 24 秒)。
 
 运行:安装 Node.js 22+,然后 `npm install && npm run dev`。换成自己的球队:只改 `src/data/players.json` 和 `public/` 里的图片。许可:可以免费使用,但不得修改代码(见 LICENSE)。

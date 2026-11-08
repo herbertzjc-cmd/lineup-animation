@@ -2,6 +2,7 @@ import gsap from 'gsap';
 import { h, esc } from '../dom.js';
 import { asset, popOf, canPop, avatarOf, portraitSrc } from '../data.js';
 import { goldParticles } from './fx.js';
+import { fitFont } from '../branding.js';
 import { cartoonSvg } from '../cartoon.js';
 
 const TILE_W = 128;
@@ -84,7 +85,7 @@ export function createTile(p, { revealed = true } = {}) {
           <div class="tile__fade"></div>
           <div class="tile__num tile__txt">${esc(p.number)}</div>
           <div class="tile__pos tile__txt">${esc(p.position)}</div>
-          <div class="tile__name tile__txt">${esc(p.name)}</div>
+          <div class="tile__name tile__txt" style="font-size:${fitFont(String(p.name).toUpperCase(), 116, { max: 22, min: 13 })}px">${esc(p.name)}</div>
           ${p.captain || special ? `<div class="tile__badges tile__txt">${p.captain ? '<b class="tile__cap" title="Captain">C</b>' : ''}${special ? '<b class="tile__star" title="Special player">★</b>' : ''}</div>` : ''}
           ${special ? '<div class="tile__edge"></div>' : ''}
         </div>

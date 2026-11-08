@@ -6,7 +6,9 @@
     "homeAway": "home",
     "venue": "Anfield",
     "date": "15 Nov 2026",
-    "kickoff": "17:30"
+    "kickoff": "17:30",
+    "opponentShort": "ARS",
+    "opponentColor": "#db0007"
   },
   "team": {
     "name": "Liverpool",
@@ -229,67 +231,74 @@
       }
     },
     {
-      "id": "sub-1",
-      "number": 12,
-      "name": "Substitute 1",
-      "fullName": "Substitute 1",
+      "avatar": "cartoon",
+      "id": "mamardashvili",
+      "number": 25,
+      "fullName": "Giorgi Mamardashvili",
+      "name": "Mamardashvili",
       "position": "GK",
-      "nationality": "",
-      "avatar": "cartoon"
+      "nationality": "Georgia",
+      "age": 24
     },
     {
-      "id": "sub-2",
-      "number": 13,
-      "name": "Substitute 2",
-      "fullName": "Substitute 2",
+      "avatar": "cartoon",
+      "id": "frimpong",
+      "number": 30,
+      "fullName": "Jeremie Frimpong",
+      "name": "Frimpong",
+      "position": "RB",
+      "nationality": "Netherlands",
+      "age": 25
+    },
+    {
+      "avatar": "cartoon",
+      "id": "gomez",
+      "number": 2,
+      "fullName": "Joe Gomez",
+      "name": "Gomez",
       "position": "CB",
-      "nationality": "",
-      "avatar": "cartoon"
+      "nationality": "England",
+      "age": 29
     },
     {
-      "id": "sub-3",
-      "number": 14,
-      "name": "Substitute 3",
-      "fullName": "Substitute 3",
-      "position": "CB",
-      "nationality": "",
-      "avatar": "cartoon"
+      "avatar": "cartoon",
+      "id": "robertson",
+      "number": 26,
+      "fullName": "Andrew Robertson",
+      "name": "Robertson",
+      "position": "LB",
+      "nationality": "Scotland",
+      "age": 32
     },
     {
-      "id": "sub-4",
-      "number": 15,
-      "name": "Substitute 4",
-      "fullName": "Substitute 4",
-      "position": "CM",
-      "nationality": "",
-      "avatar": "cartoon"
-    },
-    {
-      "id": "sub-5",
-      "number": 16,
-      "name": "Substitute 5",
-      "fullName": "Substitute 5",
-      "position": "DM",
-      "nationality": "",
-      "avatar": "cartoon"
-    },
-    {
-      "id": "sub-6",
+      "avatar": "cartoon",
+      "id": "jones",
       "number": 17,
-      "name": "Substitute 6",
-      "fullName": "Substitute 6",
-      "position": "LW",
-      "nationality": "",
-      "avatar": "cartoon"
+      "fullName": "Curtis Jones",
+      "name": "Jones",
+      "position": "CM",
+      "nationality": "England",
+      "age": 25
     },
     {
-      "id": "sub-7",
-      "number": 19,
-      "name": "Substitute 7",
-      "fullName": "Substitute 7",
+      "avatar": "cartoon",
+      "id": "chiesa",
+      "number": 14,
+      "fullName": "Federico Chiesa",
+      "name": "Chiesa",
+      "position": "RW",
+      "nationality": "Italy",
+      "age": 29
+    },
+    {
+      "avatar": "cartoon",
+      "id": "isak",
+      "number": 9,
+      "fullName": "Alexander Isak",
+      "name": "Isak",
       "position": "ST",
-      "nationality": "",
-      "avatar": "cartoon"
+      "nationality": "Sweden",
+      "age": 27
     }
   ]
 }

@@ -5,7 +5,7 @@
 import * as store from './store.js';
 import { asset, portraitSrc } from './data.js';
 import { cartoonSvg } from './cartoon.js';
-import { matchText } from './branding.js';
+import { matchText, opponentCode, opponentColors } from './branding.js';
 
 const SIZES = { '16x9': [1920, 1080], '1x1': [1080, 1080], '9x16': [1080, 1920] };
 const HEAD = '"Barlow Semi Condensed", "Arial Narrow", "PingFang SC", sans-serif';
@@ -160,6 +160,32 @@ function wrap(ctx, text, x, y, maxW, lineH) {
   return y;
 }
 
+// The opponent's badge: their logo, or a roundel in their colour with the short name.
+function drawBadge(ctx, cx, cy, r, img) {
+  const m = store.getMatch();
+  ctx.save();
+  if (img) {
+    const s = (2 * r) / Math.max(img.naturalWidth, img.naturalHeight);
+    ctx.drawImage(img, cx - (img.naturalWidth * s) / 2, cy - (img.naturalHeight * s) / 2, img.naturalWidth * s, img.naturalHeight * s);
+  } else {
+    const c = opponentColors(m);
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(cx, cy, r * 0.9, 0, Math.PI * 2);
+    ctx.fillStyle = c.bg;
+    ctx.fill();
+    ctx.fillStyle = c.ink;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = `700 ${Math.round(r * 0.72)}px ${HEAD}`;
+    ctx.fillText(opponentCode(m), cx, cy + r * 0.04);
+  }
+  ctx.restore();
+}
+
 // Team name, "Starting XI", opponent and match details, starting at (x, y); returns the next y.
 function drawHeader(ctx, x, y, maxW, scale, col, align = 'left') {
   const m = store.getMatch();
@@ -175,8 +201,12 @@ function drawHeader(ctx, x, y, maxW, scale, col, align = 'left') {
   ctx.font = `700 ${ts}px ${HEAD}`;
   ctx.fillText(team, x, (y += ts * 0.98));
   if (t.vs) {
-    ctx.font = `700 ${Math.round(38 * scale)}px ${HEAD}`;
-    ctx.fillText(t.vs.toUpperCase(), x, (y += 46 * scale));
+    const r = 25 * scale;
+    y += 52 * scale;
+    drawBadge(ctx, x + r, y - 13 * scale, r, col.oppImg);
+    const vs = t.vs.toUpperCase();
+    ctx.font = `700 ${fit(ctx, vs, HEAD, Math.round(38 * scale), maxW - 2 * r - 14 * scale)}px ${HEAD}`;
+    ctx.fillText(vs, x + 2 * r + 14 * scale, y);
   }
   ctx.globalAlpha = 0.8;
   ctx.font = `700 ${Math.round(20 * scale)}px ${BODY}`;
@@ -244,6 +274,8 @@ export async function exportLineup(ratio, stage) {
   ctx.fillRect(W * 0.81, 0, W * 0.015, H);
   ctx.restore();
 
+  const oppLogo = store.getMatch().opponentLogo;
+  col.oppImg = oppLogo ? await loadImage(oppLogo).catch(() => null) : null;
   const logoUrl = store.getLogoUrl();
   const logo = logoUrl ? await loadImage(logoUrl).catch(() => null) : null;
 

@@ -1,5 +1,7 @@
 import * as store from './store.js';
 import { asset, team } from './data.js';
+import { esc } from './dom.js';
+import { isHex, luminance } from './theme.js';
 
 const isCjk = (ch) => /[\u2e80-\u9fff\uac00-\ud7af\uff00-\uffef]/.test(ch);
 
@@ -37,6 +39,21 @@ export function matchText(m) {
     venue: m.venue || '',
     side,
   };
+}
+
+// The opponent's badge, like the second crest on a matchday graphic: their uploaded logo, or a
+// roundel in their colour with a short code ("ARS"). Empty when there is no opponent.
+export const opponentCode = (m) =>
+  (m.opponentShort || (m.opponent || '').replace(/[^\p{L}\p{N}]/gu, '').slice(0, 3)).toUpperCase().slice(0, 4);
+export function opponentColors(m) {
+  const bg = isHex(m.opponentColor || '') ? m.opponentColor : '#2a3042';
+  return { bg, ink: luminance(bg) > 0.2 ? '#14161f' : '#ffffff' };
+}
+export function opponentBadge(m, size) {
+  if (!m.opponent && !m.opponentLogo) return '';
+  if (m.opponentLogo) return `<span class="obadge obadge--img" style="--s:${size}px"><img src="${esc(m.opponentLogo)}" alt=""></span>`;
+  const c = opponentColors(m);
+  return `<span class="obadge" style="--s:${size}px;--oc:${c.bg};--oc-ink:${c.ink}">${esc(opponentCode(m))}</span>`;
 }
 
 // How the manager photo is placed inside its frame (scale and offsets are percentages).
