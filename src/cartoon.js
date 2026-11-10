@@ -98,8 +98,16 @@ export function cartoonSvg(p) {
   <svg viewBox="0 0 128 200" aria-hidden="true">
     <defs>
       <radialGradient id="cs${id}" cx="40%" cy="34%" r="75%"><stop offset="0" stop-color="${skin[0]}"/><stop offset=".7" stop-color="${skin[1]}"/><stop offset="1" stop-color="${skin[2]}"/></radialGradient>
+      <clipPath id="csh${id}"><rect x="0" y="-60" width="128" height="260"/></clipPath>
       <linearGradient id="ck${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".2"/></linearGradient>
     </defs>
+    <!-- shadow the figure casts on the card behind it (light from the top left), so the player
+         stands in front of the card instead of melting into it when the kit is the card's colour -->
+    <g fill="#000" clip-path="url(#csh${id})">
+      <path d="M2 200C2 140 20 120 50 112H78C108 120 126 140 126 200Z" transform="translate(8 7)" opacity=".16"/>
+      <path d="M2 200C2 140 20 120 50 112H78C108 120 126 140 126 200Z" transform="translate(4 3.5)" opacity=".2"/>
+      <ellipse cx="70" cy="57" rx="26" ry="32" opacity=".08"/>
+    </g>
     <!-- torso and kit -->
     <path d="M2 200C2 140 20 120 50 112H78C108 120 126 140 126 200Z" style="fill:${shirt}" stroke="rgba(0,0,0,.32)" stroke-width="1.8"/>
     <path d="M2 200C2 140 20 120 50 112H78C108 120 126 140 126 200Z" fill="url(#ck${id})"/>

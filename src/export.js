@@ -72,12 +72,20 @@ function drawCard(ctx, p, fig, x, y, w, col) {
   ctx.shadowOffsetY = w * 0.05;
   roundRect(ctx, x, y, w, h, r);
   const g = ctx.createLinearGradient(x, y, x, y + h);
-  g.addColorStop(0, col.hi);
-  g.addColorStop(0.5, col.primary);
-  g.addColorStop(1, col.dark);
+  // special players have a gold card face (as on the page), everyone else the team colour
+  const stops = p.special ? ['#f6dc8c', '#d9a93e', '#a8741b'] : [col.hi, col.primary, col.dark];
+  stops.forEach((c, i) => g.addColorStop(i / 2, c));
   ctx.fillStyle = g;
   ctx.fill();
   ctx.restore();
+  if (p.special) {
+    ctx.save();
+    roundRect(ctx, x, y, w, h, r);
+    ctx.lineWidth = Math.max(2, w * 0.025);
+    ctx.strokeStyle = '#f3d27a';
+    ctx.stroke();
+    ctx.restore();
+  }
 
   ctx.save();
   roundRect(ctx, x, y, w, h, r);
@@ -89,7 +97,7 @@ function drawCard(ctx, p, fig, x, y, w, col) {
   // fade behind the name
   const fade = ctx.createLinearGradient(0, y + h * 0.62, 0, y + h);
   fade.addColorStop(0, 'rgba(0,0,0,0)');
-  fade.addColorStop(1, col.darkFade);
+  fade.addColorStop(1, p.special ? 'rgba(74,46,4,.92)' : col.darkFade);
   ctx.fillStyle = fade;
   ctx.fillRect(x, y + h * 0.62, w, h * 0.38);
   ctx.restore();
@@ -100,7 +108,9 @@ function drawCard(ctx, p, fig, x, y, w, col) {
   ctx.shadowColor = 'rgba(0,0,0,.45)';
   ctx.shadowBlur = 6;
   ctx.font = `700 ${Math.round(w * 0.32)}px ${HEAD}`;
+  if (p.special) { ctx.save(); ctx.fillStyle = '#4a3000'; ctx.shadowColor = 'rgba(255,240,200,.6)'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 1; }
   ctx.fillText(String(p.number), x + w * 0.07, y + w * 0.04);
+  if (p.special) ctx.restore();
   ctx.font = `700 ${Math.round(w * 0.085)}px ${BODY}`;
   ctx.fillText(p.position || '', x + w * 0.09, y + w * 0.38);
   ctx.textAlign = 'center';

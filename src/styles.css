@@ -223,7 +223,16 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
   background: radial-gradient(closest-side, rgba(255, 210, 100, 0.8), rgba(255, 190, 60, 0.28) 58%, transparent 78%);
   filter: blur(10px);
 }
-.tile--special .tile__bg { box-shadow: 0 0 16px rgba(255, 200, 80, 0.45), 0 8px 16px rgba(0, 0, 0, 0.18); }
+/* Special players get a gold card face, so the figure (in the team colour) clearly stands in front of it. */
+.tile--special .tile__bg {
+  background:
+    linear-gradient(120deg, transparent 0 30%, rgba(90, 55, 0, 0.16) 30% 52%, transparent 52% 100%),
+    radial-gradient(ellipse 80% 60% at 50% 38%, #fff1bf 0%, transparent 70%),
+    linear-gradient(160deg, #f6dc8c 0%, #d9a93e 45%, #a8741b 100%);
+  box-shadow: 0 0 16px rgba(255, 200, 80, 0.45), 0 8px 16px rgba(0, 0, 0, 0.18);
+}
+.tile--special .tile__num { color: #4a3000; text-shadow: 0 1px 0 rgba(255, 240, 200, 0.6); }
+.tile--special .tile__fade { background: linear-gradient(180deg, transparent, rgba(74, 46, 4, 0.92)); }
 .tile--special .tile__back {
   background: linear-gradient(150deg, #1b160b 0%, #3d2d0b 34%, #b88a2a 51%, #3d2d0b 68%, #171208 100%);
 }
@@ -502,7 +511,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; }
 .editor__error { min-height: 22px; font: 700 16px/1.4 var(--text-font); color: var(--warn); }
 
 /* ---------- Intro ---------- */
-.intro { color: var(--on-primary); }
+.intro { color: var(--on-primary); background: linear-gradient(180deg, #dcdce0 0%, #ececee 45%, #fafafa 100%); } /* its own light board, whatever the pitch theme */
 .intro__panel {
   position: absolute; left: 0; top: 0; bottom: 0; width: 1500px;
   background: linear-gradient(165deg, var(--primary-hi), var(--primary) 50%, var(--primary-dark));
